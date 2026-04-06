@@ -5,6 +5,7 @@ const markdown = require("markdown").markdown;
 const fs = require('fs');
 const uuidv4 = require('uuid/v4');
 const camelcaseKeys = require("camelcase-keys");
+const {loadUploadPreviewJobs, saveUploadPreviewJobs} = require('../utils/uploadPreviewStore');
 
 function validator(file) {
   if (!file) return "No File Selected";
@@ -81,9 +82,19 @@ exports.getRpaDashboard = async (req, res) => {
 
         // Fallback for local/dev where dashboard aggregate endpoints may return empty,
         // but user has just uploaded valid RPAD_JOBS rows.
-        const previewJobs = req.session && Array.isArray(req.session.uploadPreviewJobs)
+        let previewJobs = req.session && Array.isArray(req.session.uploadPreviewJobs)
             ? req.session.uploadPreviewJobs
             : [];
+
+        if ((!previewJobs || !previewJobs.length) && req.user && req.user.uuid) {
+            previewJobs = await loadUploadPreviewJobs(req.user.uuid);
+            if (req.session && previewJobs.length) req.session.uploadPreviewJobs = previewJobs;
+        }
+
+        if (previewJobs && previewJobs.length && req.user && req.user.uuid) {
+            // Backfill persistent cache from session on read path.
+            await saveUploadPreviewJobs(req.user.uuid, previewJobs);
+        }
 
         if (previewJobs.length) {
             const normalizedPreviewJobs = previewJobs.map(j => ({
@@ -214,14 +225,15 @@ exports.getRpaDashboard = async (req, res) => {
                 raw: false,
                 columns: true,
                 skipHeader: false
-            });
+            }),
+            normalizedJson = camelcaseKeys(json);
         let request = [{
             uri: `${process.env.API_SYSTEM}/upload`,
             method: 'POST',
             data: {
                 batchId: path.parse(file.filename).name,
                 table: action.table,
-                list: camelcaseKeys(json)
+                list: normalizedJson
             }
         }];
 
@@ -235,6 +247,10 @@ exports.getRpaDashboard = async (req, res) => {
             });
             return res.redirect(req.path);
         } else if (responses.hasOwnProperty(200)) {
+            if (action.table === 'RPAD_JOBS') {
+                if (req.session) req.session.uploadPreviewJobs = normalizedJson;
+                if (req.user && req.user.uuid) await saveUploadPreviewJobs(req.user.uuid, normalizedJson);
+            }
             req.flash('info', {
                 msg: req.__('# row(s) have been processed.'),
                 params: [json.length]
