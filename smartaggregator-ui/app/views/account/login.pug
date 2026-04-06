@@ -1,0 +1,69 @@
+extends ../layout
+
+block content
+  .login-wrapper 
+    .vector-bg 
+      .complex-bg
+    .login-box 
+      .cb-logo.text-center 
+        img(src="/assets/images/linktera-robotics-logo.png", alt="Linktera Robotics" style="height:48px;")
+      .cb-login-info
+        h1 #{__('Login')}
+        p #{__('Enter your username and password.')}
+      .cb-login-inputs 
+        form(method='POST',id="loginForm")
+          .container-fluid
+            .row.my-4.pb-4
+              .custom-input-field(style="width:100%;")
+                input.custom-input.cb-login-username(type='text', name='username', id='username', autofocus,required)
+                label.custom-input-label(for='username') #{__('Username')}
+                p.helper.helper1(style="font-size:0.625rem;line-height:1.25rem;color:#FF3A22;")
+            .row.mt-4.pb-4
+              .custom-input-field(style="width:100%;")
+                input.custom-input.cb-login-password(type='password', name='password', id='password',required)
+                label.custom-input-label(for='password') #{__('Password')}  
+                span.custom-input-icon(onclick="togglePassword()", id="passwordEye")
+                  i.las.la-eye(style="color:#7C8798 !important;")
+                p.helper.helper2(style="font-size:0.625rem;line-height:1.25rem;color:#FF3A22;")
+            .row.mt-3
+              .col-6.p-0(style="margin:0px !important;")
+                input(type="checkbox", name="remember",id="remember")
+                label.checkbox-label(for="remember") Beni Hatırla
+              
+                //- if locale == 'en'
+                //-     a.lang-btn(href=`${originalPath()}?lang=tr`)
+                //-         i.svg-icon.mr-2.ml-1(style="font-size:0.75rem",data-feather='globe')
+                //-         | #{__('Turkish')}
+                //- else
+                //-     a.lang-btn(href=`${originalPath()}?lang=en`)
+                //-         i.svg-icon.mr-2.ml-1(style="font-size:0.75rem",data-feather='globe')
+                //-         | #{__('English')}
+            .row.mt-4
+              .col-12.p-0 
+                button.btn.login-btn(type='submit',id="cbLoginBtn",style="width:100%;margin:0;",onclick="lsRememberMe();") #{__('Login')}
+
+            .row.login-footer.my-0
+              include ../partials/footer
+        script.
+          var locale = !{JSON.stringify(locale).replace(/<\//g, '<\\/')}
+          var cb = document.getElementById('remember');
+          var userName = document.getElementById('username');
+          if (localStorage.checkbox && localStorage.checkbox !== "") {
+            
+            cb.setAttribute("checked", "checked");
+            userName.value = localStorage.username;
+          } else {
+            cb.removeAttribute("checked");
+            userName.value = "";
+          }
+          
+          function lsRememberMe() {
+            if (cb.checked && userName.value !== "") {
+              localStorage.username = userName.value;
+              localStorage.checkbox = cb.value;
+            } else {
+              localStorage.username = "";
+              localStorage.checkbox = "";
+            }
+            
+          }

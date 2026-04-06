@@ -1,0 +1,65 @@
+if user
+    nav.rpad-sidebar#rpadSidebar
+        .rpad-sidebar__header
+            a.rpad-sidebar__logo(href='/rpa-dashboard')
+                img(src='/assets/images/linktera-robotics-logo.png' alt='Linktera Robotics' style='height:52px; width:auto;')
+            button.rpad-sidebar__toggle#sidebarToggle(type='button' title='Menüyü Daralt')
+                i.svg-icon(data-feather='menu')
+
+        .rpad-sidebar__nav
+            .rpad-sidebar__section
+                .rpad-sidebar__section-title VERİLER
+                ul.rpad-sidebar__menu
+                    if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/rpa-dashboard' class=(page === 'rpaDashboard' ? 'active' : ''))
+                                i.svg-icon(data-feather='grid')
+                                span RPA Dashboard
+                    if user.roles.includes('SUB_ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/jobs' class=(page === 'jobs' ? 'active' : ''))
+                                i.svg-icon(data-feather='activity')
+                                span #{__('RPAProcesses')}
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/queue' class=(page === 'queue' ? 'active' : ''))
+                                i.svg-icon(data-feather='list')
+                                span #{__('Queues')}
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/robots' class=(page === 'robots' ? 'active' : ''))
+                                i.svg-icon(data-feather='server')
+                                span #{__('Robots')}
+
+            .rpad-sidebar__section
+                .rpad-sidebar__section-title AYARLAR
+                ul.rpad-sidebar__menu
+                    if user.roles.includes('ADMIN') || user.roles.includes('SUB_ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/users' class=(page === 'users' ? 'active' : ''))
+                                i.svg-icon(data-feather='users')
+                                span #{__('Users')}
+                    if user.roles.includes('ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/companies' class=(page === 'companies' ? 'active' : ''))
+                                i.svg-icon(data-feather='briefcase')
+                                span #{__('Companies')}
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/error-logs' class=(page === 'errorLogs' ? 'active' : ''))
+                                i.svg-icon(data-feather='terminal')
+                                span #{__('Error Logs')}
+                    if user.roles.includes('SUB_ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/graph-settings' class=(page === 'graphSettings' ? 'active' : ''))
+                                i.svg-icon(data-feather='sliders')
+                                span #{__('Update Sorting')}
+
+        .rpad-sidebar__profile
+            if user.img
+                img.rpad-sidebar__avatar(src="data:image/jpeg;base64," + user.img alt=user.name)
+            else
+                .rpad-sidebar__avatar-placeholder
+                    span= user.name ? user.name[0].toUpperCase() : 'U'
+            .rpad-sidebar__user-info
+                span.rpad-sidebar__user-name= user.name + ' ' + user.surname
+                span.rpad-sidebar__user-role= user.roles ? user.roles[0] : ''
+            a.rpad-sidebar__logout(href='/logout' title='Çıkış Yap')
+                i.svg-icon(data-feather='log-out')

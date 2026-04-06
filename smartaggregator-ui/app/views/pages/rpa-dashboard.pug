@@ -1,6 +1,150 @@
 extends ../layout
 block content
     #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        style.
+            /* ── Layout ── */
+            header.topbar { display: none !important; }
+            .page-wrapper { margin-left: 260px !important; padding-top: 20px !important; transition: margin-left 0.3s ease; }
+            .page-wrapper.rpad-sidebar-collapsed { margin-left: 72px !important; }
+            @media (max-width: 768px) {
+                .rpad-sidebar { left: -260px !important; }
+                .rpad-sidebar.mobile-open { left: 0 !important; }
+                .page-wrapper { margin-left: 0 !important; }
+            }
+
+            /* ── Sidebar shell ── */
+            .rpad-sidebar {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 260px !important;
+                height: 100vh !important;
+                background: #ffffff !important;
+                box-shadow: 2px 0 8px rgba(0,0,0,.08) !important;
+                display: flex !important;
+                flex-direction: column !important;
+                z-index: 1050 !important;
+                transition: width .25s ease !important;
+                overflow: hidden !important;
+            }
+            .rpad-sidebar.rpad-sidebar--collapsed { width: 72px !important; }
+
+            /* ── Sidebar header ── */
+            .rpad-sidebar__header {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                padding: 18px 16px !important;
+                border-bottom: 1px solid #f0f0f0 !important;
+                flex-shrink: 0 !important;
+                min-height: 64px !important;
+            }
+            .rpad-sidebar--collapsed .rpad-sidebar__header { justify-content: center !important; }
+            .rpad-sidebar__logo img { height: 28px !important; transition: opacity .2s; }
+            .rpad-sidebar--collapsed .rpad-sidebar__logo img { opacity: 0; width: 0; overflow: hidden; }
+            .rpad-sidebar__toggle {
+                background: none !important;
+                border: none !important;
+                cursor: pointer !important;
+                padding: 6px !important;
+                color: #8c8c8c !important;
+                border-radius: 6px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+            }
+            .rpad-sidebar__toggle:hover { background: #f5f5f5 !important; color: #262626 !important; }
+            .rpad-sidebar__toggle .svg-icon { width: 20px !important; height: 20px !important; }
+
+            /* ── Sidebar nav ── */
+            .rpad-sidebar__nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 12px 0; }
+            .rpad-sidebar__section { margin-bottom: 4px; }
+            .rpad-sidebar__section-title {
+                padding: 6px 20px;
+                font-size: 10px;
+                font-weight: 700;
+                color: #bfbfbf;
+                letter-spacing: .1em;
+                text-transform: uppercase;
+                white-space: nowrap;
+                overflow: hidden;
+                transition: opacity .2s;
+            }
+            .rpad-sidebar--collapsed .rpad-sidebar__section-title { opacity: 0; }
+            .rpad-sidebar__menu { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+            .rpad-sidebar__item { margin: 2px 8px !important; }
+            .rpad-sidebar__link {
+                display: flex !important;
+                align-items: center !important;
+                padding: 9px 12px !important;
+                border-radius: 8px !important;
+                color: #595959 !important;
+                text-decoration: none !important;
+                font-size: 13.5px !important;
+                font-weight: 400 !important;
+                transition: background .15s, color .15s;
+                gap: 10px !important;
+                white-space: nowrap;
+                overflow: hidden;
+            }
+            .rpad-sidebar__link:hover { background: #f5f5f5 !important; color: #262626 !important; }
+            .rpad-sidebar__link.active { background: #e6f7ff !important; color: #1890ff !important; font-weight: 500 !important; }
+            .rpad-sidebar__link .svg-icon { width: 17px !important; height: 17px !important; flex-shrink: 0 !important; }
+            .rpad-sidebar--collapsed .rpad-sidebar__link span { opacity: 0; width: 0; overflow: hidden; }
+
+            /* ── Sidebar profile ── */
+            .rpad-sidebar__profile {
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+                padding: 14px 16px !important;
+                border-top: 1px solid #f0f0f0 !important;
+                flex-shrink: 0 !important;
+                overflow: hidden !important;
+            }
+            .rpad-sidebar__avatar { width: 34px !important; height: 34px !important; border-radius: 50% !important; object-fit: cover !important; flex-shrink: 0 !important; }
+            .rpad-sidebar__avatar-placeholder {
+                width: 34px !important; height: 34px !important; border-radius: 50% !important;
+                background: #1890ff !important; color: #fff !important;
+                display: flex !important; align-items: center !important; justify-content: center !important;
+                font-size: 13px !important; font-weight: 600 !important; flex-shrink: 0 !important;
+            }
+            .rpad-sidebar__user-info { flex: 1; min-width: 0; transition: opacity .2s; }
+            .rpad-sidebar--collapsed .rpad-sidebar__user-info { opacity: 0; width: 0; overflow: hidden; }
+            .rpad-sidebar__user-name { display: block; font-size: 12.5px; font-weight: 600; color: #262626; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .rpad-sidebar__user-role { display: block; font-size: 11px; color: #8c8c8c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .rpad-sidebar__logout { flex-shrink: 0; color: #bfbfbf; display: flex !important; align-items: center; justify-content: center; padding: 5px; border-radius: 6px; transition: color .2s, background .2s; }
+            .rpad-sidebar__logout:hover { color: #ff4d4f !important; background: #fff1f0 !important; text-decoration: none !important; }
+            .rpad-sidebar__logout .svg-icon { width: 17px !important; height: 17px !important; }
+
+            /* ── Stat cards ── */
+            .rpad-stats-row { display: flex !important; gap: 16px !important; flex-wrap: wrap !important; margin-bottom: 4px !important; }
+            .rpad-stat-card {
+                flex: 1 !important;
+                min-width: 200px !important;
+                background: #ffffff !important;
+                border-radius: 12px !important;
+                padding: 18px 20px !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 16px !important;
+            }
+            .rpad-stat-card__info { flex: 1; min-width: 0; }
+            .rpad-stat-card__label { font-size: 12px; color: #8c8c8c; font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+            .rpad-stat-card__value { font-size: 30px !important; font-weight: 700 !important; color: #262626 !important; line-height: 1.1; }
+            .rpad-stat-card__icon { width: 52px !important; height: 52px !important; border-radius: 14px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+            .rpad-stat-card__icon .svg-icon { width: 22px !important; height: 22px !important; }
+            .rpad-stat-card__icon--blue   { background: #e6f7ff !important; }
+            .rpad-stat-card__icon--blue   .svg-icon { color: #1890ff !important; stroke: #1890ff !important; }
+            .rpad-stat-card__icon--purple { background: #f9f0ff !important; }
+            .rpad-stat-card__icon--purple .svg-icon { color: #722ed1 !important; stroke: #722ed1 !important; }
+            .rpad-stat-card__icon--orange { background: #fff7e6 !important; }
+            .rpad-stat-card__icon--orange .svg-icon { color: #fa8c16 !important; stroke: #fa8c16 !important; }
+            .rpad-stat-card__icon--green  { background: #f6ffed !important; }
+            .rpad-stat-card__icon--green  .svg-icon { color: #52c41a !important; stroke: #52c41a !important; }
         script.
             const {Pie} = G2Plot;
             const checkRoles = JSON.parse('!{JSON.stringify(checkRoles)}')
@@ -22,12 +166,13 @@ block content
 
 
         include ../partials/header
+        include ../partials/rpad-sidebar
         include ../partials/rpad-data-chart
         .page-wrapper#allChartsPrint.d-flex.justify-content-center(style="display:block; width:100%; margin-bottom:2%; padding-top:30px!important;")
             .container.d-flex.justify-content-center(style="position:absolute; z-index:1;")
                 .row 
                     b.logo-icon
-                        img.dark-logo(src='/assets/images/linktera-logo.svg' alt='homepage')
+                        img.dark-logo(src='/assets/images/linktera-robotics-logo.png' alt='Linktera Robotics' style='height:86px; width:auto;')
             .container.p-5(style="margin-top:4rem!important;")
                 .row
                     .col-sm-6.align-self-center
@@ -37,6 +182,43 @@ block content
                             p.lastDataDateTransitionClass.text-end #{__(__('Last data date uploaded to') + ' ' + lastDataDateInformation[0].lastDate)}
                         else
                             p.lastDataDateTransitionClass.text-end #{__('There is no data')}
+                - var _stateRobots = stateRobots && Array.isArray(stateRobots) ? stateRobots : []
+                - var _queues = queueTransactionTimeChart && Array.isArray(queueTransactionTimeChart) ? queueTransactionTimeChart : []
+                - var _releases = releaseTotalTimeChart && Array.isArray(releaseTotalTimeChart) ? releaseTotalTimeChart : []
+                - var _jobs = jobsData && Array.isArray(jobsData) ? jobsData : []
+                - var _totalRobots = _stateRobots.filter(function(r){ return r.hostMachineName; }).length
+                - var _totalQueues = _queues.filter(function(q){ return q.queueName; }).length
+                - var _totalProcesses = _releases.filter(function(p){ return p.releaseName; }).length
+                - var _totalJobCount = _jobs.reduce(function(s,j){ return s + (parseInt(j.count)||0); }, 0)
+                - var _successCount = _jobs.filter(function(j){ return j.state && j.state.indexOf('ar\u0131l\u0131') !== -1; }).reduce(function(s,j){ return s + (parseInt(j.count)||0); }, 0)
+                - var _successRate = _totalJobCount > 0 ? Math.round(_successCount / _totalJobCount * 100) : 0
+                .row.mb-3
+                    .col-12
+                        .rpad-stats-row
+                            .rpad-stat-card
+                                .rpad-stat-card__info
+                                    .rpad-stat-card__label Toplam Robot
+                                    .rpad-stat-card__value= _totalRobots
+                                .rpad-stat-card__icon.rpad-stat-card__icon--blue
+                                    i.svg-icon(data-feather='cpu')
+                            .rpad-stat-card
+                                .rpad-stat-card__info
+                                    .rpad-stat-card__label Toplam Kuyruk
+                                    .rpad-stat-card__value= _totalQueues
+                                .rpad-stat-card__icon.rpad-stat-card__icon--purple
+                                    i.svg-icon(data-feather='git-branch')
+                            .rpad-stat-card
+                                .rpad-stat-card__info
+                                    .rpad-stat-card__label Toplam Süreç
+                                    .rpad-stat-card__value= _totalProcesses
+                                .rpad-stat-card__icon.rpad-stat-card__icon--orange
+                                    i.svg-icon(data-feather='zap')
+                            .rpad-stat-card
+                                .rpad-stat-card__info
+                                    .rpad-stat-card__label Başarı Oranı
+                                    .rpad-stat-card__value= _successRate + '%'
+                                .rpad-stat-card__icon.rpad-stat-card__icon--green
+                                    i.svg-icon(data-feather='check-circle')
                 .row#sortable
                     .col-sm-6.align-self-center
                     .col-sm-6.align-self-center.d-flex.justify-content-end
@@ -736,5 +918,22 @@ block content
                                 $('#' + chartDivId).addClass('d-none');
                             }
                         }
+
+                        // Sidebar collapse/expand toggle
+                        var sidebarCollapsed = localStorage.getItem('rpadSidebarCollapsed') === 'true';
+                        var $sidebar = $('#rpadSidebar');
+                        var $pageWrapper = $('.page-wrapper');
+                        if (sidebarCollapsed) {
+                            $sidebar.addClass('rpad-sidebar--collapsed');
+                            $pageWrapper.addClass('rpad-sidebar-collapsed');
+                        }
+                        $('#sidebarToggle').on('click', function() {
+                            sidebarCollapsed = !sidebarCollapsed;
+                            localStorage.setItem('rpadSidebarCollapsed', sidebarCollapsed);
+                            $sidebar.toggleClass('rpad-sidebar--collapsed', sidebarCollapsed);
+                            $pageWrapper.toggleClass('rpad-sidebar-collapsed', sidebarCollapsed);
+                        });
+                        // Re-initialise feather icons for sidebar
+                        feather.replace();
 
                     })
