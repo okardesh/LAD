@@ -1,69 +1,116 @@
 extends ../layout
 
 block content
-  .login-wrapper 
-    .vector-bg 
-      .complex-bg
-    .login-box 
-      .cb-logo.text-center 
-        img(src="/assets/images/linktera-robotics-logo.png", alt="Linktera Robotics" style="height:48px;")
-      .cb-login-info
-        h1 #{__('Login')}
-        p #{__('Enter your username and password.')}
-      .cb-login-inputs 
-        form(method='POST',id="loginForm")
-          .container-fluid
-            .row.my-4.pb-4
-              .custom-input-field(style="width:100%;")
-                input.custom-input.cb-login-username(type='text', name='username', id='username', autofocus,required)
-                label.custom-input-label(for='username') #{__('Username')}
-                p.helper.helper1(style="font-size:0.625rem;line-height:1.25rem;color:#FF3A22;")
-            .row.mt-4.pb-4
-              .custom-input-field(style="width:100%;")
-                input.custom-input.cb-login-password(type='password', name='password', id='password',required)
-                label.custom-input-label(for='password') #{__('Password')}  
-                span.custom-input-icon(onclick="togglePassword()", id="passwordEye")
-                  i.las.la-eye(style="color:#7C8798 !important;")
-                p.helper.helper2(style="font-size:0.625rem;line-height:1.25rem;color:#FF3A22;")
-            .row.mt-3
-              .col-6.p-0(style="margin:0px !important;")
-                input(type="checkbox", name="remember",id="remember")
-                label.checkbox-label(for="remember") Beni Hatırla
-              
-                //- if locale == 'en'
-                //-     a.lang-btn(href=`${originalPath()}?lang=tr`)
-                //-         i.svg-icon.mr-2.ml-1(style="font-size:0.75rem",data-feather='globe')
-                //-         | #{__('Turkish')}
-                //- else
-                //-     a.lang-btn(href=`${originalPath()}?lang=en`)
-                //-         i.svg-icon.mr-2.ml-1(style="font-size:0.75rem",data-feather='globe')
-                //-         | #{__('English')}
-            .row.mt-4
-              .col-12.p-0 
-                button.btn.login-btn(type='submit',id="cbLoginBtn",style="width:100%;margin:0;",onclick="lsRememberMe();") #{__('Login')}
+  style.
+    .login-shell, .login-shell * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; }
+    .login-shell { min-height: 100vh; background: #f3f3f5; display: flex; flex-direction: column; }
+    .login-topbar { height: 50px; background: #fff; border-bottom: 1px solid #e6e6e6; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; }
+    .login-topbar__brand img { height: 31px; width: auto; }
+    .lang-switch { min-width: 54px; height: 30px; border: 1px solid #d9d9d9; border-radius: 8px; background: #fff; color: #262626; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 9px; font-size: 12px; text-decoration: none !important; }
+    .lang-switch:hover { background: #fafafa; }
+    .lang-switch svg, .lang-switch .svg-icon { width: 13px; height: 13px; }
 
-            .row.login-footer.my-0
-              include ../partials/footer
-        script.
-          var locale = !{JSON.stringify(locale).replace(/<\//g, '<\\/')}
-          var cb = document.getElementById('remember');
-          var userName = document.getElementById('username');
-          if (localStorage.checkbox && localStorage.checkbox !== "") {
-            
-            cb.setAttribute("checked", "checked");
-            userName.value = localStorage.username;
-          } else {
-            cb.removeAttribute("checked");
-            userName.value = "";
-          }
-          
-          function lsRememberMe() {
-            if (cb.checked && userName.value !== "") {
-              localStorage.username = userName.value;
-              localStorage.checkbox = cb.value;
-            } else {
-              localStorage.username = "";
-              localStorage.checkbox = "";
-            }
-            
-          }
+    .login-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 34px 16px; }
+    .login-card { width: 352px; background: #f7f7f8; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden; }
+    .login-card__header { padding: 16px 16px 14px; border-bottom: 1px solid #ececec; }
+    .login-card__header h1 { margin: 0 0 5px; color: #262626; font-size: 33px; line-height: 1.05; font-weight: 700; }
+    .login-card__header p { margin: 0; color: #666; font-size: 13px; line-height: 1.35; }
+
+    .login-form { padding: 16px; }
+    .form-field { margin-bottom: 13px; }
+    .form-field label { display: block; margin: 0 0 6px; font-size: 13px; font-weight: 500; color: #3b3b3b; }
+    .login-input { width: 100%; height: 36px; border: 1px solid #d8d8d8; border-radius: 5px; background: #fff; padding: 0 11px; font-size: 13px; color: #2a2a2a; box-shadow: none; }
+    .login-input::placeholder { color: #b6b6b6; }
+    .login-input:focus { outline: none; border-color: #4f86f7; box-shadow: 0 0 0 2px rgba(79, 134, 247, 0.12); }
+    .password-wrap { position: relative; }
+    .password-wrap .login-input { padding-right: 33px; }
+    .password-eye { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); border: none; background: transparent; width: 22px; height: 22px; color: #b1b1b1; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    .login-shell p.helper { min-height: 13px; margin: 3px 0 0; font-size: 11px; line-height: 13px; position: static; }
+    .login-row { margin-top: 1px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .remember-wrap { display: inline-flex; align-items: center; gap: 6px; }
+    .remember-wrap input[type='checkbox'] { width: 14px; height: 14px; margin: 0; }
+    .remember-wrap .checkbox-label { margin: 0; color: #5a5a5a; font-size: 13px; }
+
+    .login-shell .login-btn { width: 94px; height: 34px; border: 1px solid #dcdcdc; border-radius: 8px; background: #efefef; color: #9a9a9a; font-size: 13px; font-weight: 600; box-shadow: none !important; padding: 0; }
+    .login-shell .login-btn:hover { background: #e8e8e8; color: #7f7f7f; }
+
+    .login-bottom { height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 0 22px 8px; color: #5f5f5f; font-size: 12px; }
+    .login-bottom a { color: #2d5caa; text-decoration: underline; }
+    .login-bottom__center span { border: 1px solid #d8d8d8; border-radius: 9px; background: #efefef; padding: 2px 10px; font-size: 11px; }
+    @media (max-width: 768px) {
+      .login-card { width: 100%; max-width: 352px; }
+      .login-bottom { height: auto; padding-bottom: 12px; flex-direction: column; gap: 6px; }
+    }
+
+  .login-shell
+    .login-topbar
+      .login-topbar__brand
+        img(src="/assets/images/linktera-robotics-logo.png", alt="Linktera Robotics")
+      .login-topbar__lang
+        if locale == 'en'
+          a.lang-switch(href=`${originalPath()}?lang=tr`)
+            i(data-feather='globe')
+            span TR
+        else
+          a.lang-switch(href=`${originalPath()}?lang=en`)
+            i(data-feather='globe')
+            span EN
+
+    .login-main
+      .login-card
+        .login-card__header
+          h1 Giriş
+          p Kullanıcı adınızı ve şifrenizi giriniz.
+
+        form.login-form(method='POST', id='loginForm')
+          .form-field
+            label(for='username') Kullanıcı Adı
+            input#username.login-input(type='text', name='username', autofocus, required, placeholder='Yazınız')
+            p.helper.helper1
+
+          .form-field
+            label(for='password') Şifre
+            .password-wrap
+              input#password.login-input(type='password', name='password', required, placeholder='Şifre')
+              button.password-eye(type='button', onclick='togglePassword()', id='passwordEye', aria-label='Şifreyi göster/gizle')
+                i.las.la-eye
+            p.helper.helper2
+
+          .login-row
+            .remember-wrap
+              input#remember(type='checkbox', name='remember')
+              label.checkbox-label(for='remember') Beni Hatırla
+
+            button.btn.login-btn(type='submit', id='cbLoginBtn', onclick='lsRememberMe();') Giriş Yap
+
+    .login-bottom
+      .login-bottom__left
+        | Powered by 
+        a(target='_blank', href='https://www.linktera.com/') Linktera
+        |  © 2022-2025
+      .login-bottom__center
+        span Version #{version}
+      .login-bottom__right Designed by WE HEART UX
+
+  script.
+    var locale = !{JSON.stringify(locale).replace(/<\//g, '<\\/')}
+    var cb = document.getElementById('remember');
+    var userName = document.getElementById('username');
+    if (localStorage.checkbox && localStorage.checkbox !== "") {
+      cb.setAttribute("checked", "checked");
+      userName.value = localStorage.username;
+    } else {
+      cb.removeAttribute("checked");
+      userName.value = "";
+    }
+
+    function lsRememberMe() {
+      if (cb.checked && userName.value !== "") {
+        localStorage.username = userName.value;
+        localStorage.checkbox = cb.value;
+      } else {
+        localStorage.username = "";
+        localStorage.checkbox = "";
+      }
+    }
