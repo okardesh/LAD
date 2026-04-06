@@ -15,6 +15,119 @@ if user
                             a.rpad-sidebar__link(href='/rpa-dashboard' class=(page === 'rpaDashboard' ? 'active' : ''))
                                 i.svg-icon(data-feather='grid')
                                 span RPA Dashboard
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/data-list' class=(page === 'dataList' ? 'active' : ''))
+                                i.svg-icon(data-feather='upload-cloud')
+                                span #{__('DATA LIST')}
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/upload' class=(page === 'financialManagement' ? 'active' : ''))
+                                i.svg-icon(data-feather='upload')
+                                span #{__('Data Upload')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('asset-acc')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/asset-accs')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Asset Accounts')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('asset-item')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/asset-items')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Asset Items')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('liability-acc')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/liability-accs')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Liability Accounts')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('liability-item')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/liability-items')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Liability Items')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('customers')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/customers')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Customers')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('collateral')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/collaterals')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Collaterals')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('currency-table')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/currency-tables')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Currency Table')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('security')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/securities')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Securities')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('swap')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/swaps')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Swaps')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('repo')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/repos')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Repos')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('option')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/options')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Options')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('payment-schedule')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/payment-schedules')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Payment Schedules')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('net-exposure')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/net-exposures')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Net Exposures')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('netting-agreement')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/netting-agreements')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Netting Agreements')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('fx-futures')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/fx-futures')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Fx Futures')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('degree')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/degrees')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Ratings')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('intragroup-transaction')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/intragroup-transactions')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Intragroup Transactions')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('ciu-fund-component')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/ciu-fund-components')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Ciu Fund Components')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('ciu-fund-info')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/ciu-fund-infos')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Ciu Fund Infos')}
+                    if user.sideMenuPermission && user.sideMenuPermission.includes('acct-placed-collateral')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/acct-placed-collaterals')
+                                i.svg-icon(data-feather='file-text')
+                                span #{__('Acct Placed Collaterals')}
+                    if user.roles.includes('SUB_ADMIN')
+                        li.rpad-sidebar__item
+                            a.rpad-sidebar__link(href='/deadlines' class=(page === 'deadlines' ? 'active' : ''))
+                                i.svg-icon(data-feather='calendar')
+                                span #{__('Deadlines')}
                     if user.roles.includes('SUB_ADMIN')
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/jobs' class=(page === 'jobs' ? 'active' : ''))
@@ -63,3 +176,29 @@ if user
                 span.rpad-sidebar__user-role= user.roles ? user.roles[0] : ''
             a.rpad-sidebar__logout(href='/logout' title='Çıkış Yap')
                 i.svg-icon(data-feather='log-out')
+
+    script.
+        (function() {
+            function initRpadSidebar() {
+                var $sidebar = $('#rpadSidebar');
+                var $pageWrapper = $('.page-wrapper');
+                var $toggle = $('#sidebarToggle');
+                if (!$sidebar.length || !$toggle.length) return;
+
+                var sidebarCollapsed = localStorage.getItem('rpadSidebarCollapsed') === 'true';
+                $sidebar.toggleClass('rpad-sidebar--collapsed', sidebarCollapsed);
+                $pageWrapper.toggleClass('rpad-sidebar-collapsed', sidebarCollapsed);
+
+                $toggle.off('click.rpadSidebar').on('click.rpadSidebar', function() {
+                    sidebarCollapsed = !sidebarCollapsed;
+                    localStorage.setItem('rpadSidebarCollapsed', sidebarCollapsed);
+                    $sidebar.toggleClass('rpad-sidebar--collapsed', sidebarCollapsed);
+                    $pageWrapper.toggleClass('rpad-sidebar-collapsed', sidebarCollapsed);
+                    if (typeof feather !== 'undefined') feather.replace();
+                });
+
+                if (typeof feather !== 'undefined') feather.replace();
+            }
+
+            $(window).on('load', initRpadSidebar);
+        })();

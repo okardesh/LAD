@@ -149,6 +149,7 @@ block content
             const {Pie} = G2Plot;
             const checkRoles = JSON.parse('!{JSON.stringify(checkRoles)}')
             const filters = JSON.parse('!{JSON.stringify(filters)}')
+            const uploadMode = !{JSON.stringify(uploadMode || false)}
             const lastDataDateInformation = JSON.parse('!{JSON.stringify(lastDataDateInformation)}')
             const lastQueueDateInformation = JSON.parse('!{JSON.stringify(lastQueueDateInformation)}')
             const lastDataDate = lastDataDateInformation[0]?.lastDate
@@ -919,21 +920,11 @@ block content
                             }
                         }
 
-                        // Sidebar collapse/expand toggle
-                        var sidebarCollapsed = localStorage.getItem('rpadSidebarCollapsed') === 'true';
-                        var $sidebar = $('#rpadSidebar');
-                        var $pageWrapper = $('.page-wrapper');
-                        if (sidebarCollapsed) {
-                            $sidebar.addClass('rpad-sidebar--collapsed');
-                            $pageWrapper.addClass('rpad-sidebar-collapsed');
-                        }
-                        $('#sidebarToggle').on('click', function() {
-                            sidebarCollapsed = !sidebarCollapsed;
-                            localStorage.setItem('rpadSidebarCollapsed', sidebarCollapsed);
-                            $sidebar.toggleClass('rpad-sidebar--collapsed', sidebarCollapsed);
-                            $pageWrapper.toggleClass('rpad-sidebar-collapsed', sidebarCollapsed);
-                        });
                         // Re-initialise feather icons for sidebar
                         feather.replace();
+
+                        if (uploadMode) {
+                            $('#exampleModal').modal('show');
+                        }
 
                     })

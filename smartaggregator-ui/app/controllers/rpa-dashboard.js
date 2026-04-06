@@ -50,6 +50,19 @@ function generateArrayOfYears() {
 
 exports.getRpaDashboard = async (req, res) => {
     try {
+        const asArray = (v) => Array.isArray(v) ? v : [];
+        const hasItems = (v) => Array.isArray(v) && v.length > 0;
+        const uniqueBy = (arr, keyFn) => {
+            const map = new Map();
+            (arr || []).forEach(item => {
+                const key = keyFn(item);
+                if (key !== null && key !== undefined && `${key}`.trim() !== '' && !map.has(key)) {
+                    map.set(key, item);
+                }
+            });
+            return Array.from(map.values());
+        };
+
         var response = {};
         var dataDateResponse = { hosts: [], robotNames: [] };
         var months = [{key:1, name:'January'},{key:2, name:'February'},{key:3, name:'March'},{key:4, name:'April'},{key:5, name:'May'},{key:6, name:'June'},
@@ -66,9 +79,85 @@ exports.getRpaDashboard = async (req, res) => {
             response = report.rpad;
         }
 
+        // Fallback for local/dev where dashboard aggregate endpoints may return empty,
+        // but user has just uploaded valid RPAD_JOBS rows.
+        const previewJobs = req.session && Array.isArray(req.session.uploadPreviewJobs)
+            ? req.session.uploadPreviewJobs
+            : [];
+
+        if (previewJobs.length) {
+            const normalizedPreviewJobs = previewJobs.map(j => ({
+                ...j,
+                count: j && j.count != null && `${j.count}` !== '' ? j.count : 1
+            }));
+
+            if (!hasItems(response.jobsData)) {
+                response.jobsData = normalizedPreviewJobs;
+            }
+
+            const robots = uniqueBy(normalizedPreviewJobs, j => j && j.hostMachineName)
+                .map(j => ({hostMachineName: j.hostMachineName}));
+
+            if (!hasItems(response.rpadStateChart2)) {
+                response.rpadStateChart2 = robots;
+            }
+
+            if (!hasItems(response.robotsOccupancyRateChart2)) {
+                response.robotsOccupancyRateChart2 = robots;
+            }
+
+            if (!hasItems(response.releaseTotalTimeChart)) {
+                const releaseMap = new Map();
+                normalizedPreviewJobs.forEach(j => {
+                    const key = j && j.releaseName ? j.releaseName : 'N/A';
+                    if (!releaseMap.has(key)) releaseMap.set(key, {releaseName: key, totalJobTime: 0});
+                    const item = releaseMap.get(key);
+                    const num = parseFloat(`${j && j.totalJobTime != null ? j.totalJobTime : 0}`.replace(',', '.'));
+                    item.totalJobTime += Number.isFinite(num) ? num : 0;
+                });
+                response.releaseTotalTimeChart = Array.from(releaseMap.values());
+            }
+
+            if (!hasItems(response.rpadStateChart)) {
+                const stateMap = new Map();
+                normalizedPreviewJobs.forEach(j => {
+                    const key = j && j.state ? j.state : 'N/A';
+                    if (!stateMap.has(key)) stateMap.set(key, {state: key, count: 0});
+                    const item = stateMap.get(key);
+                    const cnt = parseInt(j && j.count != null ? j.count : 1, 10);
+                    item.count += Number.isFinite(cnt) ? cnt : 1;
+                });
+                response.rpadStateChart = Array.from(stateMap.values());
+            }
+
+            if (!hasItems(dataDateResponse.hosts)) {
+                const latestDate = normalizedPreviewJobs
+                    .map(j => j && j.dataDate)
+                    .filter(Boolean)
+                    .slice(-1)[0] || null;
+                dataDateResponse.hosts = robots.map(r => ({
+                    hostMachineName: r.hostMachineName,
+                    lastDate: latestDate,
+                    lastJobsDate: latestDate
+                }));
+            }
+
+            if (!hasItems(dataDateResponse.robotNames)) {
+                const latestDate = normalizedPreviewJobs
+                    .map(j => j && j.dataDate)
+                    .filter(Boolean)
+                    .slice(-1)[0] || null;
+                dataDateResponse.robotNames = robots.map(r => ({
+                    robotName: r.hostMachineName,
+                    lastQueueDate: latestDate
+                }));
+            }
+        }
+
         const render = {
             title: "RPA Dashboard",
-            page: "rpaDashboard"
+            page: "rpaDashboard",
+            uploadMode: req.query.upload === '1'
         };
         let userId = req.user.uuid;
         let checkRoles = req.user.roles;
@@ -81,18 +170,18 @@ exports.getRpaDashboard = async (req, res) => {
             arrangement : arrangement,
             userId : userId,
             checkRoles : checkRoles,
-            jobsData:response.jobsData,
-            occupanyRobots:response.robotsOccupancyRateChart2,
-            stateRobots:response.rpadStateChart2,
-            rpadStateChart: response.rpadStateChart,
-            workingHoursOccupancyChart: response.workingHoursOccupancyChart,
-            totalJobTimeChart:response.totalJobTimeChart,
-            overallChart:response.overallChart,
-            robotsOccupancyRateChart: response.robotsOccupancyRateChart,
-            releaseTotalTimeChart:response.releaseTotalTimeChart,
-            dailyDensityChart:response.dailyDensityChart,
-            queueTransactionTimeChart:response.queueTransactionTimeChart,
-            queueStatusChart:response.queueStatusChart,
+            jobsData: asArray(response.jobsData),
+            occupanyRobots: asArray(response.robotsOccupancyRateChart2),
+            stateRobots: asArray(response.rpadStateChart2),
+            rpadStateChart: asArray(response.rpadStateChart),
+            workingHoursOccupancyChart: asArray(response.workingHoursOccupancyChart),
+            totalJobTimeChart: asArray(response.totalJobTimeChart),
+            overallChart: asArray(response.overallChart),
+            robotsOccupancyRateChart: asArray(response.robotsOccupancyRateChart),
+            releaseTotalTimeChart: asArray(response.releaseTotalTimeChart),
+            dailyDensityChart: asArray(response.dailyDensityChart),
+            queueTransactionTimeChart: asArray(response.queueTransactionTimeChart),
+            queueStatusChart: asArray(response.queueStatusChart),
             months: months,
             years: generateArrayOfYears(),
             lastDataDateInformation: dataDateResponse.hosts || [],
@@ -103,7 +192,7 @@ exports.getRpaDashboard = async (req, res) => {
     } catch (err) {
         console.error('[rpa-dashboard] getRpaDashboard error:', err);
         req.flash('errors', {msg: 'Dashboard data could not be loaded. Please try again.'});
-        res.redirect('/rpa-dashboard');
+        res.redirect('/500');
     }
 };
 
