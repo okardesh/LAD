@@ -1,0 +1,38 @@
+script.
+    const roleInfo = checkRoles;
+    $(document).ready(function() {
+        if (roleInfo.includes('ADMIN')){
+            const companyId = $('#getCompaniesID').html();
+            filterRpadDataChart = {companyId: $('#getCompaniesID').html()};
+            $.ajax({
+                url: "/rpadDataChart-filter",
+                type: 'POST',
+                data: filterRpadDataChart,
+                dataType: 'json', // added data type
+                success: function (res) {
+                    console.log("response is here :", res);
+                    let lastDataDate;
+                    let lastStartTime;
+                    let lastEndTime;
+                    if (res && Array.isArray(res.rpadJobsList) && res.rpadJobsList.length > 0) {
+                        res.rpadJobsList.forEach(function (element) {
+                            Object.keys(element).forEach(function (key) {
+                                if (key === 'lastDataDate') {
+                                    lastDataDate = element[key];
+                                } else if (key === 'lastStartTime') {
+                                    lastStartTime = element[key];
+                                } else if (key === 'lastEndTime') {
+                                    lastEndTime = element[key];
+                                }
+                            });
+                        });
+                    }
+                },
+                error: function (err) {
+                    console.error('rpadDataChart-filter error:', err);
+                }
+            });
+        }
+
+
+    });

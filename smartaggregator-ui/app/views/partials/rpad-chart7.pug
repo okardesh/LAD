@@ -1,0 +1,162 @@
+div.active#rpad-chart7
+
+script.
+    const { Bar } = G2Plot;
+    const releaseTotalTimeChart = JSON.parse('!{JSON.stringify(releaseTotalTimeChart)}');
+    const releaseTotalTimeDataDate = JSON.parse('!{JSON.stringify(jobsData)}');
+    const chartRTTC = [];
+    let order = 1;
+    releaseTotalTimeChart.sort((a, b) => b.totalJobTime - a.totalJobTime).forEach(element => {
+        chartRTTC.push({
+            releaseName : element.releaseName.slice(0,20) + " - " + order,
+            totalJobTime: element.totalJobTime,
+            releaseNameLong : element.releaseName
+        })
+        order++;
+    });
+    const fallbackNow = new Date();
+    const fallbackMonth = (`0${fallbackNow.getMonth() + 1}`).slice(-2);
+    const fallbackYear = `${fallbackNow.getFullYear()}`;
+    const firstReleaseData = Array.isArray(releaseTotalTimeDataDate) ? releaseTotalTimeDataDate[0] : undefined;
+    const firstLastDataTime = firstReleaseData && firstReleaseData.lastDataTime ? `${firstReleaseData.lastDataTime}` : '';
+    let newMonthLastData = firstLastDataTime ? firstLastDataTime.slice(5, 7) : fallbackMonth;
+    let newYearLastData = firstLastDataTime ? firstLastDataTime.slice(0, 4) : fallbackYear;
+
+    $('select[id="releaseTotalTimeChart_year"]').val(newYearLastData);
+    const barPlot2 = new Bar('rpad-chart7', {
+        forceFit: true,
+        data : chartRTTC,
+        appendPadding : [20, 20, 20, 20],
+        height: 515,
+        xField: 'totalJobTime',
+        yField: 'releaseName',
+        scrollbar: {
+            type: 'vertical',
+            animate: false,
+        },
+        meta: {
+            type: {
+            alias: 'Total Time',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header">${insideItem.releaseNameLong}</h5><h5 class="tooltip-content">#{__('Total Job Time')} : ${insideItem.totalJobTime} #{__('Minutes')}</h5>
+                                </div>`;
+                    }
+                }
+            }
+        },
+    });
+
+    barPlot2.render();
+        let newOptions = {}
+        newOptions = {
+            "#{__('Select Month')}": '00',"#{__('January')}": '01',"#{__('February')}": '02',"#{__('March')}": '03',
+            "#{__('April')}": '04',"#{__('May')}": '05',"#{__('June')}": '06',
+            "#{__('July')}": '07',"#{__('August')}": '08',"#{__('September')}": '09',
+            "#{__('October')}": '10',"#{__('November')}": '11',"#{__('December')}": '12'
+        };
+        var $el = $("#releaseTotalTimeChart_month");
+        //- $el.empty();
+        $.each(newOptions, function(key,value) {
+            if(value === newMonthLastData){
+                $el.append($("<option></option>").attr("value", value).attr("selected", true).text(key));
+                
+            } else {
+                $el.append($("<option></option>").attr("value", value).text(key));
+            }
+        });
+        
+        $( window ).on( "load", function(){
+            let separatedRobots6 = filters.rpadHistoryList[5]?.robots.split(', ') || undefined;
+            let startTimeDatePicker = filters.rpadHistoryList[5]?.date1 || undefined ;
+            let endTimeDatePicker = filters.rpadHistoryList[5]?.date2 || undefined;
+            if ( startTimeDatePicker !== undefined && endTimeDatePicker !== undefined && separatedRobots6 !== undefined){
+                $.each(newOptions, function(key,value) {
+                if(value === endTimeDatePicker){
+                    $el.append($("<option></option>").attr("value", value).attr("selected", true).text(key));
+                    
+                } else {
+                    $el.append($("<option></option>").attr("value", value).text(key));
+                }
+                });
+                $('select[name="releaseRobots"]').val(separatedRobots6);
+                $('select[id="releaseTotalTimeChart_year"]').datepicker("setDate", startTimeDatePicker);
+                $('select[id="releaseTotalTimeChart_month"]').datepicker("setDate", endTimeDatePicker);
+            }
+            else{
+                $('select[id="releaseTotalTimeChart_year"]').datepicker("setDate", newYearLastData);
+                $('select[id="releaseTotalTimeChart_month"]').datepicker("setDate", newMonthLastData);
+            }            
+        });
+        $('select[id="releaseTotalTimeChart_year"]').on('change', function () {
+            releaseChartFilterFunction();
+        });
+        $('select[id="releaseTotalTimeChart_month"]').on('change', function(){
+            releaseChartFilterFunction();
+        });
+        $('select[name="releaseRobots"]').on('change', function(){
+            releaseChartFilterFunction();
+        });
+
+
+        function releaseChartFilterFunction(){
+            let releaseChartYear = $('select[id="releaseTotalTimeChart_year"]').val();
+            let releaseChartMonth = $('select[id="releaseTotalTimeChart_month"]').val();
+            let releaseChartRobots = $('select[name="releaseRobots"]').val();
+
+            let releaseChartAlert = '';
+            if(releaseChartYear === '' || releaseChartYear === 'Yıl Seçin'){
+                releaseChartAlert = releaseChartAlert + ' * ' + "#{__('Year is empty')}"
+            }
+            if(releaseChartMonth === '00' || releaseChartMonth === 'Ay Seçin'){
+                releaseChartAlert = releaseChartAlert + ' * ' + "#{__('Month is empty')}"
+            }
+            if(releaseChartRobots.length < 1){
+                releaseChartAlert = releaseChartAlert + ' * ' + "#{__('Robots are empty')}"
+            }
+            $('#alertTextReleaseChart').empty()
+            $("<p class='alertText' style='color:red!important;'>" + releaseChartAlert + "</p>").appendTo('#alertTextReleaseChart')
+            if(releaseChartAlert === '') {
+                filterReleaseTotalTimeChart = {year:'', month:'',robots :''};
+                filterReleaseTotalTimeChart.year = $('select[id="releaseTotalTimeChart_year"]').val();
+                filterReleaseTotalTimeChart.month = $('select[id="releaseTotalTimeChart_month"]').val();
+                filterReleaseTotalTimeChart.robots = $('select[name="releaseRobots"]').val();
+                filterReleaseTotalTimeChart.month = $('select[id="releaseTotalTimeChart_year"]').val() != '' ? $('select[id="releaseTotalTimeChart_month"]').val().split(',').map(Number) : '';
+            }
+            if(releaseChartAlert === '' && filterReleaseTotalTimeChart.year != '' && filterReleaseTotalTimeChart.month != '' && filterReleaseTotalTimeChart.robots != '') {
+                $.ajax({
+                    url: "/releaseTotalTimeChart-filter",
+                    type: 'POST',
+                    data: filterReleaseTotalTimeChart,
+                    dataType: 'json', // added data type
+                    success: function(res) {
+                        let TTWM = [];
+                        if(res.rpadJobsList.length > 0) {
+                            $('#rpad-chart7').removeClass('visibility-none')
+                            let order = 1;
+                            res.rpadJobsList.sort((a, b) => b.totalJobTime - a.totalJobTime).forEach(element => {
+                                TTWM.push({
+                                    releaseName : element.releaseName.slice(0,20) + " - " + order,
+                                    totalJobTime: element.totalJobTime,
+                                    releaseNameLong : element.releaseName
+                                })
+                                order++;
+                            });
+                            barPlot2.changeData(TTWM);
+                            barPlot2.render();
+                        }else{
+                            $('#rpad-chart7').addClass('visibility-none')
+                        }
+                    },
+                    error: function(err){
+                    }
+                });
+            }
+        }

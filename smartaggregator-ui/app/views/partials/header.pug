@@ -1,0 +1,259 @@
+if user
+    header.topbar#printHeader(data-navbarbg='skin6')
+        .container
+            .row 
+                .col-sm-3.text-sm-left.text-center
+                    if user.roles.includes('ADMIN')
+                        a(href='/companies-list')
+                            b.logo-icon
+                                img.dark-logo(src='/assets/images/linktera-logo.svg' alt='homepage')
+                    if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN')
+                        a(href='/rpa-dashboard')
+                            b.logo-icon
+                                img.dark-logo(src='/assets/images/linktera-logo.svg' alt='homepage')
+                        
+                .col-sm-6
+                    div.d-flex.header-grid.justify-content-center
+                        if user.roles.includes('SUB_ADMIN')
+                            if (userCompanyID === null)
+                                label#getCompaniesID(style="display:none; font-size:11px;")
+                                a.mr-3(href="/rpa-dashboard") #{__('RPA DASHBOARD')}
+                            if (userCompanyID !== null && userCompanyID !== "1")
+                                label#getCompaniesID(style="display:none; font-size:11px;")=userCompanyID
+                                a.mr-3(href="/rpa-dashboard") #{__('RPA DASHBOARD')}
+                        if user.roles.includes('SUB_ADMIN')
+                            if (userCompanyID !== null)
+                            ul.navbar-nav.float-right
+                                li.nav-item.dropdown
+                                    a.nav-link.dropdown-toggle(href='javascript:void(0)', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                                        | #{__('DATA LIST')}
+                                        i.svg-icon(data-feather='chevron-down')
+                                    .dropdown-menu.dropdown-menu-right.user-dd.animated.flipInY
+                                        a.text-center.dropdown-item.border-bottom(href="/jobs") #{__('RPAProcesses')}
+                                        a.text-center.dropdown-item.border-bottom(href="/queue") #{__('Queues')}
+                                        a.text-center.dropdown-item.border-bottom(href="/robots") #{__('Robots')}
+                        if user.roles.includes('ADMIN')
+                            a.mr-3(href="/companies-list") #{__('COMPANIES LIST')}
+                .col-sm-3
+                    ul.navbar-nav.float-right
+                        //a.dropdown-item(href='/logout')
+                            i.svg-icon.mr-2.ml-1(data-feather='power')
+                            | #{__('Logout')}
+                        li.nav-item.dropdown
+                            a.nav-link.dropdown-toggle(href='javascript:void(0)', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                                span.ml-2.d-inline-block
+                                    if user !== 'undefined' && user.img
+                                        img.rounded-circle(src="data:image/jpeg;base64," + user.img, alt=user.name, class='profile', width='24', height='24')
+                                    else
+                                        img.rounded-circle(src='/assets/images/user.png', class='profile', width='24', height='24')
+                                    //span #{__('Hello')},
+                                span.text-dark.d-none.d-md-inline-block= ' ' + user.name + ' ' + user.surname
+                                i.svg-icon(data-feather='chevron-down')
+                            .dropdown-menu.dropdown-menu-right.user-dd.animated.flipInY
+                                if locale == 'en'
+                                    a.dropdown-item.border-bottom(href=`${originalPath()}?lang=tr`)
+                                        i.svg-icon.mr-2(data-feather='globe')
+                                        | #{__('Turkish')}
+                                else
+                                    a.dropdown-item.border-bottom(href=`${originalPath()}?lang=en`)
+                                        i.svg-icon.mr-2(data-feather='globe')
+                                        | #{__('English')}
+                                a.dropdown-item.border-bottom(href='/profile')
+                                    i.svg-icon.mr-2(data-feather='lock')
+                                    | #{__('Profile')}
+                                if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
+                                        a.dropdown-item.border-bottom.uploadMenu(style='color:#4a5559;', type='button' data-toggle='modal' data-target='#exampleModal')
+                                            i.svg-icon.mr-2(data-feather='upload')
+                                            | #{__('Upload')}
+                                if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
+                                    a.dropdown-item.border-bottom#btn.uploadMenu(style='color:#4a5559;', type='button')
+                                        i.svg-icon.mr-2(data-feather='download')
+                                        | #{__('Print Page')}
+                                if user.roles.includes('ADMIN') || user.roles.includes('SUB_ADMIN')
+                                    a.dropdown-item.border-bottom(href='/users') 
+                                        i.svg-icon.mr-2(data-feather='users')
+                                        | #{__('Users')}
+                                if user.roles.includes('ADMIN')
+                                    a.dropdown-item.border-bottom(href='/companies') 
+                                        i.svg-icon.mr-2(data-feather='briefcase')
+                                        | #{__('Companies')}
+                                if user.roles.includes('ADMIN')
+                                    a.dropdown-item.border-bottom(href='/error-logs') 
+                                        i.svg-icon.mr-2(data-feather='terminal')
+                                        | #{__('Error Logs')}
+                                if user.roles.includes('SUB_ADMIN')
+                                    a.dropdown-item.border-bottom(href='/graph-settings')
+                                        i.svg-icon.mr-2(data-feather='move')
+                                        | #{__('Update Sorting')}
+
+                                a.dropdown-item(href='/logout')
+                                    i.svg-icon.mr-2(data-feather='log-out')
+                                    | #{__('Logout')}
+                                    
+            //.navbar-header(data-logobg='skin6')
+                // This is for the sidebar toggle which is visible on mobile only
+                a.nav-toggler.waves-effect.waves-light.d-block.d-md-none(href='javascript:void(0)')
+                    i.ti-menu.ti-close
+
+                .navbar-brand
+                    a(href='/')
+                        b.logo-icon
+                            img.dark-logo(src='/assets/images/icon-isbank.jpg' alt='homepage')
+                            img.light-logo(src='/assets/images/icon-isbank.jpg' alt='homepage')
+                        span.logo-text
+                            img.dark-logo(src='/assets/images/logo-isbank.jpg' alt='homepage')
+                            img.light-logo(src='/assets/images/logo-isbank.jpg' alt='homepage')
+
+                // ==============================================================
+                // End Logo
+                // ==============================================================
+                // ==============================================================
+                // Toggle which is visible on mobile only
+                // ==============================================================
+                a.topbartoggler.d-block.d-md-none.waves-effect.waves-light(href='javascript:void(0)', data-toggle='collapse', data-target='#navbarSupportedContent', aria-controls='navbarSupportedContent', aria-expanded='false', aria-label='Toggle navigation')
+                    i.ti-more
+            // ==============================================================
+            // End Logo
+            // ==============================================================
+            //#navbarSupportedContent.navbar-collapse.collapse
+                // ==============================================================
+                // toggle and nav items
+                // ==============================================================
+                ul.navbar-nav.float-right.mr-auto.ml-3.pl-1
+                    // Notification
+                    if (['announcement'].some(e => user.sideMenuPermission.includes(e)))
+                        if user.userType === 1
+                            li.nav-item.dropdown
+                                a.nav-link.dropdown-toggle.pl-md-3.position-relative(
+                                    href='/userAnnouncements', role='button', aria-haspopup='true', aria-expanded='false')
+                                    span
+                                        i.svg-icon(data-feather='bell')
+                                    span(id="announcementNotify").badge.badge-primary.notify-no.rounded-circle
+                                        =0
+                    // End Notification
+                    // ==============================================================
+                    // create new
+                    // ==============================================================
+                // ==============================================================
+                // Right side toggle and nav items
+                // ==============================================================
+                ul.navbar-nav.float-right
+                    // ==============================================================
+                    // Search
+                    // ==============================================================
+                    // ==============================================================
+                    // User profile and search
+                    // ==============================================================
+                    li.nav-item.dropdown
+                        a.nav-link.dropdown-toggle(href='javascript:void(0)', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+                            span.ml-2.d-none.d-lg-inline-block
+                                if user !== 'undefined' && user.img
+                                    img.rounded-circle(src="data:image/jpeg;base64," + user.img, alt=user.name, class='profile', width='24', height='24')
+                                else
+                                    img.rounded-circle(src='/assets/images/user.png', class='profile', width='24', height='24')
+                                //span #{__('Hello')},
+                            span.text-dark= ' ' + user.name + ' ' + user.surname
+                            i.svg-icon(data-feather='chevron-down')
+                        .dropdown-menu.dropdown-menu-right.user-dd.animated.flipInY
+                            a.dropdown-item(href='/profile')
+                                i.svg-icon.mr-2.ml-1(data-feather='user')
+                                | #{__('My Profile')}
+                            .dropdown-divider
+                            if user.sideMenuPermission.includes('approval')
+                                a.dropdown-item(href='/requests')
+                                    i.svg-icon.mr-2.ml-1(data-feather='clock')
+                                    | #{__('Delayed Data Requests')}
+                                .dropdown-divider
+                            if user.sideMenuPermission.includes('approval')
+                                a.dropdown-item(href='/request-approvals')
+                                    i.svg-icon.mr-2.ml-1(data-feather='mail')
+                                    | #{__('Data Entry Confirmation Requests')}
+                                .dropdown-divider
+                            if locale == 'en'
+                                a.dropdown-item(href=`${originalPath()}?lang=tr`)
+                                    i.svg-icon.mr-2.ml-1(data-feather='globe')
+                                    | #{__('Turkish')}
+                            else
+                                a.dropdown-item(href=`${originalPath()}?lang=en`)
+                                    i.svg-icon.mr-2.ml-1(data-feather='globe')
+                                    | #{__('English')}
+                            .dropdown-divider
+                            a.dropdown-item(href='/logout')
+                                i.svg-icon.mr-2.ml-1(data-feather='power')
+                                | #{__('Logout')}
+
+            //script(src='/assets/extra-libs/underscore/underscore.js')
+            //script(src='/assets/extra-libs/underscore/1.13.2/underscore-esm-min.js')
+            script(src='/assets/extra-libs/underscore/1.13.2/underscore-umd-min.js')
+            script.
+                const pattern = /(\d{2})\/(\d{2})\/(\d{4})/;
+                let maxDataDate; 
+                function toTime(s) {
+                    return s ? new Date(s.replace(pattern,'$3-$2-$1')).getTime() : s; 
+                };
+                function sum(t, n) {
+                    return t + n;
+                };
+                function avg(arr, key = 'ratio', decimal = 0) {
+                    return round(_.reduce(_.pluck(arr, key), sum, 0) / arr.length, decimal);
+                }
+                function mid(arr) {
+                    return Math.min(Math.ceil(arr.length / 2), 5);
+                }
+                function round(value, decimals) {
+                    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+                };
+                function isBlank(str) {
+                    return (!str || /^\s*$/.test(str));
+                };
+                const fillFilter = (sb) => {
+                    let filters = {};
+                    $('select[name="' + sb.name + '"]').each(function (i, elem) {
+                        let value = elem.value, id = _.get(elem.id.match(/_([^\s]+)/), 1);
+                        if (!isBlank(value) && _.contains(['regionName', 'branchType', 'segment'], id)) {
+                            filters[id] = value.trim();
+                        }
+                    });
+                    return filters;
+                };
+                function checkVisibility(arr, elem) {
+                    let bool = !_.isArray(arr) || arr.length <= 0;
+                    bool ? elem.addClass('visibility-none') : elem.removeClass('visibility-none');
+                    return bool;
+                };
+                function kFormatter(num) {
+                    let formated = Math.abs(num),
+                        SI_SYMBOL;
+
+                    if (formated > 999999) {
+                        SI_SYMBOL = 'M';
+                        formated = (formated/1000000).toFixed(0);
+                    } else if (formated > 999) {
+                        SI_SYMBOL = 'K';
+                        formated = (formated/1000).toFixed(0);
+                    }else {
+                        SI_SYMBOL = '';
+                        formated = formated.toFixed(0);
+                    }
+
+                    return (Math.sign(num)*formated) + SI_SYMBOL;
+                }
+                var locale = !{JSON.stringify(locale)};
+                $(document).ready(function() {
+                    $('.header-grid a[href^="/' + location.pathname.split("/")[1] + '"]').addClass('active');
+                });
+
+                var path = window.location.pathname;
+                if(path != '/rpa-dashboard'){
+                    $('.uploadMenu').hide()
+                }
+
+                
+                
+                
+                
+                
+                
+                     
+
+                

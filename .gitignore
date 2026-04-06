@@ -1,0 +1,29 @@
+# Binaries and build artifacts
+*.jar
+*.war
+*.class
+node_modules/
+dist/
+build/
+target/
+*.iml
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Local JDK and downloads
+jdk8/
+zulu8.tar.gz
+smartaggregator/tmp_extract/
+tmp_log.txt
+
+# Database files
+smartaggregator-db.*
+*.mv.db
+*.trace.db
+
+# OS specific files
+.DS_Store
+Thumbs.db

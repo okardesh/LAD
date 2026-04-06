@@ -1,0 +1,260 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+      
+    .page-wrapper
+      .container.mt-2
+        .page-breadcrumb
+          .row.d-flex.justify-content-end
+            .col-md-6.col-lg-7.col-xl-8
+              form(id='user', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                .row.justify-content-end
+                  .col-sm-6.col-md-12.col-lg-6
+                    .row.justify-content-end
+                      .col-sm-6.col-lg-6.d-flex.justify-content-end.me-0.users-padding-right
+                        button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(type='button', data-toggle='modal', data-target='#addUserModal')
+                          i.fas.fa-plus
+                          |  #{__('New')}
+                      .col-sm-6.col-lg-6.d-flex.justify-content-end.me-0.users-padding-right
+                        button.exportToExcel.button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='button', name='export', value='xlsx')
+                          i.fas.fa-download
+                          |  #{__('Export')}
+                .modal#addUserModal.fade(tabindex='-1' role='dialog' aria-labelledby='addUserModalLabel' aria-hidden='true')
+                  .modal-dialog.modal-lg(role='document')
+                    .modal-content
+                      .modal-header.p-3
+                        h2#addUserModalLabel.modal-title.text-dark #{__('Add New User')}
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                          span(aria-hidden='true') &times;
+                      .modal-body
+                        form#addUserForm(method='POST' action='/user/new')
+                          input(type='hidden', name='_csrf', value=_csrf)
+                          input(type='hidden', name='action', value='save')
+                          .row
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='username') #{__('Username')}
+                              input.form-control(required type='text' name='username' id='username')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='email') #{__('Email')}
+                              input.form-control(required type='email' name='email' id='email')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='name') #{__('Name')}
+                              input.form-control(required type='text' name='name' id='name')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='surname') #{__('Surname')}
+                              input.form-control(required type='text' name='surname' id='surname')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='password') #{__('Password')}
+                              input.form-control(required type='password' name='password' id='password')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='officePhone') #{__('Phone')}
+                              input.form-control(type='text' name='officePhone' id='officePhone')
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='userType') #{__('User Type')}
+                              select.form-control(name='userType' id='userType')
+                                option(value='1') #{__('Regular User')}
+                                option(value='0') #{__('Admin')}
+                            .col-md-6.mb-3
+                              label.col-form-label.bold(for='subsidiary') #{__('Company')}
+                              select.form-control(name='subsidiary', id='subsidiary')
+                                option(value='' disabled selected) #{__('Please Choose')}
+                                if subsidiaries
+                                  each subsidiary in subsidiaries
+                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                          .pt-4.d-flex.justify-content-end.gap-2
+                            button.btn.btn-secondary.mr-2(type='button' data-dismiss='modal') #{__('Cancel')}
+                            button.btn.btn-primary(type='submit') #{__('Create User')}
+
+                        .row.d-flex.justify-content-center.text-center
+                            .col-md-12
+                                //if user.userType===0 && user.rolePermissionAll && user.rolePermissionAll.includes('financial-management_POST')
+                                form(id='import-'.concat(toCamelCase(title)), method='POST', enctype="multipart/form-data")
+                                    input(type='hidden', name='_csrf', value=_csrf)
+                                    .row
+                                        .col-md-4.p-3
+                                            select.mr-2.upload-module(name="model" id="model")
+                                                if models
+                                                    each t in models
+                                                        option(value=toCamelCase(t))= __(t)
+                                        .col-md-8
+                                            if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                                            //- a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                                            //-     .far.fa-file
+                                            .container-fluid.p-3
+                                                .col-md-12
+                                                    .file-loading
+                                                        input#file-input(type='file', name='file', accept='.xlsx')
+                                                    #errorBlock.help-block
+        .container-fluid.users-padding-right.users-padding-left.mt-3
+          .row
+            .col-12
+              .card
+                .card-body
+                  .row
+                    .col-md-12
+                      div.user-big--div
+                        ul.second-area.non-overflow
+                          li.active #{__('Users')}
+                  .table-responsive.dragscroll
+                      table#usersTable.display(style='width:100%')
+                        thead
+                          tr
+                            if me.rolePermissionAll.includes('/v1/users_POST') && me.rolePermissionAll.includes('/v1/users/{uuid}_PUT')
+                              th.notexport(style="min-width: 50px!important;")
+                            th.notexport(style="min-width: 80px!important;") #{__('Profile')}
+                            th.status(style="min-width: 50px!important;" data-name='status', data-searchable='off', data-sortable='off') #{__('Status')}
+                            th(style="min-width: 100px!important;" data-name='username', data-searchable='off') #{__('Username')}
+                            th(style="min-width: 100px!important;" data-name='name', data-searchable='off', data-sortable='off') #{__('Name')}
+                            th(style="min-width: 100px!important;" data-name='surname', data-searchable='off', data-sortable='off') #{__('Surname')}
+                            th(style="min-width: 100px!important;" data-name='officePhone',data-searchable='off',data-sortable='off') #{__('Phone')}
+                            th(style="min-width: 100px!important;" data-name='email', data-searchable='off', data-sortable='off') #{__('Email')}
+                            th(style="min-width: 100px!important;" data-name='subsidiaries', data-searchable='off') #{__('Company')}
+                            //- th.tableHeaderWidth.roleFeatureType(data-name='userFeature' , data-searchable='off', data-sortable='on') #{__('Feature')}
+                            //-th #{__('Approval Status')}
+                            //-if(me.rolePermissionAll.includes('/v1/users/{uuid}/sendForApproval_POST') || me.rolePermissionAll.includes('/v1/users/{uuid}/approve_POST'))
+                            //-  th #{__('Approval Processes')}
+                          tr.filters
+                            if me.rolePermissionAll.includes('/v1/users_POST') && me.rolePermissionAll.includes('/v1/users/{uuid}_PUT')
+                              th.notexport(style="min-width: 50px!important;")
+                            th.notexport(style="min-width: 80px!important;")
+                            th.status(style="min-width: 50px!important;" data-name='status', data-searchable='off', data-sortable='off') #{__('Status')}
+                            th(style="min-width: 100px!important;" data-name='username', data-searchable='off') #{__('Username')}
+                            th(style="min-width: 100px!important;" data-name='name', data-searchable='off', data-sortable='off') #{__('Name')}
+                            th(style="min-width: 100px!important;" data-name='surname', data-searchable='off', data-sortable='off') #{__('Surname')}
+                            th(style="min-width: 100px!important;" data-name='officePhone',data-searchable='off',data-sortable='off') #{__('Phone')}
+                            th(style="min-width: 100px!important;" data-name='email', data-searchable='off', data-sortable='off') #{__('Email')}
+                            th(style="min-width: 100px!important;" data-name='subsidiaries', data-searchable='off') #{__('Company')}
+                        tbody
+                          each user in users.content
+                              tr
+                                if me.rolePermissionAll.includes('/v1/users_POST') && me.rolePermissionAll.includes('/v1/users/{uuid}_PUT')
+                                  td.text-center(style="width:100px;")
+                                    a.p-3(href='/user/' + user.uuid)
+                                      i.fas.fa-eye.fa-2x
+                                td.text-center
+                                  if user !== 'undefined' && user.img
+                                    img(class='profile', width='50', height='50', src='data:image/jpeg;base64,' + user.img)
+                                  else
+                                    img(src="/assets/images/user.png", class='profile', width='25', height='25')
+                                td(style='font-weight:bold; text-align:center; color:  ' +  getStatusColor(user.status))=status(user.status)
+                                td.text-center=user.username
+                                td.text-center=user.name
+                                td.text-center=user.surname
+                                td.text-center=user.officePhone
+                                td.text-center=user.email
+                                td.text-center
+                                  if subsidiaries
+                                    each subsidiary in subsidiaries
+                                        if subsidiary.uuid == user.subsidiary
+                                            div= subsidiary.formalName
+                                //- td.align-middle.text-center=roleFeatureType(user.userFeature == 0 ? null : user.userFeature )
+                                //-td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(user.approvalStatus))=approvalStatus(user.approvalStatus)
+                                //-if(me.rolePermissionAll.includes('/v1/users/{uuid}/sendForApproval_POST') || me.rolePermissionAll.includes('/v1/users/{uuid}/approve_POST'))
+                                //-    td.text-center
+                                //-      button.myBtn.btn-square.btn.waves-effect.waves-light.btn-primary.font-6(title='Popup')
+                                //-          i.fas.fa-check-square
+                                //-            |
+                                //-            | #{__('Processes')}
+                                //-      .modal
+                                //-        form(id='users', method='POST')
+                                //-          input(type='hidden', name='uuid', value=user.uuid)
+                                //-          .modal-content-action.float-center
+                                //-            span.close X
+                                //-            .row
+                                //-              label.col-form-label.bold.ml-2.mt-5(for='approvalMessage') #{__('Approval Message')}
+                                //-              input.form-control.mb-5(type='text', name='approvalMessage',  id='approvalMessage',autocomplete = "off" , placeholder=user.approvalMessage)
+                                //-            .row.justify-content-end
+                                //-              if(((user.approvalStatus === 'W' || user.approvalStatus === 'N') && (me.rolePermissionAll.includes('/v1/users/{uuid}/approve_POST'))) || (user.approvalStatus === 'N' && (me.rolePermissionAll.includes('/v1/users/{uuid}/sendForApproval_POST'))))
+                                //-                .col-sm-12.col-md-6.col-lg-4.mb-3
+                                //-                  button.form-control.btn-square.btn.waves-effect.waves-light.btn-danger.font-4(title='Cancel' , type='submit', name='action', value='cancel')
+                                //-                     i #{__('Cancel')}
+                                //-              if(user.approvalStatus === 'W' && me.rolePermissionAll.includes('/v1/users/{uuid}/approve_POST'))
+                                //-                .col-sm-12.col-md-6.col-lg-4.mb-3
+                                //-                  button.form-control.btn-square.btn.waves-effect.waves-light.btn-warning.font-4(title='Reject' , type='submit', name='action', value='reject')
+                                //-                     i #{__('Reject')}
+                                //-              if(user.approvalStatus === 'W' && me.rolePermissionAll.includes('/v1/users/{uuid}/approve_POST'))
+                                //-                .col-sm-12.col-md-6.col-lg-4.mb-3
+                                //-                  button.form-control.btn-square.btn.waves-effect.waves-light.btn-success.font-4(title='Approve' , type='submit', name='action', value='approve')
+                                //-                    i #{__('Approve')}
+                                //-              if(user.approvalStatus === 'N' && me.rolePermissionAll.includes('/v1/users/{uuid}/sendForApproval_POST'))
+                                //-                .col-sm-12.col-md-6.col-lg-4.mb-3
+                                //-                  button.form-control.btn-square.btn.waves-effect.waves-light.btn-primary.font-4(title='Send For Approval' , type='submit', name='action', value='sendForApproval')
+                                //-                    i #{__('Send For Approval')}
+                  +pagination(users)
+                  script.
+                    $(document).ready(function() {
+                      // Setup - add a text input to each footer cell
+                        
+                        var table = $('#usersTable').DataTable({
+                            orderCellsTop: true,
+                            fixedHeader: true,
+                            searching: true,
+                            paging: false,
+                            sDom: "rtipl",
+                            columnDefs: [
+                                {
+                                    searchable: false,
+                                    orderable: false,
+                                    targets: 0,
+                                },
+                                {
+                                    searchable: false,
+                                    orderable: false,
+                                    targets: 1,
+                                },
+                            ],
+                            order: [[3, 'asc']],
+                            initComplete: function () {
+                                var api = this.api();
+                                // For each searchable/sortable column (indices 2 through end)
+                                var searchableColumns = [];
+                                api.columns().every(function() {
+                                    if (this.index() >= 2) searchableColumns.push(this.index());
+                                });
+
+                                api.columns(searchableColumns)
+                                    .eq(0)
+                                    .each(function (colIdx) {
+                                        // Set the header cell to contain the input element
+                                        var header = api.column(colIdx).header();
+                                        if (!header) return;
+                                        
+                                        var cell = $('.filters th').eq($(header).index());
+                                        var title = $(cell).text();
+                                        $(cell).html('<input type="text" style="width: 90px!important;" placeholder="' + title + '" />');
+                    
+                                        // On every keypress in this input
+                                        $('input', cell)
+                                            .off('keyup change')
+                                            .on('change', function (e) {
+                                                // Get the search value
+                                                $(this).attr('title', $(this).val());
+                                                var regexr = '({search})';
+                                                var cursorPosition = this.selectionStart;
+                                                // Search the column for that value
+                                                api.column(colIdx)
+                                                    .search(
+                                                        this.value != ''
+                                                            ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                                            : '',
+                                                        this.value != '',
+                                                        this.value == ''
+                                                    )
+                                                    .draw();
+                                            })
+                                            .on('keyup', function (e) {
+                                                e.stopPropagation();
+                                                $(this).trigger('change');
+                                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                                            });
+                                    });
+                            },
+                        });
+                    });
+
+                    var subsidiaryList = !{JSON.stringify(subsidiaries).replace(/<\//g, '<\\/')}
+                    function openPopupDocuments() {
+                        getFilesWindow("USERS");}

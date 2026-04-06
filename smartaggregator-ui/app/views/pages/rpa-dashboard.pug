@@ -1,0 +1,740 @@
+extends ../layout
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        script.
+            const {Pie} = G2Plot;
+            const checkRoles = JSON.parse('!{JSON.stringify(checkRoles)}')
+            const filters = JSON.parse('!{JSON.stringify(filters)}')
+            const lastDataDateInformation = JSON.parse('!{JSON.stringify(lastDataDateInformation)}')
+            const lastQueueDateInformation = JSON.parse('!{JSON.stringify(lastQueueDateInformation)}')
+            const lastDataDate = lastDataDateInformation[0]?.lastDate
+            const lastJobsDate = lastDataDateInformation[0]?.lastJobsDate
+            var lastQueueDate = lastQueueDateInformation[0]?.lastQueueDate || undefined
+            if (lastQueueDate === undefined){
+                lastQueueDate = lastJobsDate
+            }
+            var currentDate = new Date();
+            var currentDayYear = currentDate.getFullYear();
+            var currentDayMonth = currentDate.getMonth()+1;
+            var currentDay = currentDate.getDate();
+
+            var formatedCurrentDate = ('0' + currentDay).slice(-2) + '/' + ('0' + currentDayMonth).slice(-2) + '/' + currentDayYear;
+
+
+        include ../partials/header
+        include ../partials/rpad-data-chart
+        .page-wrapper#allChartsPrint.d-flex.justify-content-center(style="display:block; width:100%; margin-bottom:2%; padding-top:30px!important;")
+            .container.d-flex.justify-content-center(style="position:absolute; z-index:1;")
+                .row 
+                    b.logo-icon
+                        img.dark-logo(src='/assets/images/linktera-logo.svg' alt='homepage')
+            .container.p-5(style="margin-top:4rem!important;")
+                .row
+                    .col-sm-6.align-self-center
+                    .col-md-12
+                        if lastDataDateInformation[0]
+                            //- p.lastDataDateTransitionClass.text-end #{__(__('Last data date uploaded to') + ' ' + lastDataDateInformation[0].lastDate.replace('/', '_').replace('/', '_'))}
+                            p.lastDataDateTransitionClass.text-end #{__(__('Last data date uploaded to') + ' ' + lastDataDateInformation[0].lastDate)}
+                        else
+                            p.lastDataDateTransitionClass.text-end #{__('There is no data')}
+                .row#sortable
+                    .col-sm-6.align-self-center
+                    .col-sm-6.align-self-center.d-flex.justify-content-end
+                        #exampleModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+                            .modal-dialog(role='document')
+                                .modal-content
+                                    .modal-header.p-3
+                                        h2#exampleModalLabel.modal-title.text-dark #{__('title.Upload')}
+                                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                                            span(aria-hidden='true') &times;
+                                    .modal-body.justify-content-center.p-0
+                                        .row.d-flex.justify-content-center.text-center
+                                            .col-md-12
+                                                //if user.userType===0 && user.rolePermissionAll && user.rolePermissionAll.includes('financial-management_POST')
+                                                form(id='import-'.concat(toCamelCase(title)), method='POST', enctype="multipart/form-data")
+                                                    input(type='hidden', name='_csrf', value=_csrf)
+                                                    .row
+                                                        .col-md-4.p-3(style="text-align:start; padding-left:31px!important;")
+                                                            select.mr-2.upload-module(name="model" id="model" style="width:100%!important;")
+                                                                if models
+                                                                    each t in models
+                                                                        if t != 'Daily Intensity'
+                                                                            option(value=toCamelCase(t))= __(t)
+                                                        .col-md-8
+                                                            if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                                                            //- a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                                                            //-     .far.fa-file
+                                                            .container-fluid.p-3
+                                                                .col-md-12
+                                                                    .file-loading
+                                                                        input#file-input(type='file', name='file', accept='.xlsx')
+                                                                    #errorBlock.help-block
+
+                        //- .col-xl-6.col-md-12
+                        //-     div.dashboard-big--div.dashboard-big--div--second1
+                        //-         ul.second-area.non-overflow
+                        //-             li.active #{__('State Chart')}
+                        //-         div.non-overflow.p-3(style="margin-top:30px")
+                        //-             //- .row.mb-3
+                        //-             //-     .col-md-12.d-flex.justify-content-center.align-items-center
+                        //-             //-         .row.mb-1
+                        //-             //-             .col-md-6
+                        //-             //-                 button#checkbox.filter-button.btn(type='button', style="width:150px!important; border:none!important;") Select All
+                        //-             //-             .col-md-6
+                        //-             //-                 button#deleteButton.filter-button.btn(type='button', style="width:150px!important; border:none!important;") Clear All
+                        //-             //-     .col-md-12.d-flex.justify-content-center.align-items-center
+                        //-             //-         select.js-example-basic-multiple(name='states' multiple='multiple')
+                        //-             //-             each item in stateRobots
+                        //-             //-                 option(value=item.releaseName)=item.releaseName != null ? item.releaseName : 'robot yok'
+                        //-             //- hr
+                        //-             div.filter-div.d-flex.flex-row
+                        //-                 .col-md-6
+                        //-                     .input-append.date
+                        //-                         i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                        //-                         input.form-control.text-center.datepicker(name='startTimeStateChart', id="startTimeStateChart" placeholder=__('Start Date'),value=__('Start Date'))
+                        //-                 .col-md-6
+                        //-                     .input-append.date
+                        //-                         i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                        //-                         input.form-control.text-center.datepicker(name='endTimeStateChart', id="endTimeStateChart" placeholder=__('End Date'),value=__('End Date'))
+                        //-             div.row.justify-content-center.mb-4
+                        //-                 input.filter-button.btn(type="button", value="Month To Date", name="month-to-date2")
+                        //-                 input.filter-button.btn(type="button", value="Last Working Date", name="last-working-date2")
+                        //-                 input.filter-button.btn(type="button", value="Year To Date", name="year-to-date2")
+                        //-                 input.filter-button.btn(type="button", value="Last Week", name="last-week2")
+                        //-             include ../partials/rpad-chart1
+
+
+                    .chart-div.col-xl-4.col-md-12.state-division#chart-1-div(data-order = "1")
+                                div.dashboard-big--div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow
+                                        li.active(style="align-self: flex-start") #{__('StateChart')}
+                                    div.non-overflow.p-3
+                                        .row.mb-3
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center
+                                                label.labelRpa.mb-0
+                                                    | #{__('Robot')}
+                                                select.js-example-basic-multiple.robots(name='statesRobots' multiple='multiple' , id='statesRobots')
+                                                    each item in stateRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                        div.non-overflow.mt-3.p-3
+                                            div.filter-div.d-flex.flex-row
+                                                .col-md-6.pl-0
+                                                    label.labelRpa.mb-0
+                                                        | #{__('Start Date')}
+                                                    .input-append.date
+                                                        i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                        input.form-control.text-center.datepicker2(name='startTimeStateChartDatePicker', id="startTimeStateChartDatePicker" placeholder=__('Start Date'),value=__('Start Date'))
+                                                .col-md-6.pr-0
+                                                    label.labelRpa.mb-0
+                                                        | #{__('End Date')}
+                                                    .input-append.date
+                                                        i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                        input.form-control.text-center.datepicker2(name='endTimeStateChartDatePicker', id="endTimeStateChartDatePicker" placeholder=__('End Date'),value=__('End Date'))
+                                        div.row.justify-content-center.mb-3
+                                            button.filter-button.btn(type="button", name="month-to-date3") #{__('Month to Date')}
+                                            button.filter-button.btn(type="button", name="last-working-date3") #{__('Last Working Date')}
+                                            button.filter-button.btn(type="button", name="year-to-date3") #{__('Year to Date')}
+                                            button.filter-button.btn(type="button", name="last-week3") #{__('Last Week')}
+                                        div.row#alertTextStateChart.d-flex.justify-content-center
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart1-1
+
+                    //- .col-xl-6.col-md-12
+                    //-     div.dashboard-big--div--second1
+                    //-         ul.second-area.non-overflow.dashboard-big--div-second
+                    //-             li.active #{__('Robots Occupancy Date')}
+                    //-         div.non-overflow.p-3(style="margin-top:30px")
+                    //-             div.filter-div.d-flex.flex-row
+                    //-                 .col-md-6
+                    //-                     .input-append.date
+                    //-                         i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                    //-                         input.form-control.text-center.datepicker(name='startTime2', id="startTime2" placeholder=__('Start Date'),value=__('Start Date'))
+                    //-                 .col-md-6
+                    //-                     .input-append.date
+                    //-                         i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                    //-                         input.form-control.text-center.datepicker(name='endTime2', id="endTime2" placeholder=__('End Date'),value=__('End Date'))
+                    //-             div.row.justify-content-center
+                    //-                 input.filter-button.btn(type="button", value="Month To Date", name="month-to-date")
+                    //-                 input.filter-button.btn(type="button", value="Last Working Date", name="last-working-date")
+                    //-                 input.filter-button.btn(type="button", value="Year To Date", name="year-to-date")
+                    //-                 input.filter-button.btn(type="button", value="Last Week", name="last-week")
+                    //-             include ../partials/rpad-chart2
+
+                    //- Robots occupancy rate chart start here
+
+                    .chart-div.col-xl-4.col-md-12.robot-ocp-division#chart-2-div(data-order = "2")
+                                div.dashboard-big--div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow.dashboard-big--div-second
+                                        li.active #{__('RobotsOccupancyRate')}
+                                    div.non-overflow.p-3
+                                        .row.mb-3
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox2.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton2.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center
+                                                label.labelRpa.mb-0
+                                                    | Robot
+                                                select.js-example-basic-multiple2(name='occupanyRobots' multiple='multiple', id='occupanyRobots')
+                                                    each item in occupanyRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                        div.non-overflow.mt-3.p-3
+                                            div.filter-div.d-flex.flex-row
+                                                .col-md-6.pl-0
+                                                    label.labelRpa.mb-0
+                                                        | #{__('Start Date')}
+                                                    .input-append.date
+                                                        i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                        input.form-control.text-center.datepicker2(name='startTimeRobotsOccupancyRateDatePicker', id="startTimeRobotsOccupancyRateDatePicker" placeholder=__('Start Date'),value=__('Start Date'))
+                                                .col-md-6.pr-0
+                                                    label.labelRpa.mb-0
+                                                        | #{__('End Date')}
+                                                    .input-append.date
+                                                        i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                        input.form-control.text-center.datepicker2(name='endTimeRobotsOccupancyRateDatePicker', id="endTimeRobotsOccupancyRateDatePicker" placeholder=__('End Date'),value=__('End Date'))
+                                        div.row.justify-content-center.mb-3
+                                            button.filter-button.btn(type="button", name="month-to-date4") #{__('Month to Date')}
+                                            button.filter-button.btn(type="button", name="last-working-date4") #{__('Last Working Date')}
+                                            button.filter-button.btn(type="button", name="year-to-date4") #{__('Year to Date')}
+                                            button.filter-button.btn(type="button", name="last-week4") #{__('Last Week')}
+                                        div.row#alertrobotOcpChart.d-flex.justify-content-center
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart2-1
+
+                    //- Working hours occupancy rate chart start here
+
+                    .chart-div.col-xl-4.col-md-12.working-hours-division#chart-3-div(data-order = "3")
+                                div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow.dashboard-big--div-second
+                                        li.active #{__('Working Hours Occupancy Rate')}
+                                            if(locale === 'tr')
+                                                img.header-info-icon(src='/assets/images/info.svg' data-toggle="tooltip", data-html="true", title="Çalışma saatleri 09:00 - 18:00 olarak baz alınmıştır." )
+                                            if(locale === 'en')
+                                                img.header-info-icon(src='/assets/images/info.svg' data-toggle="tooltip", data-html="true", title="Working hours are based on 09:00 - 18:00." )
+                                    div.non-overflow.p-3
+                                        .row
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox-chart3.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton-chart3.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center.mt-1.mt-md-0
+                                                label.labelRpa.mb-0
+                                                    | Robot
+                                                select.js-example-basic-multiple-chart3(name='whoRobots' multiple='multiple' , id='whoRobots')
+                                                    each item in occupanyRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                    div.non-overflow.p-3
+                                        div.filter-div
+                                            .col-md-12.pl-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('Start Date')}
+                                                .input-append.date
+                                                    i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                    input.form-control.text-center.datepicker2.mb-3(style="display:flex ", name='workDate', id="workDate" placeholder=__('Tarih Seç'),value=__('Tarih Seçiniz'))
+                                        div.row.justify-content-center.mb-3.invisible(style="cursor:auto!important")
+                                            button.filter-button.btn(style="pointer-events:none", type="button", name="month-to-date4") #{__('Month to Date')}
+                                            button.filter-button.btn(style="pointer-events:none", type="button", name="last-working-date4") #{__('Last Working Date')}
+                                            button.filter-button.btn(style="pointer-events:none", type="button", name="year-to-date4") #{__('Year To Date')}
+                                            button.filter-button.btn(style="pointer-events:none", type="button", name="last-week4") #{__('Last Week')}
+                                        div.row#alertWorkingHourChart.d-flex.justify-content-center
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart3
+
+
+                    //- Weekly density chart in minutes start here
+
+                    .chart-div.col-xl-12.col-md-12.weekly-density-division#chart-4-div(data-order = "4")
+                                div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow.dashboard-big--div-second
+                                        li.active #{__('WeeklyDensityGraph')}
+                                    div.non-overflow.p-3
+                                        .row.mb-3
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox-chart4.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton-chart4.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center
+                                                label.labelRpa.mb-0
+                                                    | Robot
+                                                select.js-example-basic-multiple-chart4(name='wdRobots' multiple='multiple' , id='wdRobots')
+                                                    each item in occupanyRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                    div.non-overflow.mt-3.p-3
+                                        div.filter-div.d-flex.flex-row.mb-3
+                                            .col-md-6.pl-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('Start Date')}
+                                                .input-append.date
+                                                    i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                    input.form-control.text-center.datepicker2(name='startTime', id="startTime" placeholder=__('Başlangıç Tarihi'),value=__('Tarih Seçiniz'))
+                                            .col-md-6.pr-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('End Date')}
+                                                .input-append.date
+                                                    i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                    input.form-control.text-center.datepicker2(name='endTime', id="endTime" placeholder=__('Bitiş Tarihi'),value=__('Tarih Seçiniz'))
+                                        div.row#alertTextDailyDensityChart.d-flex.justify-content-center.mb-5.p-3
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart4
+
+
+                    //- Overall daily working hours chart in minutes start here
+
+                    .chart-div.col-xl-12.col-md-12.overall-daily-division#chart-5-div(data-order = "5")
+                                div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow.dashboard-big--div-second
+                                        li.active #{__('OverallDailyWorkingHours')}
+                                    div.non-overflow.p-3
+                                        .row.mb-3
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox-chart5.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton-chart5.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center
+                                                label.labelRpa.mb-0
+                                                    | Robot
+                                                select.js-example-basic-multiple-chart5(name='odwRobots' multiple='multiple' ,id='odwRobots')
+                                                    each item in occupanyRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                    div.non-overflow.p-3
+                                        div.filter-div.mb-3
+                                            .col-md-6.pl-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('Start Date')}
+                                                .input-append.date
+                                                    i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                    input.form-control.text-center.datepicker2(name='workDate2', id="workDate2" placeholder=__('Tarih Seç'),value=__('Tarih Seçiniz'))
+                                        div.row#alertOverallDailyChart.d-flex.justify-content-center
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart5
+
+                    //- Total time monthly chart in minutes start here
+
+                    .chart-div.col-xl-12.col-md-12.total-time-division#chart-6-div(data-order = "6")
+                                div.dashboard-big--div--second1
+                                    ul.second-area.non-overflow.dashboard-big--div-second
+                                        li.active #{__('Total Time Monthly (Min.)')}
+                                    div.non-overflow.p-3
+                                        .row.mb-3
+                                            .col-md-12.d-flex.justify-content-center.align-items-center
+                                                .row.mb-1
+                                                    .col-md-6
+                                                        button#checkbox3.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                                    .col-md-6
+                                                        button#deleteButton3.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                            .col-md-12.justify-content-center.align-items-center
+                                                label.labelRpa.mb-0
+                                                    | Robot
+                                                select.js-example-basic-multiple3(name='releaseRobots' multiple='multiple' , id="releaseRobots")
+                                                    each item in occupanyRobots
+                                                        if(item.hostMachineName != null)
+                                                            option(value=item.hostMachineName, selected=true)=item.hostMachineName
+                                        div.filter-div.d-flex
+                                            .col-md-6.pl-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('Year')}
+                                                select.chart-select-module.js-example-basic-single(name="releaseTotalTimeChart_filter" id="releaseTotalTimeChart_year")
+                                                    option(value='') #{__('Year')}
+                                                    if years
+                                                        each year in years
+                                                            option(value=year)=year
+                                            .col-md-6.pr-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('Month')}
+                                                select.chart-select-module.js-example-basic-single(name="releaseTotalTimeChart_filter" id="releaseTotalTimeChart_month")
+                                        div.row#alertTextReleaseChart.d-flex.justify-content-center
+                                            p(style="color:red!important;")
+                                        include ../partials/rpad-chart7
+
+                    //- Queue Total Time Chart start
+
+                    .chart-div.col-xl-12.col-md-12.queue-time-division#chart-8-div(data-order = "7")
+                        div.dashboard-big--div--second1
+                            ul.second-area.non-overflow.dashboard-big--div-second
+                                li.active #{__('Queues Total Time (Min.)')}
+                            div.non-overflow.p-3
+                                .row.mb-3
+                                    .col-md-12.d-flex.justify-content-center.align-items-center
+                                        .row.mb-1
+                                            .col-md-6
+                                                button#checkbox-chart8-queue.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                            .col-md-6
+                                                button#deleteButton-chart8-queue.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                    .col-md-12.justify-content-center.align-items-center
+                                        label.labelRpa.mb-0
+                                            | #{__('Queue Name')}
+                                        select.js-example-basic-multiple-chart8-queue(name='queueNames' multiple='multiple' , id="queueNames")
+                                            if queueTransactionTimeChart
+                                                each item in queueTransactionTimeChart
+                                                    if(item.queueName != null)
+                                                        option(value=item.queueName, selected=true)=item.queueName
+                                .row.mb-3
+                                    .col-md-12.d-flex.justify-content-center.align-items-center
+                                        .row.mb-1
+                                            .col-md-6
+                                                button#checkbox-chart8-robot.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                            .col-md-6
+                                                button#deleteButton-chart8-robot.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                    .col-md-12.justify-content-center.align-items-center
+                                        label.labelRpa.mb-0
+                                            | Robot 
+                                        select.js-example-basic-multiple-chart8-robot(name='queueRobots' multiple='multiple' , id="queueRobots")
+                                            if lastQueueDateInformation
+                                                each item in lastQueueDateInformation
+                                                    if(item.robotName != null)
+                                                        option(value=item.robotName, selected=true)=item.robotName
+
+                            div.non-overflow.mt-3.p-3
+                                div.filter-div.d-flex.flex-row.mb-3
+                                    .col-md-6.pl-0
+                                        label.labelRpa.mb-0
+                                            | #{__('Start Date')}
+                                        .input-append.date
+                                            i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                            input.form-control.text-center.datepicker2(name='qttStartTime', id="qttStartTime" placeholder=__('Başlangıç Tarihi'),value=__('Tarih Seçiniz'))
+                                    .col-md-6.pr-0
+                                        label.labelRpa.mb-0
+                                            | #{__('End Date')}
+                                        .input-append.date
+                                            i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                            input.form-control.text-center.datepicker2(name='qttEndTime', id="qttEndTime" placeholder=__('Bitiş Tarihi'),value=__('Tarih Seçiniz'))
+                                div.row#alertTextQueueTransactionChart.d-flex.justify-content-center.mb-5.p-3
+                                    p(style="color:red!important;")
+                                include ../partials/rpad-chart8
+                    
+                    //- Queue Status Chart start
+                    .chart-div.col-xl-12.col-md-12.queue-status-division#chart-9-div(data-order = "8")
+                        div.dashboard-big--div--second1
+                            ul.second-area.non-overflow.dashboard-big--div-second
+                                li.active #{__('Queues Status Chart')}
+                            div.non-overflow.p-3
+                                .row.mb-3
+                                    .col-md-12.d-flex.justify-content-center.align-items-center
+                                        .row.mb-1
+                                            .col-md-6
+                                                button#checkbox-chart9-queue.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Select All')}
+                                            .col-md-6
+                                                button#deleteButton-chart9-queue.filter-button.btn(type='button', style="width:150px!important; border:none!important;") #{__('Clear All')}
+                                    .col-md-12.justify-content-center.align-items-center
+                                        label.labelRpa.mb-0
+                                            | #{__('Queue Name')}
+                                        select.js-example-basic-multiple-chart9-queue(name='queueStatusNames' multiple='multiple' , id="queueStatusNames")
+                                            if queueTransactionTimeChart
+                                                each item in queueTransactionTimeChart
+                                                    if(item.queueName != null)
+                                                        option(value=item.queueName, selected=true)=item.queueName
+                            div.non-overflow.mt-3.p-3
+                                div.filter-div.d-flex.flex-row.mb-3
+                                    .col-md-6.pl-0
+                                        label.labelRpa.mb-0
+                                            | #{__('Start Date')}
+                                        .input-append.date
+                                            i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                            input.form-control.text-center.datepicker2(name='queueStatusStartTime', id="queueStatusStartTime" placeholder=__('Başlangıç Tarihi'),value=__('Tarih Seçiniz'))
+                                    .col-md-6.pr-0
+                                        label.labelRpa.mb-0
+                                            | #{__('End Date')}
+                                        .input-append.date
+                                            i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                            input.form-control.text-center.datepicker2(name='queueStatusEndTime', id="queueStatusEndTime" placeholder=__('Bitiş Tarihi'),value=__('Tarih Seçiniz'))
+                                div.row#alertTextQueueStatusChart.d-flex.justify-content-center.mb-5.p-3
+                                    p(style="color:red!important;")
+                                include ../partials/rpad-chart9
+
+                footer.footer.text-center
+                    p.font-12.mb-0.mr-4
+                        span
+                        | Powered by 
+                        a(target='_blank', href='https://www.linktera.com/') Linktera 
+                        span © 2022
+                        br
+                        span #{'ver.' + version }
+
+                script.
+                    function openPopupDocuments() {
+                        getFilesWindow("FMU");}
+                    
+                    const userId = JSON.parse('!{JSON.stringify(userId)}')
+
+                    $(document).ready(function() {
+
+                        $('.datepicker2').datepicker({
+                            format: "dd/mm/yyyy",
+                            orientation: 'bottom left',
+                            language: locale,
+                            autoclose: true,
+                        });
+
+
+                        $('.js-example-basic-multiple').select2();
+                        $('.js-example-basic-single').select2();
+                        $("#checkbox").click(function(){
+                            $(".js-example-basic-multiple > option").prop("selected","selected");
+                            $(".js-example-basic-multiple").trigger("change");
+                        });
+                        $("#deleteButton").click(function () {
+                            $(".js-example-basic-multiple").val(null).trigger("change");
+                        });
+
+                        $('.js-example-basic-multiple2').select2();
+                        $("#checkbox2").click(function(){
+                            $(".js-example-basic-multiple2 > option").prop("selected","selected");
+                            $(".js-example-basic-multiple2").trigger("change");
+                        });
+                        $("#deleteButton2").click(function () {
+                            $(".js-example-basic-multiple2").val(null).trigger("change");
+                        });
+
+                        $('.js-example-basic-multiple3').select2();
+                        $("#checkbox3").click(function(){
+                            $(".js-example-basic-multiple3 > option").prop("selected","selected");
+                            $(".js-example-basic-multiple3").trigger("change");
+                        });
+                        $("#deleteButton3").click(function () {
+                            $(".js-example-basic-multiple3").val(null).trigger("change");
+                        });
+
+                        $('.js-example-basic-multiple-chart3').select2();
+                        $("#checkbox-chart3").click(function(){
+                            $(".js-example-basic-multiple-chart3 > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart3").trigger("change");
+                        });
+                        $("#deleteButton-chart3").click(function () {
+                            $(".js-example-basic-multiple-chart3").val(null).trigger("change");
+                        });
+
+                        $('.js-example-basic-multiple-chart4').select2();
+                        $("#checkbox-chart4").click(function(){
+                            $(".js-example-basic-multiple-chart4 > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart4").trigger("change");
+                        });
+                        $("#deleteButton-chart4").click(function () {
+                            $(".js-example-basic-multiple-chart4").val(null).trigger("change");
+                        });
+
+                        $('.js-example-basic-multiple-chart5').select2();
+                        $("#checkbox-chart5").click(function(){
+                            $(".js-example-basic-multiple-chart5 > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart5").trigger("change");
+                        });
+                        $("#deleteButton-chart5").click(function () {
+                            $(".js-example-basic-multiple-chart5").val(null).trigger("change");
+                        });
+                        $('.js-example-basic-multiple-chart8-robot').select2();
+                        $("#checkbox-chart8-robot").click(function(){
+                            $(".js-example-basic-multiple-chart8-robot > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart8-robot").trigger("change");
+                        });
+                        $("#deleteButton-chart8-robot").click(function () {
+                            $(".js-example-basic-multiple-chart8-robot").val(null).trigger("change");
+                        });
+                        $('.js-example-basic-multiple-chart8-queue').select2();
+                        $("#checkbox-chart8-queue").click(function(){
+                            $(".js-example-basic-multiple-chart8-queue > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart8-queue").trigger("change");
+                        });
+                        $("#deleteButton-chart8-queue").click(function () {
+                            $(".js-example-basic-multiple-chart8-queue").val(null).trigger("change");
+                        });
+                        $('.js-example-basic-multiple-chart9-queue').select2();
+                        $("#checkbox-chart9-queue").click(function(){
+                            $(".js-example-basic-multiple-chart9-queue > option").prop("selected","selected");
+                            $(".js-example-basic-multiple-chart9-queue").trigger("change");
+                        });
+                        $("#deleteButton-chart9-queue").click(function () {
+                            $(".js-example-basic-multiple-chart9-queue").val(null).trigger("change");
+                        });
+                        // Print whole page part
+                        $("#btn").click(function () {
+                            domtoimage.toJpeg(document.getElementById('allChartsPrint'), { quality: 1 })
+                                .then(function (dataUrl) {
+                                    var link = document.createElement('a');
+                                    link.download = 'RPA Dashboard.png';
+                                    link.href = dataUrl;
+                                    link.click();
+                                    //- footerCustom.remove();
+                                });
+                        });
+
+                        //- Status chart default date - first day of the month to last day of the month
+                        //$('button[name="last-working-date3"]').trigger( "click" );
+
+                        //- Robots occupancy rate chart - first day of the month to last day of the month
+                        //$('button[name="last-working-date4"]').trigger( "click" );
+                        
+
+                        //chartların içindeki filtreleri kaydedildiği yer
+                        $("input, select").on("change", function () {
+                            //veriler burada depolanacak.
+                            var chartData = []
+                            let startTimeStateChartDatePicker = $("#startTimeStateChartDatePicker").val()
+                            let endTimeStateChartDatePicker = $("#endTimeStateChartDatePicker").val()
+                            let statesRobots = $("#statesRobots").val()
+                            let selectedRobotsString = statesRobots.join(", ");
+                            var chart1 = {
+                                uuid : userId,
+                                chartName : "chart1",
+                                robots : selectedRobotsString,
+                                date1: startTimeStateChartDatePicker,
+                                date2: endTimeStateChartDatePicker
+                            }
+                            let startTimeRobotsOccupancyRateDatePicker = $("#startTimeRobotsOccupancyRateDatePicker").val()
+                            let endTimeRobotsOccupancyRateDatePicker = $("#endTimeRobotsOccupancyRateDatePicker").val()
+                            let occupanyRobots = $('#occupanyRobots').val()
+                            let occupanyRobotsString = occupanyRobots.join(", ")
+                            var chart2 = {
+                                uuid: userId,
+                                chartName : "chart2",
+                                robots : occupanyRobotsString,
+                                date1 : startTimeRobotsOccupancyRateDatePicker,
+                                date2 : endTimeRobotsOccupancyRateDatePicker
+                            }
+                            let workDate = $("#workDate").val();
+                            let whoRobots = $("#whoRobots").val()
+                            let whoRobotsString = whoRobots.join(", ")
+                            var chart3 = {
+                                uuid : userId,
+                                chartName : "chart3",
+                                robots : whoRobotsString,
+                                date1 : workDate,
+                                date2 : null
+                            }
+                            let startTime = $("#startTime").val()
+                            let endTime = $("#endTime").val()
+                            let wdRobots = $("#wdRobots").val()
+                            let wdRobotsString = wdRobots.join(", ")
+                            var chart4 = {
+                                uuid : userId,
+                                chartName : "chart4",
+                                robots : wdRobotsString,
+                                date1: startTime,
+                                date2: endTime
+                            }
+                            let workDate2 = $("#workDate2").val()
+                            let odwRobots = $("#odwRobots").val()
+                            let odwRobotsString = odwRobots.join(", ")
+                            var chart5 = {
+                                uuid : userId,
+                                chartName : "chart5",
+                                robots : odwRobotsString,
+                                date1 : workDate2,
+                                date2: null
+                            }
+                            let releaseTotalTimeChart_year = $("#releaseTotalTimeChart_year").val()
+                            let releaseTotalTimeChart_month = $("#releaseTotalTimeChart_month").val()
+                            let releaseRobots = $("#releaseRobots").val()
+                            let releaseRobotsString = releaseRobots.join(", ")
+                            var chart6 = {
+                                uuid : userId,
+                                chartName : "chart6",
+                                robots : releaseRobotsString,
+                                date1 : releaseTotalTimeChart_year,
+                                date2 : releaseTotalTimeChart_month
+                            }
+                            let qttStartTime = $("#qttStartTime").val()
+                            let qttEndTime = $("#qttEndTime").val()
+                            let queueRobots = $("#queueRobots").val()
+                            let queueNames = $("#queueNames").val()
+                            let queueNameString = queueNames.join(", ");
+                            let robotNameString = queueRobots.join(", ");
+                            let queueRobotNames = queueNameString + "|" + robotNameString
+                            var chart8 = {
+                                uuid : userId,
+                                chartName : "chart8",
+                                robots : queueRobotNames,
+                                date1: qttStartTime,
+                                date2: qttEndTime
+                            }
+                            let queueStatusStartTime = $("#queueStatusStartTime").val()
+                            let queueStatusEndTime = $("#queueStatusEndTime").val()
+                            let queueStatusNames = $("#queueStatusNames").val()
+                            let queueStatusNamesString = queueStatusNames.join(", ")
+                            var chart9 = {
+                                uuid : userId,
+                                chartName : "chart9",
+                                robots : queueStatusNamesString,
+                                date1: queueStatusStartTime,
+                                date2: queueStatusEndTime
+                            }
+                            chartData.push(chart1, chart2, chart3, chart4, chart5, chart6, chart8, chart9)
+                            savedChartFilters = {historyList: chartData}
+
+                            $.ajax({
+                                url: "/rpad-history",
+                                type: 'POST',
+                                data: savedChartFilters,
+                                dataType: 'json',
+                                success: function (res) {
+                                    console.log(`send process is successful`)
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error(`error message : ${error}\nerror status : ${status}\nerror xhr : ${xhr}`)
+                                }
+                            })
+                        });
+
+                        $(".datepicker2").toArray().forEach(function (inp) {
+                            var $this = $(inp),
+                                options2 = {
+                                    format: "dd/mm/yyyy",
+                                    orientation: 'bottom left',
+                                    language: locale,
+                                };
+                            $this.datepicker(options2);
+                        });
+                    });
+
+
+
+                    $(window).on("load",function () {
+                        $('#exampleModal').on('hide.bs.modal', function () {
+                            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                                document.activeElement.blur();
+                            }
+                        });
+
+                        const arrangement = JSON.parse('!{JSON.stringify(arrangement)}')
+                        const rpadChartsStatusList = arrangement && arrangement.rpadChartsStatusList ? arrangement.rpadChartsStatusList : [];
+                        let currentOrder = []
+                        for (let i=0;i<8;i++){
+                            currentOrder.push(rpadChartsStatusList[i] ? rpadChartsStatusList[i].location : i)
+                        }
+                        $("#sortable .chart-div").sort(function(a, b) {
+                            return $(a).data("position") - $(b).data("position");
+                        }).appendTo("#bout");
+                        $("#sortable .chart-div").sort(function(a, b) {
+                            // İki div'in data-order değerlerini al
+                            let aOrder = $(a).data("order");
+                            let bOrder = $(b).data("order");
+
+                            return currentOrder.indexOf(aOrder) - currentOrder.indexOf(bOrder);
+                        }).appendTo("#sortable");
+
+
+                        for (let i = 0; i < rpadChartsStatusList.length; i++) {
+                            if (!rpadChartsStatusList[i].chartStatus) {
+                                const chartDivId = `chart-${i + 1}-div`;
+                                $('#' + chartDivId).addClass('d-none');
+                            }
+                        }
+
+                    })
