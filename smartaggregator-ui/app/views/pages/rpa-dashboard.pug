@@ -4,7 +4,13 @@ block content
         style.
             /* ── Layout ── */
             header.topbar { display: none !important; }
-            .page-wrapper { margin-left: 260px !important; padding-top: 20px !important; transition: margin-left 0.3s ease; }
+            .page-wrapper {
+                margin-left: 230px !important;
+                padding-top: 10px !important;
+                transition: margin-left 0.3s ease;
+                background: #f3f5f8 !important;
+                min-height: 100vh;
+            }
             .page-wrapper.rpad-sidebar-collapsed { margin-left: 72px !important; }
             @media (max-width: 768px) {
                 .rpad-sidebar { left: -260px !important; }
@@ -17,10 +23,10 @@ block content
                 position: fixed !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 260px !important;
+                width: 230px !important;
                 height: 100vh !important;
                 background: #ffffff !important;
-                box-shadow: 2px 0 8px rgba(0,0,0,.08) !important;
+                box-shadow: 1px 0 2px rgba(16,24,40,.06) !important;
                 display: flex !important;
                 flex-direction: column !important;
                 z-index: 1050 !important;
@@ -34,10 +40,10 @@ block content
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                padding: 18px 16px !important;
-                border-bottom: 1px solid #f0f0f0 !important;
+                padding: 10px 12px !important;
+                border-bottom: 1px solid #edf0f4 !important;
                 flex-shrink: 0 !important;
-                min-height: 64px !important;
+                min-height: 56px !important;
             }
             .rpad-sidebar--collapsed .rpad-sidebar__header { justify-content: center !important; }
             .rpad-sidebar__logo img { height: 28px !important; transition: opacity .2s; }
@@ -58,15 +64,15 @@ block content
             .rpad-sidebar__toggle .svg-icon { width: 20px !important; height: 20px !important; }
 
             /* ── Sidebar nav ── */
-            .rpad-sidebar__nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 12px 0; }
+            .rpad-sidebar__nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 10px 0; }
             .rpad-sidebar__section { margin-bottom: 4px; }
             .rpad-sidebar__section-title {
-                padding: 6px 20px;
-                font-size: 10px;
+                padding: 10px 18px 6px;
+                font-size: 12px;
                 font-weight: 700;
-                color: #bfbfbf;
-                letter-spacing: .1em;
-                text-transform: uppercase;
+                color: #9aa3b2;
+                letter-spacing: 0;
+                text-transform: none;
                 white-space: nowrap;
                 overflow: hidden;
                 transition: opacity .2s;
@@ -77,19 +83,19 @@ block content
             .rpad-sidebar__link {
                 display: flex !important;
                 align-items: center !important;
-                padding: 9px 12px !important;
+                padding: 10px 12px !important;
                 border-radius: 8px !important;
-                color: #595959 !important;
+                color: #4b5563 !important;
                 text-decoration: none !important;
-                font-size: 13.5px !important;
-                font-weight: 400 !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
                 transition: background .15s, color .15s;
                 gap: 10px !important;
                 white-space: nowrap;
                 overflow: hidden;
             }
-            .rpad-sidebar__link:hover { background: #f5f5f5 !important; color: #262626 !important; }
-            .rpad-sidebar__link.active { background: #e6f7ff !important; color: #1890ff !important; font-weight: 500 !important; }
+            .rpad-sidebar__link:hover { background: #f2f5fb !important; color: #1d4ed8 !important; }
+            .rpad-sidebar__link.active { background: #e9efff !important; color: #2957c8 !important; font-weight: 600 !important; }
             .rpad-sidebar__link .svg-icon { width: 17px !important; height: 17px !important; flex-shrink: 0 !important; }
             .rpad-sidebar--collapsed .rpad-sidebar__link span { opacity: 0; width: 0; overflow: hidden; }
 
@@ -119,32 +125,359 @@ block content
             .rpad-sidebar__logout .svg-icon { width: 17px !important; height: 17px !important; }
 
             /* ── Stat cards ── */
-            .rpad-stats-row { display: flex !important; gap: 16px !important; flex-wrap: wrap !important; margin-bottom: 4px !important; }
+            .dashboard-shell { max-width: 1240px; margin: 0 auto; }
+            .dashboard-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+            .dashboard-topbar__left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .dashboard-title {
+                font-size: 32px;
+                font-weight: 700;
+                color: #1f2937;
+                margin: 0;
+                line-height: 1;
+            }
+            .dashboard-chip {
+                font-size: 12px;
+                color: #6b7280;
+                border: 1px solid #dbe1ea;
+                border-radius: 6px;
+                background: #fff;
+                padding: 3px 8px;
+            }
+            .dashboard-topbar__right { display: flex; align-items: center; gap: 8px; }
+            .dash-btn {
+                border: 1px solid #d7ddea;
+                background: #fff;
+                border-radius: 10px;
+                height: 38px;
+                padding: 0 14px;
+                font-size: 14px;
+                color: #374151;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .dash-btn--primary {
+                border-color: #2f5ecc;
+                color: #2f5ecc;
+            }
+            .rpad-stats-row { display: flex !important; gap: 10px !important; flex-wrap: wrap !important; margin-bottom: 14px !important; }
             .rpad-stat-card {
                 flex: 1 !important;
-                min-width: 200px !important;
+                min-width: 185px !important;
                 background: #ffffff !important;
-                border-radius: 12px !important;
-                padding: 18px 20px !important;
-                box-shadow: 0 2px 8px rgba(0,0,0,.06) !important;
+                border-radius: 8px !important;
+                padding: 14px 14px !important;
+                border: 1px solid #e7ebf2;
+                box-shadow: none !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                gap: 16px !important;
+                gap: 10px !important;
             }
             .rpad-stat-card__info { flex: 1; min-width: 0; }
-            .rpad-stat-card__label { font-size: 12px; color: #8c8c8c; font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
-            .rpad-stat-card__value { font-size: 30px !important; font-weight: 700 !important; color: #262626 !important; line-height: 1.1; }
-            .rpad-stat-card__icon { width: 52px !important; height: 52px !important; border-radius: 14px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
-            .rpad-stat-card__icon .svg-icon { width: 22px !important; height: 22px !important; }
-            .rpad-stat-card__icon--blue   { background: #e6f7ff !important; }
-            .rpad-stat-card__icon--blue   .svg-icon { color: #1890ff !important; stroke: #1890ff !important; }
-            .rpad-stat-card__icon--purple { background: #f9f0ff !important; }
-            .rpad-stat-card__icon--purple .svg-icon { color: #722ed1 !important; stroke: #722ed1 !important; }
-            .rpad-stat-card__icon--orange { background: #fff7e6 !important; }
-            .rpad-stat-card__icon--orange .svg-icon { color: #fa8c16 !important; stroke: #fa8c16 !important; }
-            .rpad-stat-card__icon--green  { background: #f6ffed !important; }
-            .rpad-stat-card__icon--green  .svg-icon { color: #52c41a !important; stroke: #52c41a !important; }
+            .rpad-stat-card__label { font-size: 13px; color: #8b93a1; font-weight: 500; margin-bottom: 6px; text-transform: none; letter-spacing: 0; }
+            .rpad-stat-card__value { font-size: 34px !important; font-weight: 700 !important; color: #1f2937 !important; line-height: 1; }
+            .rpad-stat-card__icon { width: 44px !important; height: 44px !important; border-radius: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+            .rpad-stat-card__icon .svg-icon { width: 18px !important; height: 18px !important; }
+            .rpad-stat-card__icon--blue,
+            .rpad-stat-card__icon--purple,
+            .rpad-stat-card__icon--orange,
+            .rpad-stat-card__icon--green { background: #e9eef7 !important; }
+            .rpad-stat-card__icon .svg-icon { color: #2f5ecc !important; stroke: #2f5ecc !important; }
+
+            .dashboard-toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+            .dashboard-tabs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                width: 100%;
+                max-width: 640px;
+            }
+            .dashboard-tab {
+                height: 36px;
+                border: 1px solid #e3e7ef;
+                border-radius: 8px;
+                background: #f6f7fa;
+                color: #5a6575;
+                font-size: 20px;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .dashboard-tab.active {
+                background: #fff;
+                border-color: #d4dbeb;
+                color: #303a4a;
+            }
+            .dashboard-actions {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .dash-chip-btn {
+                height: 36px;
+                border-radius: 8px;
+                border: 1px solid #d7ddea;
+                padding: 0 14px;
+                font-size: 20px;
+                font-weight: 600;
+                color: #3b4453;
+                background: #fff;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .dash-chip-btn.primary {
+                background: #2f5ecc;
+                border-color: #2f5ecc;
+                color: #fff;
+            }
+
+            .dashboard-config-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(16,24,40,.45);
+                z-index: 1998;
+                display: none;
+            }
+            .dashboard-config-backdrop.open { display: block; }
+            .dashboard-config-panel {
+                position: fixed;
+                top: 0;
+                right: -520px;
+                width: 500px;
+                max-width: 96vw;
+                height: 100vh;
+                background: #fff;
+                z-index: 1999;
+                border-left: 1px solid #e5e7eb;
+                box-shadow: -12px 0 40px rgba(2, 6, 23, .18);
+                transition: right .25s ease;
+                display: flex;
+                flex-direction: column;
+            }
+            .dashboard-config-panel.open { right: 0; }
+            .cfg-head {
+                height: 58px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0 16px;
+                border-bottom: 1px solid #edf1f6;
+                font-size: 30px;
+                font-weight: 700;
+                color: #1f2937;
+            }
+            .cfg-close {
+                border: none;
+                background: transparent;
+                color: #9ca3af;
+                font-size: 26px;
+                line-height: 1;
+                padding: 0;
+            }
+            .cfg-body {
+                flex: 1;
+                overflow: auto;
+                padding: 16px;
+                background: #f9fafb;
+            }
+            .cfg-note {
+                border: 1px solid #f2d06f;
+                background: #fff9e8;
+                border-radius: 8px;
+                color: #7c5f10;
+                padding: 10px 12px;
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+            .cfg-section {
+                border: 1px solid #e6eaf1;
+                border-radius: 8px;
+                background: #fff;
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            .cfg-section-head {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            .cfg-section-title {
+                font-size: 30px;
+                font-weight: 700;
+                color: #2f3a4b;
+            }
+            .cfg-section-divider {
+                border-top: 1px solid #eef1f5;
+                margin: 8px 0 10px;
+            }
+            .cfg-grid-3 {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0,1fr));
+                gap: 8px;
+            }
+            .cfg-grid-1 {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+                margin-top: 8px;
+            }
+            .cfg-item {
+                border: 1px solid #e7ebf2;
+                border-radius: 8px;
+                background: #fff;
+                min-height: 72px;
+                padding: 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                gap: 8px;
+            }
+            .cfg-item__title {
+                font-size: 16px;
+                color: #374151;
+                font-weight: 600;
+                line-height: 1.25;
+            }
+            .cfg-item__actions {
+                display: inline-flex;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .cfg-act-btn {
+                width: 34px;
+                height: 24px;
+                border: none;
+                background: #f5f6f8;
+                color: #6b7280;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+            }
+            .cfg-act-btn.active {
+                background: #e8efff;
+                color: #2f5ecc;
+            }
+            .cfg-act-btn + .cfg-act-btn { border-left: 1px solid #e5e7eb; }
+            .cfg-switch-wrap {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .cfg-switch-label {
+                font-size: 16px;
+                color: #6b7280;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                padding: 2px 8px;
+            }
+            .cfg-switch {
+                appearance: none;
+                width: 40px;
+                height: 22px;
+                border-radius: 999px;
+                background: #cfd5de;
+                position: relative;
+                outline: none;
+                cursor: pointer;
+            }
+            .cfg-switch:before {
+                content: '';
+                width: 18px;
+                height: 18px;
+                border-radius: 50%;
+                background: #fff;
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                transition: all .2s ease;
+            }
+            .cfg-switch:checked { background: #2f5ecc; }
+            .cfg-switch:checked:before { left: 20px; }
+            .cfg-footer {
+                border-top: 1px solid #edf1f6;
+                padding: 12px 16px;
+                background: #fff;
+                display: flex;
+                justify-content: flex-end;
+            }
+            .cfg-save-btn {
+                border: none;
+                background: #2f5ecc;
+                color: #fff;
+                border-radius: 8px;
+                height: 36px;
+                padding: 0 16px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .chart-div .dashboard-big--div,
+            .chart-div .dashboard-big--div--second1 {
+                background: #fff !important;
+                border: 1px solid #e7ebf2 !important;
+                border-radius: 8px !important;
+                box-shadow: none !important;
+            }
+            .second-area {
+                background: transparent !important;
+                border-bottom: 1px solid #eef2f7 !important;
+                padding: 12px 14px !important;
+            }
+            .second-area li {
+                font-size: 22px !important;
+                font-weight: 700 !important;
+                color: #1f2937 !important;
+            }
+
+            .page-wrapper:not(.dashboard-filters-open) button[id^='checkbox'],
+            .page-wrapper:not(.dashboard-filters-open) button[id^='deleteButton'] { display: none !important; }
+            .page-wrapper:not(.dashboard-filters-open) .chart-div .row.mb-3 .col-md-12.justify-content-center,
+            .page-wrapper:not(.dashboard-filters-open) .chart-div .filter-div,
+            .page-wrapper:not(.dashboard-filters-open) .chart-div .row.justify-content-center.mb-3,
+            .page-wrapper:not(.dashboard-filters-open) .chart-div .row.justify-content-center.mb-4,
+            .page-wrapper:not(.dashboard-filters-open) .chart-div [id^='alert'] { display: none !important; }
+
+            .lastDataDateTransitionClass {
+                text-align: left !important;
+                color: #6b7280 !important;
+                font-size: 13px !important;
+                margin-bottom: 10px !important;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard-title { font-size: 24px; }
+                .dashboard-topbar { flex-direction: column; align-items: flex-start; }
+                .dashboard-topbar__right { width: 100%; }
+                .dashboard-toolbar { flex-direction: column; align-items: stretch; }
+                .dashboard-actions { width: 100%; }
+                .dash-chip-btn { flex: 1; justify-content: center; }
+            }
         script.
             const {Pie} = G2Plot;
             const checkRoles = JSON.parse('!{JSON.stringify(checkRoles)}')
@@ -169,12 +502,28 @@ block content
         include ../partials/header
         include ../partials/rpad-sidebar
         include ../partials/rpad-data-chart
-        .page-wrapper#allChartsPrint.d-flex.justify-content-center(style="display:block; width:100%; margin-bottom:2%; padding-top:30px!important;")
-            .container.d-flex.justify-content-center(style="position:absolute; z-index:1;")
-                .row 
-                    b.logo-icon
-                        img.dark-logo(src='/assets/images/linktera-robotics-logo.png' alt='Linktera Robotics' style='height:86px; width:auto;')
-            .container.p-5(style="margin-top:4rem!important;")
+        .page-wrapper#allChartsPrint.d-flex.justify-content-center(style="display:block; width:100%; margin-bottom:2%;")
+            .container-fluid.px-3.py-2.dashboard-shell
+                .dashboard-topbar
+                    .dashboard-topbar__left
+                        h1.dashboard-title Dashboard
+                        if lastDataDateInformation[0]
+                            span.dashboard-chip Son Güncelleme: #{lastDataDateInformation[0].lastDate} 00:00:00
+                        else
+                            span.dashboard-chip Son Güncelleme: 00/00/0000 00:00:00
+                    .dashboard-topbar__right
+                        button#dashboardExportBtn.dash-btn.dash-btn--primary(type='button')
+                            i.svg-icon(data-feather='download')
+                            span Dışa Aktar
+                        if locale == 'en'
+                            a.dash-btn(href=`${originalPath()}?lang=tr`)
+                                i.svg-icon(data-feather='globe')
+                                span EN
+                        else
+                            a.dash-btn(href=`${originalPath()}?lang=en`)
+                                i.svg-icon(data-feather='globe')
+                                span EN
+
                 .row
                     .col-sm-6.align-self-center
                     .col-md-12
@@ -198,19 +547,19 @@ block content
                         .rpad-stats-row
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Toplam Robot
+                                    .rpad-stat-card__label Robot
                                     .rpad-stat-card__value= _totalRobots
                                 .rpad-stat-card__icon.rpad-stat-card__icon--blue
                                     i.svg-icon(data-feather='cpu')
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Toplam Kuyruk
+                                    .rpad-stat-card__label Kuyruk
                                     .rpad-stat-card__value= _totalQueues
                                 .rpad-stat-card__icon.rpad-stat-card__icon--purple
                                     i.svg-icon(data-feather='git-branch')
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Toplam Süreç
+                                    .rpad-stat-card__label Süreç
                                     .rpad-stat-card__value= _totalProcesses
                                 .rpad-stat-card__icon.rpad-stat-card__icon--orange
                                     i.svg-icon(data-feather='zap')
@@ -220,6 +569,97 @@ block content
                                     .rpad-stat-card__value= _successRate + '%'
                                 .rpad-stat-card__icon.rpad-stat-card__icon--green
                                     i.svg-icon(data-feather='check-circle')
+                .dashboard-toolbar
+                    .dashboard-tabs
+                        .dashboard-tab.active Robot Analitiği
+                        .dashboard-tab Kuyruk Analitiği
+                    .dashboard-actions
+                        button#dashboardEditBtn.dash-chip-btn(type='button')
+                            i.svg-icon(data-feather='edit-3')
+                            span Düzenle
+                        button#dashboardFilterBtn.dash-chip-btn.primary(type='button')
+                            span Filtreler
+                            i.svg-icon(data-feather='menu')
+
+                .dashboard-config-backdrop#dashboardConfigBackdrop
+                aside.dashboard-config-panel#dashboardConfigPanel
+                    .cfg-head
+                        button.cfg-close#dashboardConfigClose(type='button') ×
+                        span Dashboard Düzenle
+                    .cfg-body
+                        .cfg-note
+                            span Aşağıdaki alanların görünürlüğünü değiştirerek kontrol panelini özelleştirebilirsiniz.
+
+                        .cfg-section
+                            .cfg-section-head
+                                .cfg-section-title Robot Analitiği
+                                .cfg-switch-wrap
+                                    span.cfg-switch-label Bölüm
+                                    input#cfg-section-robot.cfg-switch(type='checkbox' checked)
+                            .cfg-section-divider
+                            .cfg-grid-3
+                                .cfg-item
+                                    .cfg-item__title Süreç Durumları
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='1' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='1' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+                                .cfg-item
+                                    .cfg-item__title Robot Doluluk
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='2' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='2' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+                                .cfg-item
+                                    .cfg-item__title Çalışma Saatleri Doluluk
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='3' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='3' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+                            .cfg-grid-1
+                                .cfg-item
+                                    .cfg-item__title Haftalık Yoğunluk
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='4' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='4' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+                                .cfg-item
+                                    .cfg-item__title Günlük Çalışma Süresi
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='5' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='5' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+
+                        .cfg-section
+                            .cfg-section-head
+                                .cfg-section-title Süreç Analitiği
+                                .cfg-switch-wrap
+                                    span.cfg-switch-label Bölüm
+                                    input#cfg-section-process.cfg-switch(type='checkbox' checked)
+                            .cfg-section-divider
+                            .cfg-grid-1
+                                .cfg-item
+                                    .cfg-item__title Kuyruk Durumları
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='9' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='9' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+                                .cfg-item
+                                    .cfg-item__title Toplam Süre
+                                    .cfg-item__actions
+                                        button.cfg-act-btn.active(type='button' data-chart='8' data-state='show')
+                                            i.svg-icon(data-feather='eye')
+                                        button.cfg-act-btn(type='button' data-chart='8' data-state='hide')
+                                            i.svg-icon(data-feather='eye-off')
+
+                    .cfg-footer
+                        button#dashboardConfigSave.cfg-save-btn(type='button') Kaydet
                 .row#sortable
                     .col-sm-6.align-self-center
                     .col-sm-6.align-self-center.d-flex.justify-content-end
@@ -660,6 +1100,134 @@ block content
 
                     $(document).ready(function() {
 
+                        $('#dashboardFilterBtn').on('click', function () {
+                            $('.page-wrapper').toggleClass('dashboard-filters-open');
+                            $(this).toggleClass('primary');
+                            if (!$('.page-wrapper').hasClass('dashboard-filters-open')) {
+                                $(this).addClass('primary');
+                            }
+                        });
+
+                        function chartDivSelector(chartNo) {
+                            return '#chart-' + chartNo + '-div';
+                        }
+
+                        function setChartVisibility(chartNo, visible) {
+                            const sel = chartDivSelector(chartNo);
+                            if (visible) {
+                                $(sel).removeClass('d-none');
+                            } else {
+                                $(sel).addClass('d-none');
+                            }
+                        }
+
+                        function setDrawerButtonState(chartNo, visible) {
+                            const showBtn = $('.cfg-act-btn[data-chart="' + chartNo + '"][data-state="show"]');
+                            const hideBtn = $('.cfg-act-btn[data-chart="' + chartNo + '"][data-state="hide"]');
+                            showBtn.toggleClass('active', visible);
+                            hideBtn.toggleClass('active', !visible);
+                        }
+
+                        function syncDrawerFromDashboard() {
+                            [1,2,3,4,5,8,9].forEach(function (no) {
+                                const visible = !$(chartDivSelector(no)).hasClass('d-none');
+                                setDrawerButtonState(no, visible);
+                            });
+
+                            const robotAnyVisible = [1,2,3,4,5].some(function (no) {
+                                return !$(chartDivSelector(no)).hasClass('d-none');
+                            });
+                            const processAnyVisible = [8,9].some(function (no) {
+                                return !$(chartDivSelector(no)).hasClass('d-none');
+                            });
+                            $('#cfg-section-robot').prop('checked', robotAnyVisible);
+                            $('#cfg-section-process').prop('checked', processAnyVisible);
+                        }
+
+                        function openDashboardConfig() {
+                            syncDrawerFromDashboard();
+                            $('#dashboardConfigBackdrop').addClass('open');
+                            $('#dashboardConfigPanel').addClass('open');
+                            feather.replace();
+                        }
+
+                        function closeDashboardConfig() {
+                            $('#dashboardConfigBackdrop').removeClass('open');
+                            $('#dashboardConfigPanel').removeClass('open');
+                        }
+
+                        $('#dashboardEditBtn').on('click', function () {
+                            openDashboardConfig();
+                        });
+
+                        $('#dashboardConfigClose, #dashboardConfigBackdrop').on('click', function () {
+                            closeDashboardConfig();
+                        });
+
+                        $('.cfg-act-btn').on('click', function () {
+                            const chartNo = parseInt($(this).attr('data-chart'), 10);
+                            const state = $(this).attr('data-state');
+                            const visible = state === 'show';
+                            setChartVisibility(chartNo, visible);
+                            setDrawerButtonState(chartNo, visible);
+                        });
+
+                        $('#cfg-section-robot').on('change', function () {
+                            const visible = $(this).is(':checked');
+                            [1,2,3,4,5].forEach(function (no) {
+                                setChartVisibility(no, visible);
+                                setDrawerButtonState(no, visible);
+                            });
+                        });
+
+                        $('#cfg-section-process').on('change', function () {
+                            const visible = $(this).is(':checked');
+                            [8,9].forEach(function (no) {
+                                setChartVisibility(no, visible);
+                                setDrawerButtonState(no, visible);
+                            });
+                        });
+
+                        $('#dashboardConfigSave').on('click', function () {
+                            const userIdForSave = userId;
+                            const order = [];
+                            $('#sortable .chart-div').each(function () {
+                                const n = parseInt($(this).attr('data-order'), 10);
+                                if (!Number.isNaN(n)) order.push(n);
+                            });
+
+                            function chartStatusByNo(no) {
+                                return !$(chartDivSelector(no)).hasClass('d-none');
+                            }
+                            function locationByNo(no, fallback) {
+                                const idx = order.indexOf(no);
+                                return idx >= 0 ? (idx + 1) : fallback;
+                            }
+
+                            const payload = {
+                                chartsStatusList: [
+                                    {uuid: userIdForSave, chartName: 'chart1', chartStatus: chartStatusByNo(1), location: locationByNo(1, 1)},
+                                    {uuid: userIdForSave, chartName: 'chart2', chartStatus: chartStatusByNo(2), location: locationByNo(2, 2)},
+                                    {uuid: userIdForSave, chartName: 'chart3', chartStatus: chartStatusByNo(3), location: locationByNo(3, 3)},
+                                    {uuid: userIdForSave, chartName: 'chart4', chartStatus: chartStatusByNo(4), location: locationByNo(4, 4)},
+                                    {uuid: userIdForSave, chartName: 'chart5', chartStatus: chartStatusByNo(5), location: locationByNo(5, 5)},
+                                    {uuid: userIdForSave, chartName: 'chart6', chartStatus: chartStatusByNo(6), location: locationByNo(6, 6)},
+                                    {uuid: userIdForSave, chartName: 'chart8', chartStatus: chartStatusByNo(8), location: locationByNo(8, 7)},
+                                    {uuid: userIdForSave, chartName: 'chart9', chartStatus: chartStatusByNo(9), location: locationByNo(9, 8)}
+                                ]
+                            };
+
+                            $.ajax({
+                                url: '/rpad-charts-status-save',
+                                type: 'POST',
+                                data: payload,
+                                dataType: 'json',
+                                complete: function () {
+                                    closeDashboardConfig();
+                                }
+                            });
+                        });
+
                         $('.datepicker2').datepicker({
                             format: "dd/mm/yyyy",
                             orientation: 'bottom left',
@@ -747,14 +1315,60 @@ block content
                             $(".js-example-basic-multiple-chart9-queue").val(null).trigger("change");
                         });
                         // Print whole page part
-                        $("#btn").click(function () {
-                            domtoimage.toJpeg(document.getElementById('allChartsPrint'), { quality: 1 })
+                        function downloadDashboardImage(dataUrl) {
+                            var link = document.createElement('a');
+                            link.download = 'RPA Dashboard.png';
+                            link.href = dataUrl;
+                            link.click();
+                        }
+
+                        function exportWithHtml2Canvas(el) {
+                            return html2canvas(el, {
+                                useCORS: true,
+                                allowTaint: true,
+                                backgroundColor: '#f5f6f8',
+                                scale: 2,
+                                logging: false
+                            }).then(function (canvas) {
+                                return canvas.toDataURL('image/png');
+                            });
+                        }
+
+                        $("#dashboardExportBtn").off('click.rpadExport').on('click.rpadExport', function () {
+                            var exportBtn = $(this);
+                            var exportTarget = document.getElementById('allChartsPrint');
+                            if (!exportTarget) return;
+
+                            exportBtn.prop('disabled', true);
+
+                            var exportPromise;
+                            if (typeof domtoimage !== 'undefined' && domtoimage.toPng) {
+                                exportPromise = domtoimage.toPng(exportTarget, {
+                                    quality: 1,
+                                    cacheBust: true,
+                                    bgcolor: '#f5f6f8'
+                                });
+                            } else {
+                                exportPromise = exportWithHtml2Canvas(exportTarget);
+                            }
+
+                            exportPromise
                                 .then(function (dataUrl) {
-                                    var link = document.createElement('a');
-                                    link.download = 'RPA Dashboard.png';
-                                    link.href = dataUrl;
-                                    link.click();
-                                    //- footerCustom.remove();
+                                    downloadDashboardImage(dataUrl);
+                                })
+                                .catch(function () {
+                                    return exportWithHtml2Canvas(exportTarget).then(function (dataUrl) {
+                                        downloadDashboardImage(dataUrl);
+                                    });
+                                })
+                                .catch(function () {
+                                    $.alert({
+                                        title: 'Hata',
+                                        content: 'Dışa aktarma işlemi başarısız oldu. Lütfen tekrar deneyin.'
+                                    });
+                                })
+                                .finally(function () {
+                                    exportBtn.prop('disabled', false);
                                 });
                         });
 
