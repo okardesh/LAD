@@ -1,4 +1,6 @@
-div.active#rpad-chart1-1
+div.active.pie-3d-stack
+    div#rpad-chart1-1-depth.pie-3d-stack__depth
+    div#rpad-chart1-1.pie-3d-stack__top
 
 script.
     // DEFAULT GELEN STATE ROBOTS CHART VERILERI
@@ -46,66 +48,61 @@ script.
         value : totalStopped,
         totalRobotsValue : totalRobots
     });
-    
-    const piePlot4 = new Pie('rpad-chart1-1', {
-        appendPadding: [8, 18, 0, 18],
-        data: dataRobots,
-        angleField: 'value',
-        colorField: 'type',
-        radius: 0.88,
-        height: 270,
-        innerRadius: 0.62,
-        label: {
-            type: 'inner',
-            autoRotate: false,
-            offset: '-45%',
-            content: '',
-            style: {
-                textAlign: 'center',
-                fontSize: 11,
-                fill: '#111827',
-                fontWeight: 600
-            },
-        },
-        legend: {
-            layout: 'vertical',
-            position: 'bottom',
-            itemName: {
-                style: {
-                    fontSize: 12,
-                    fill: '#475467'
-                }
-            }
-        },
-        color: ['#62DAAB','#FF4D4F','#6395F9'],
-        interactions: [{ type: 'element-selected' }, { type: 'element-active' },{ type: 'element-highlight' }, { type: 'hover-cursor' }],
-        statistic: {
-                title: false,
-                content: {
-                style: {
-                    whiteSpace: 'pre-wrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                },
-                content: '',
-            },
-        },
-        tooltip: {
-            customContent: (title, data) => {
-                let insideItem;
-                if(data[0] != null || data[0] != undefined){
-                    insideItem = data[0].data;
-                    if(insideItem != null || insideItem != undefined){
-                        return `<div class="tooltip-div">
-                                <h5 class="tooltip-header d-inline">#{__('Total')} ${insideItem.type}</h5></br>
-                                <h5 class="tooltip-header d-inline">#{__('Total')} Robot #{__('Counts')} : ${insideItem.totalRobotsValue} </h5>
-                            </div>`;
-                    }
-                }
-            }
-        },
-    });
-    piePlot4.render();
+    const statePieIs3D = window.__rpad3dEnabled !== false;
+
+    function renderStateBattery(chartData) {
+        const success = chartData[0] ? (parseInt(chartData[0].value, 10) || 0) : 0;
+        const faulted = chartData[1] ? (parseInt(chartData[1].value, 10) || 0) : 0;
+        const stopped = chartData[2] ? (parseInt(chartData[2].value, 10) || 0) : 0;
+        const total = success + faulted + stopped;
+        const totalRobotsValue = chartData[0] && chartData[0].totalRobotsValue != null
+            ? chartData[0].totalRobotsValue
+            : totalRobots;
+
+        const successPct = total > 0 ? (success / total) * 100 : 0;
+        const faultedPct = total > 0 ? (faulted / total) * 100 : 0;
+        const stoppedPct = total > 0 ? (stopped / total) * 100 : 0;
+
+        const batteryModeClass = statePieIs3D ? 'state-battery--3d' : 'state-battery--2d';
+
+        $('#rpad-chart1-1').html(`
+            <div class="state-battery ${batteryModeClass}">
+                <div class="state-battery__shell">
+                    <div class="state-battery__body">
+                        <div class="state-battery__segments">
+                            <div class="state-battery__segment state-battery__segment--success" style="width:${successPct}%"></div>
+                            <div class="state-battery__segment state-battery__segment--faulted" style="width:${faultedPct}%"></div>
+                            <div class="state-battery__segment state-battery__segment--stopped" style="width:${stoppedPct}%"></div>
+                        </div>
+                    </div>
+                    <div class="state-battery__cap"></div>
+                </div>
+                <div class="state-battery__meta">
+                    <span>#{__('Total')} #{__('Robot')}</span>
+                    <strong>${totalRobotsValue}</strong>
+                </div>
+                <div class="state-battery__legend">
+                    <div class="state-battery__legend-row">
+                        <span class="state-battery__dot state-battery__dot--success"></span>
+                        <span>#{__('Successful')}</span>
+                        <span class="state-battery__value">${success}</span>
+                    </div>
+                    <div class="state-battery__legend-row">
+                        <span class="state-battery__dot state-battery__dot--faulted"></span>
+                        <span>#{__('Faulted')}</span>
+                        <span class="state-battery__value">${faulted}</span>
+                    </div>
+                    <div class="state-battery__legend-row">
+                        <span class="state-battery__dot state-battery__dot--stopped"></span>
+                        <span>#{__('Stopped')}</span>
+                        <span class="state-battery__value">${stopped}</span>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
+
+    renderStateBattery(dataRobots);
     let responseControl = 0;
     // DATEPICKERLARDA OLAN HER DEGISIKLIKTE stateChartFilterFunction FONKSIYONUNUN TETIKLENDIGI KISIM
     $( window ).on( "load", function(){
@@ -377,8 +374,7 @@ script.
                         totalFaulted = 0;
                         totalStopped = 0;
 
-                    piePlot4.changeData(newStateChart2);
-                    piePlot4.render();
+                    renderStateBattery(newStateChart2);
                 }else{
                     $('#rpad-chart1-1').addClass('visibility-none')
                 }

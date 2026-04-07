@@ -1,4 +1,6 @@
-div.active#rpad-chart9
+div.active.pie-3d-stack
+    div#rpad-chart9-depth.pie-3d-stack__depth
+    div#rpad-chart9.pie-3d-stack__top
 
 script.
     const queueStatusChart1 = JSON.parse('!{JSON.stringify(queueStatusChart)}');
@@ -80,13 +82,35 @@ script.
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });    
+    const queuePieColors = ['#62DAAB', '#6395F9', '#F6BD16', '#FF4D4F', '#9661BC', '#5AD8A6'];
+    const queuePieDepthColors = ['#3fba90', '#4574d1', '#d9a20f', '#d63b3d', '#77489b', '#3faa84'];
+    const queuePieIs3D = window.__rpad3dEnabled !== false;
+    const queuePieRadius = queuePieIs3D ? 0.92 : 1;
+    const queuePieInnerRadius = queuePieIs3D ? 0.18 : 0.64;
+    let piePlotQueueDepth = null;
+
+    if (queuePieIs3D) {
+        piePlotQueueDepth = new Pie('rpad-chart9-depth', {
+            appendPadding: 10,
+            data: queueData,
+            angleField: 'value',
+            colorField: 'type',
+            radius: queuePieRadius,
+            innerRadius: queuePieInnerRadius,
+            legend: false,
+            label: false,
+            color: queuePieDepthColors,
+            interactions: []
+        });
+        piePlotQueueDepth.render();
+    }
     const piePlotQueue = new Pie('rpad-chart9', {
         appendPadding: 10,
         data:queueData,
         angleField: 'value',
         colorField: 'type',
-        radius: 1,
-        innerRadius: 0.64,
+        radius: queuePieRadius,
+        innerRadius: queuePieInnerRadius,
         meta: {
             value: {
                 formatter: (v) => `${v}`,
@@ -97,10 +121,28 @@ script.
             offset: '-50%',
             style: {
             textAlign: 'center',
+            fill: queuePieIs3D ? '#ffffff' : '#111827',
             },
             autoRotate: false,
-            content: '{value}',
+            content: queuePieIs3D ? '{percentage}' : '{value}',
         },
+        color: queuePieColors,
+        pieStyle: queuePieIs3D ? {
+            lineWidth: 1,
+            stroke: '#ffffff',
+            shadowColor: 'rgba(15, 23, 42, 0.18)',
+            shadowBlur: 10,
+            shadowOffsetY: 2,
+        } : undefined,
+        state: queuePieIs3D ? {
+            active: {
+                style: {
+                    shadowColor: 'rgba(15, 23, 42, 0.34)',
+                    shadowBlur: 12,
+                    shadowOffsetY: 3,
+                }
+            }
+        } : undefined,
         interactions: [{ type: 'element-selected' }, { type: 'element-active' }, { type: 'pie-statistic-active' }],
     });
 
@@ -287,6 +329,7 @@ script.
                         totalAbandoned = 0;
                         totalRetried = 0;
                         
+                        if (piePlotQueueDepth) piePlotQueueDepth.changeData(queueDataFilter);
                         piePlotQueue.changeData(queueDataFilter);
                         piePlotQueue.render();
                     }else{

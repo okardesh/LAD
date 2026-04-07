@@ -1,4 +1,6 @@
-div.active#rpad-chart3
+div.active.pie-3d-stack
+    div#rpad-chart3-depth.pie-3d-stack__depth
+    div#rpad-chart3.pie-3d-stack__top
 
 script.
     // DEFAULT GELEN WORKING HOURS OCCUPANCY RATE CHART VERILERI
@@ -62,15 +64,57 @@ script.
         type : `#{__('Free Minutes')} : %${totalFreePercent} - ${freeHoursValue} #{__('Minutes')}`,
         value : freeHoursValue,
     });
+    const whPieColors = ['#62DAAB', '#FF4D4F'];
+    const whPieIs3D = window.__rpad3dEnabled !== false;
+    const whPieRadius = 0.88;
+    const whPieInnerRadius = 0.62;
+
+    function renderWorkingHoursMetricCard(rows) {
+        const worked = rows && rows[0] ? (parseInt(rows[0].value, 10) || 0) : 0;
+        const free = rows && rows[1] ? (parseInt(rows[1].value, 10) || 0) : 0;
+        const total = worked + free;
+        const workedPct = total > 0 ? Math.round((worked / total) * 100) : 0;
+        const freePct = total > 0 ? Math.round((free / total) * 100) : 0;
+
+        $('#rpad-chart3').html(`
+            <div class="metric-3d-card" style="--metric-primary:#f59e0b; --metric-primary-light:#f9c15d; --metric-percent:${workedPct}; --metric-percent-str:${workedPct}%">
+                <div class="metric-3d-card__top">
+                    <div>
+                        <div class="metric-3d-card__headline">#{__('Worked Minutes')}</div>
+                        <div class="metric-3d-card__percent">${workedPct}%</div>
+                        <div class="metric-3d-card__sub">${total} #{__('Minutes')} · ${workedDateValue}</div>
+                    </div>
+                    <div class="metric-3d-card__ring"></div>
+                </div>
+                <div class="metric-3d-card__bar-wrap">
+                    <div class="metric-3d-card__bar-track">
+                        <div class="metric-3d-card__bar-fill"></div>
+                    </div>
+                </div>
+                <div class="metric-3d-card__legend">
+                    <div class="metric-3d-card__legend-row">
+                        <span class="metric-3d-card__legend-dot" style="background:#f59e0b"></span>
+                        <span>#{__('Worked Minutes')}</span>
+                        <span class="metric-3d-card__legend-value">${worked} #{__('Minutes')}</span>
+                    </div>
+                    <div class="metric-3d-card__legend-row">
+                        <span class="metric-3d-card__legend-dot" style="background:#ff4d4f"></span>
+                        <span>#{__('Free Minutes')}</span>
+                        <span class="metric-3d-card__legend-value">${freePct}% · ${free} #{__('Minutes')}</span>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
     
-    const piePlot3 = new Pie('rpad-chart3', {
+    const piePlot3 = whPieIs3D ? null : new Pie('rpad-chart3', {
         appendPadding: [8, 18, 0, 18],
         data : chartWHOR,
         angleField: 'value',
         colorField: 'type',
-        radius: 0.88,
+        radius: whPieRadius,
         height: 270,
-        innerRadius: 0.62,
+        innerRadius: whPieInnerRadius,
         label: {
             type: 'inner',
             offset: '-45%',
@@ -92,7 +136,7 @@ script.
                 }
             }
         },
-        color: ['#62DAAB', '#FF4D4F',],
+        color: whPieColors,
         tooltip: {
             customContent: (title, data) => {
                 let insideItem;
@@ -120,7 +164,11 @@ script.
         },
     });
 
-    piePlot3.render();
+    if (whPieIs3D) {
+        renderWorkingHoursMetricCard(chartWHOR);
+    } else {
+        piePlot3.render();
+    }
 
     function requestOccupancySummaryForDate(selectedDate, robots){
         return new Promise(function(resolve){
@@ -240,8 +288,12 @@ script.
                                     type: `#{__('Free Minutes')} : %${totalFreePercent} - ${freeMinutes} #{__('Minutes')}`,
                                     value: freeMinutes,
                                 });
-                                piePlot3.changeData(WHOC1);
-                                piePlot3.render();
+                                if (whPieIs3D) {
+                                    renderWorkingHoursMetricCard(WHOC1);
+                                } else {
+                                    piePlot3.changeData(WHOC1);
+                                    piePlot3.render();
+                                }
                             });
                         } else {
                             $('#rpad-chart3').addClass('visibility-none')

@@ -2,7 +2,7 @@ div.active#rpad-chart4
 
 script.
     // DEFAULT OLARAK GELEN DAILY DENSITY CHART VERILERI
-    const { Line } = G2Plot;
+    const { Line, Area } = G2Plot;
     const dailyDensityChart = JSON.parse('!{JSON.stringify(dailyDensityChart)}');
     const chartDDG = [];
 
@@ -36,13 +36,25 @@ script.
         });
     });
     
-    const line = new Line('rpad-chart4', {
+    const chart4Config = {
         data : chartDDG,
         xField: 'type',
         yField: 'value',
         height: 490,
         seriesField: 'category',
-        smooth: false,
+        smooth: true,
+        color: (window.__rpad3dEnabled !== false)
+            ? ['#4f8ef7', '#66c2ff', '#7c62ff', '#4fd1c5', '#f59e0b', '#ef4444', '#8b5cf6']
+            : undefined,
+        lineStyle: {
+            lineWidth: (window.__rpad3dEnabled !== false) ? 2.8 : 2,
+            shadowColor: (window.__rpad3dEnabled !== false) ? 'rgba(79, 142, 247, 0.18)' : 'transparent',
+            shadowBlur: (window.__rpad3dEnabled !== false) ? 10 : 0,
+            shadowOffsetY: (window.__rpad3dEnabled !== false) ? 4 : 0,
+        },
+        areaStyle: (window.__rpad3dEnabled !== false) ? {
+            fill: 'l(270) 0:rgba(79,142,247,0.42) 1:rgba(79,142,247,0.03)'
+        } : undefined,
         tooltip: {
             showMarkers: true, // 不展示 tooltip markers
             shared: true,
@@ -67,7 +79,11 @@ script.
             flipPage: true,
             maxRow:3
         },
-    });
+    };
+
+    const line = (window.__rpad3dEnabled !== false)
+        ? new Area('rpad-chart4', chart4Config)
+        : new Line('rpad-chart4', chart4Config);
 
     line.render();
     

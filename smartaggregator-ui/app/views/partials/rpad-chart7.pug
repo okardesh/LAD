@@ -29,6 +29,13 @@ script.
         height: 515,
         xField: 'totalJobTime',
         yField: 'releaseName',
+        color: (window.__rpad3dEnabled !== false) ? () => 'l(0) 0:#68c3ff 0.5:#4a90f0 1:#2f5ecc' : '#4e86e8',
+        barStyle: (window.__rpad3dEnabled !== false) ? {
+            radius: [0, 8, 8, 0],
+            shadowColor: 'rgba(15, 23, 42, 0.24)',
+            shadowBlur: 10,
+            shadowOffsetY: 6,
+        } : { radius: [0, 2, 2, 0] },
         scrollbar: {
             type: 'vertical',
             animate: false,
@@ -51,6 +58,16 @@ script.
                 }
             }
         },
+        xAxis: {
+            grid: {
+                line: {
+                    style: {
+                        stroke: '#e8edf7',
+                        lineDash: [4, 4]
+                    }
+                }
+            }
+        }
     });
 
     barPlot2.render();

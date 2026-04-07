@@ -64,6 +64,13 @@ script.
         data : chartOGCS2,
         xField: 'hour',
         yField: 'value',
+        color: (window.__rpad3dEnabled !== false) ? () => 'l(270) 0:#5fa8ff 0.55:#3f7ee8 1:#2f5ecc' : '#4e86e8',
+        columnStyle: (window.__rpad3dEnabled !== false) ? {
+            radius: [8, 8, 3, 3],
+            shadowColor: 'rgba(15, 23, 42, 0.24)',
+            shadowBlur: 10,
+            shadowOffsetY: 6,
+        } : { radius: [2, 2, 2, 2] },
         height: 565,
         label: {
             position: 'middle', // 'top', 'bottom', 'middle',
@@ -91,6 +98,16 @@ script.
             autoRotate: false,
             },
         },
+        yAxis: {
+            grid: {
+                line: {
+                    style: {
+                        stroke: '#e8edf7',
+                        lineDash: [4, 4]
+                    }
+                }
+            }
+        }
     });
 
     columnPlot.render();

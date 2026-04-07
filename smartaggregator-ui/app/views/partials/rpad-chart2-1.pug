@@ -1,4 +1,6 @@
-div.active#rpad-chart2-1
+div.active.pie-3d-stack
+    div#rpad-chart2-1-depth.pie-3d-stack__depth
+    div#rpad-chart2-1.pie-3d-stack__top
 
 script.
     // DEFAULT GELEN ROBOTS OCCUPANCY RATE CHART VERILERI
@@ -31,15 +33,58 @@ script.
         value : totalFreeTime,
         totalRobotsValue : totalRobots2
     });
+    const occPieColors = ['#62DAAB', '#FF4D4F'];
+    const occPieIs3D = window.__rpad3dEnabled !== false;
+    const occPieRadius = 0.88;
+    const occPieInnerRadius = 0.62;
 
-    const piePlot5 = new Pie('rpad-chart2-1', {
+    function renderOccupancyMetricCard(rows) {
+        const full = rows && rows[0] ? (parseInt(rows[0].value, 10) || 0) : 0;
+        const free = rows && rows[1] ? (parseInt(rows[1].value, 10) || 0) : 0;
+        const total = full + free;
+        const fullPct = total > 0 ? Math.round((full / total) * 100) : 0;
+        const freePct = total > 0 ? Math.round((free / total) * 100) : 0;
+        const robotCount = rows && rows[0] && rows[0].totalRobotsValue != null ? rows[0].totalRobotsValue : totalRobots2;
+
+        $('#rpad-chart2-1').html(`
+            <div class="metric-3d-card" style="--metric-primary:#27b983; --metric-primary-light:#5fdbb0; --metric-percent:${fullPct}; --metric-percent-str:${fullPct}%">
+                <div class="metric-3d-card__top">
+                    <div>
+                        <div class="metric-3d-card__headline">#{__('Full Time')}</div>
+                        <div class="metric-3d-card__percent">${fullPct}%</div>
+                        <div class="metric-3d-card__sub">${robotCount} #{__('Robot')} · ${total} #{__('Minutes')}</div>
+                    </div>
+                    <div class="metric-3d-card__ring"></div>
+                </div>
+                <div class="metric-3d-card__bar-wrap">
+                    <div class="metric-3d-card__bar-track">
+                        <div class="metric-3d-card__bar-fill"></div>
+                    </div>
+                </div>
+                <div class="metric-3d-card__legend">
+                    <div class="metric-3d-card__legend-row">
+                        <span class="metric-3d-card__legend-dot" style="background:#27b983"></span>
+                        <span>#{__('Full Time')}</span>
+                        <span class="metric-3d-card__legend-value">${full} #{__('Minutes')}</span>
+                    </div>
+                    <div class="metric-3d-card__legend-row">
+                        <span class="metric-3d-card__legend-dot" style="background:#ff4d4f"></span>
+                        <span>#{__('Free Time')}</span>
+                        <span class="metric-3d-card__legend-value">${freePct}% · ${free} #{__('Minutes')}</span>
+                    </div>
+                </div>
+            </div>
+        `);
+    }
+
+    const piePlot5 = occPieIs3D ? null : new Pie('rpad-chart2-1', {
         appendPadding: [8, 18, 0, 18],
         data: dataRobots2,
         angleField: 'value',
         colorField: 'type',
-        radius: 0.88,
+        radius: occPieRadius,
         height: 270,
-        innerRadius: 0.62,
+        innerRadius: occPieInnerRadius,
         label: {
             type: 'inner',
             autoRotate: false,
@@ -62,7 +107,7 @@ script.
                 }
             }
         },
-        color: ['#62DAAB', '#FF4D4F',],
+        color: occPieColors,
         interactions: [{ type: 'element-selected' }, { type: 'element-active' },{ type: 'element-highlight' }, { type: 'hover-cursor' }],
         statistic: {
                 title: false,
@@ -91,7 +136,11 @@ script.
         },
     });
 
-    piePlot5.render();
+    if (occPieIs3D) {
+        renderOccupancyMetricCard(dataRobots2);
+    } else {
+        piePlot5.render();
+    }
 
     function renderOccupancyFromRows(rows){
         let newStateChart3 = [];
@@ -126,8 +175,12 @@ script.
                 totalRobotsValue : totalRobots2
             });
 
-            piePlot5.changeData(newStateChart3);
-            piePlot5.render();
+            if (occPieIs3D) {
+                renderOccupancyMetricCard(newStateChart3);
+            } else {
+                piePlot5.changeData(newStateChart3);
+                piePlot5.render();
+            }
         } else {
             $('#rpad-chart2-1').addClass('visibility-none')
         }
