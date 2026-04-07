@@ -208,45 +208,93 @@ exports.getRpaDashboard = async (req, res) => {
 };
 
 
-   exports.postRpaDashboard = async (req, res) => {
-    const action = endpoints.find(e => toCamelCase(e.model) === req.body.model),
-        file = req.file,
-        invalid = validator(file);
+exports.postRpaDashboard = async (req, res) => {
+    try {
+        const action = endpoints.find(e => toCamelCase(e.model) === req.body.model),
+            file = req.file,
+            invalid = validator(file);
 
-    if (invalid) {
-        req.flash('errors', {msg: invalid});
-        return res.redirect(req.path);
-    } else if (!action) {
-        req.flash('errors', {msg: 'Group selection not detected or invalid. Please try again.'});
-        return res.redirect(req.path);
-    } else {
-        const wb = XLSX.read(file.buffer, {type: 'buffer', dateNF: 'dd/mm/yyyy'}),
-            json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {
-                raw: false,
-                columns: true,
-                skipHeader: false
-            }),
-            normalizedJson = camelcaseKeys(json);
-        let request = [{
-            uri: `${process.env.API_SYSTEM}/upload`,
-            method: 'POST',
-            data: {
-                batchId: path.parse(file.filename).name,
-                table: action.table,
-                list: normalizedJson
-            }
-        }];
-
-        let responses = await API.responser(req, res, request);
-
-        if (responses.hasOwnProperty(406)) {
-            const arr = responses[406][request[0].uri].error.split(' - ');
-            req.flash('errors', {
-                msg: arr[0] + ': #',
-                params: [arr[1]]
-            });
+        if (invalid) {
+            req.flash('errors', {msg: invalid});
             return res.redirect(req.path);
-        } else if (responses.hasOwnProperty(200)) {
+        }
+
+        if (!action) {
+            req.flash('errors', {msg: 'Group selection not detected or invalid. Please try again.'});
+            return res.redirect(req.path);
+        }
+
+        const wb = XLSX.read(file.buffer, {type: 'buffer', dateNF: 'dd/mm/yyyy'});
+        const firstSheet = wb.Sheets[wb.SheetNames[0]];
+
+        let json = XLSX.utils.sheet_to_json(firstSheet, {
+            raw: false,
+            defval: '',
+            skipHeader: false
+        });
+
+        // Fallback parser for files where header is not on the first row.
+        if (!Array.isArray(json) || json.length === 0) {
+            const matrix = XLSX.utils.sheet_to_json(firstSheet, {
+                header: 1,
+                raw: false,
+                defval: ''
+            });
+
+            const headerIndex = Array.isArray(matrix)
+                ? matrix.findIndex(row => Array.isArray(row) && row.filter(cell => `${cell}`.trim() !== '').length >= 2)
+                : -1;
+
+            if (headerIndex >= 0 && Array.isArray(matrix[headerIndex])) {
+                const headers = matrix[headerIndex].map(h => `${h || ''}`.trim());
+                const dataRows = matrix.slice(headerIndex + 1).filter(row =>
+                    Array.isArray(row) && row.some(cell => `${cell}`.trim() !== '')
+                );
+
+                json = dataRows.map(row => {
+                    const obj = {};
+                    headers.forEach((h, i) => {
+                        if (h) obj[h] = row[i];
+                    });
+                    return obj;
+                });
+            }
+        }
+
+        const normalizedJson = camelcaseKeys(json);
+
+        console.log('[upload] model:', req.body.model, '| action.table:', action.table, '| rows:', normalizedJson.length);
+        if (normalizedJson.length > 0) console.log('[upload] first row keys:', Object.keys(normalizedJson[0]));
+
+        if (normalizedJson.length === 0) {
+            req.flash('errors', {msg: 'The Excel file appears to be empty or could not be parsed. Please check the file and try again.'});
+            return res.redirect(req.path);
+        }
+
+        if (action.table === 'RPAD_DAILY_INTENSITY') {
+            const requiredHeaders = ['dataDate', 'workDate', 'hostMachineName', 'releaseName']
+                .concat(Array.from({length: 24}, (_, i) => `h${i}`));
+            const firstRow = normalizedJson[0] || {};
+            const rowKeys = Object.keys(firstRow);
+            const missing = requiredHeaders.filter(k => !rowKeys.includes(k));
+
+            if (missing.length > 0) {
+                req.flash('errors', {
+                    msg: `Daily Intensity format is invalid. Missing column(s): ${missing.join(', ')}`
+                });
+                return res.redirect(req.path);
+            }
+        }
+
+        // UploadRequest on backend only accepts: table, list (no batchId)
+        const data = await API.requestAsync(`${process.env.API_SYSTEM}/upload`, 'POST', {
+            table: action.table,
+            list: normalizedJson
+        }, req, res);
+
+        const statusCode = data && data.statusCode;
+
+        if (statusCode === 200) {
             if (action.table === 'RPAD_JOBS') {
                 if (req.session) req.session.uploadPreviewJobs = normalizedJson;
                 if (req.user && req.user.uuid) await saveUploadPreviewJobs(req.user.uuid, normalizedJson);
@@ -256,9 +304,30 @@ exports.getRpaDashboard = async (req, res) => {
                 params: [json.length]
             });
             return res.redirect(req.path);
-        } else {
-            req.flash('errors', {msg: 'An unknown error has occurred. Please contact us.'});
+        } else if (statusCode === 406) {
+            const arr = ((data && data.error) || '').split(' - ');
+            req.flash('errors', {
+                msg: arr[0] + ': #',
+                params: [arr[1]]
+            });
             return res.redirect(req.path);
+        } else if (statusCode === 400) {
+            let errMsg = (data && data.error) ? data.error : 'Bad request – please check the file format and try again.';
+            if (errMsg === 'Request is incorrect.' || errMsg === 'İstek hatalı.') {
+                errMsg = 'İstek hatalı. Lütfen doğru modeli (Jobs/Queues/Daily Intensity) seçtiğinizden, Excel dosyasının ilk sayfasında başlık satırı + en az 1 veri satırı olduğundan ve dosyanın .xlsx formatında olduğundan emin olun.';
+            }
+            req.flash('errors', {msg: errMsg});
+            return res.redirect(req.path);
+        } else {
+            const errMsg = (data && data.error) ? data.error : 'An unknown error has occurred. Please contact us.';
+            req.flash('errors', {msg: errMsg});
+            return res.redirect(req.path);
+        }
+    } catch (err) {
+        console.error('[rpa-dashboard] postRpaDashboard error:', err);
+        if (!res.headersSent) {
+            req.flash('errors', {msg: 'Upload failed. Please try again.'});
+            return res.redirect('/rpa-dashboard');
         }
     }
 };

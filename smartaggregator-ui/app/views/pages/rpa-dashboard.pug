@@ -650,6 +650,9 @@ block content
                         else
                             span.dashboard-chip Son Güncelleme: 00/00/0000 00:00:00
                     .dashboard-topbar__right
+                        button#dashboardUploadBtn.dash-btn.dash-btn--primary(type='button' data-toggle='modal' data-target='#exampleModal')
+                            i.svg-icon(data-feather='upload')
+                            span Yükle
                         button#dashboardExportBtn.dash-btn.dash-btn--primary(type='button')
                             i.svg-icon(data-feather='download')
                             span Dışa Aktar
@@ -819,8 +822,7 @@ block content
                                                             select.mr-2.upload-module(name="model" id="model" style="width:100%!important;")
                                                                 if models
                                                                     each t in models
-                                                                        if t != 'Daily Intensity'
-                                                                            option(value=toCamelCase(t))= __(t)
+                                                                        option(value=toCamelCase(t))= __(t)
                                                         .col-md-8
                                                             if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
                                                             //- a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
@@ -828,7 +830,7 @@ block content
                                                             .container-fluid.p-3
                                                                 .col-md-12
                                                                     .file-loading
-                                                                        input#file-input(type='file', name='file', accept='.xlsx')
+                                                                            input#file-input(type='file', name='file', accept='.xlsx,.csv')
                                                                     #errorBlock.help-block
 
                         //- .col-xl-6.col-md-12
