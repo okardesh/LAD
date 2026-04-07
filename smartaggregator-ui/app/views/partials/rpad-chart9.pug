@@ -1,0 +1,300 @@
+div.active#rpad-chart9
+
+script.
+    const queueStatusChart1 = JSON.parse('!{JSON.stringify(queueStatusChart)}');
+
+    const queueData = [];
+    let totalStatus = 0;
+    let totalQueues = 0, totalSuccessfulQueue = 0, totalNew = 0, totalInProgress = 0, totalFailed = 0, totalAbandoned = 0, totalRetried = 0;
+    queueStatusChart1.forEach(function(element) {
+        Object.keys(element).forEach(function(key) {
+            if(key === 'queueName'){
+                if(element[key] != null)
+                    totalQueues = totalQueues + 1;
+            } else if(key === 'successfulCount'){
+                if(element['queueName'] != null)
+                    totalSuccessfulQueue = totalSuccessfulQueue + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+            else if(key ==='newCount'){
+                if(element['queueName'] != null)
+                    totalNew = totalNew + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+            else if(key === 'inProgressCount'){
+                if(element['queueName'] != null)
+                    totalInProgress = totalInProgress + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+            else if(key === 'failedCount'){
+                if(element['queueName'] != null)
+                    totalFailed = totalFailed + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+            else if(key === 'abandonedCount'){
+                if(element['queueName'] != null)
+                    totalAbandoned = totalAbandoned + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+            else if(key === 'retriedCount'){
+                if(element['queueName'] != null)
+                    totalRetried = totalRetried + element[key];
+                    totalStatus = totalStatus + element[key];
+            }
+        });
+        
+    });
+    queueData.push({
+        type : "#{__('Successful')} : " + (100 / (totalStatus / totalSuccessfulQueue)).toFixed(2) + '%',
+        value : totalSuccessfulQueue,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });
+    queueData.push({
+        type : "#{__('New')} : " + (100 / (totalStatus / totalNew)).toFixed(2) + '%',
+        value : totalNew,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });
+    queueData.push({
+        type : "#{__('In Progess')} : " + (100 / (totalStatus / totalInProgress)).toFixed(2) + '%',
+        value : totalInProgress,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });
+    queueData.push({
+        type : "#{__('Failed')} : " + (100 / (totalStatus / totalFailed)).toFixed(2) + '%',
+        value : totalFailed,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });
+    queueData.push({
+        type : "#{__('Abandoned')} : " + (100 / (totalStatus / totalAbandoned)).toFixed(2) + '%',
+        value : totalAbandoned,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });
+    queueData.push({
+        type : "#{__('Retried')} : " + (100 / (totalStatus / totalRetried)).toFixed(2) + '%',
+        value : totalRetried,
+        totalQueuesValue : totalQueues,
+        totalStatusValue : totalStatus
+    });    
+    const piePlotQueue = new Pie('rpad-chart9', {
+        appendPadding: 10,
+        data:queueData,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 1,
+        innerRadius: 0.64,
+        meta: {
+            value: {
+                formatter: (v) => `${v}`,
+            },
+        },
+        label: {
+            type: 'inner',
+            offset: '-50%',
+            style: {
+            textAlign: 'center',
+            },
+            autoRotate: false,
+            content: '{value}',
+        },
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' }, { type: 'pie-statistic-active' }],
+    });
+
+        piePlotQueue.render(); 
+
+    $( window ).on( "load", function(){
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="queueStatusStartTime"]').datepicker(options);
+        $('input[name="queueStatusEndTime"]').datepicker(options);
+        if (filters.rpadHistoryList[7] !== undefined){
+            if (filters.rpadHistoryList[7].robots != null){
+                var separatedRobots9 = filters.rpadHistoryList[7].robots.split(', ');
+            }else{
+                var separatedRobots = filters.rpadHistoryList[7].robots === undefined;
+            }
+            
+            let chart9StartTime = filters.rpadHistoryList[7]?.date1 || undefined;
+            let chart9EndTime = filters.rpadHistoryList[7]?.date2 || undefined;
+            $('select[name="queueStatusNames"]').val(separatedRobots9);
+            $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+            $('input[name="queueStatusEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            queueStatusChartFilterFunction();
+        }else {
+            if (lastQueueDate !== undefined) {
+                $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+                $('input[name="queueStatusEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            } else {
+                $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+                $('input[name="queueStatusEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            }
+            queueStatusChartFilterFunction();
+        }
+
+    });
+
+    $('input[name="queueStatusStartTime"]').on('change', function () {
+        queueStatusChartFilterFunction();
+    });
+    $('input[name="queueStatusEndTime"]').on('change', function (){
+        queueStatusChartFilterFunction();
+    });
+    $('select[name="queueStatusNames"]').on('change', function () {
+        queueStatusChartFilterFunction();
+    });
+
+
+    function queueStatusChartFilterFunction(){
+        const queueStatusChartStart = $('input[name="queueStatusStartTime"]').val();
+        const queueStatusChartEnd = $('input[name="queueStatusEndTime"]').val();
+        let queueStatusChartQueues = ensureSelectHasValue('queueStatusNames');
+        let queueStatusChartAlert = '';
+
+        let startDateDataDay = queueStatusChartStart.slice(0, 2);
+        let startDateDataMonth = queueStatusChartStart.slice(3, 5);
+        let startDateDataYear = queueStatusChartStart.slice(6, 10);
+        startDateDataDate = new Date(startDateDataYear + '-' + startDateDataMonth + '-' + startDateDataDay);
+
+        let endDateDataDay = queueStatusChartEnd.slice(0, 2);
+        let endDateDataMonth = queueStatusChartEnd.slice(3, 5);
+        let endDateDataYear = queueStatusChartEnd.slice(6, 10);
+        endDateDataDate = new Date(endDateDataYear + '-' + endDateDataMonth + '-' + endDateDataDay);
+
+        if(queueStatusChartStart === 'Start Date' || queueStatusChartStart === 'Başlangıç Tarihi' || queueStatusChartStart === 'Tarih Seçiniz'){
+            queueStatusChartAlert = queueStatusChartAlert + ' * ' + "#{__('Start date is empty')}"
+        }
+        if (endDateDataDate < startDateDataDate && !(queueStatusChartStart === 'Start Date' || queueStatusChartStart === 'Başlangıç Tarihi' || queueStatusChartStart === 'Tarih Seçiniz') && !(queueStatusChartEnd === 'End Date' || queueStatusChartEnd === 'Bitiş Tarihi' || queueStatusChartEnd === 'Tarih Seçiniz')) {
+            queueStatusChartAlert = queueStatusChartAlert + ' * ' + "#{__('The start date must be less than the end date.')}"
+        }
+        if(queueStatusChartEnd === 'End Date' || queueStatusChartEnd === 'Bitiş Tarihi' || queueStatusChartEnd === 'Tarih Seçiniz'){
+            queueStatusChartAlert = queueStatusChartAlert + ' * ' + "#{__('End date is empty')}"
+        }
+        if(queueStatusChartQueues.length < 1){
+            queueStatusChartAlert = queueStatusChartAlert + ' * ' + "#{__('Queues are empty')}"
+        }
+
+        $('#alertTextQueueStatusChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + queueStatusChartAlert + "</p>").appendTo('#alertTextQueueStatusChart')
+
+        if(queueStatusChartAlert === '') {
+            filterQueueStatusChart = {startTime:'', endTime:'', queues :''};
+            filterQueueStatusChart.startTime = queueStatusChartStart
+            filterQueueStatusChart.endTime = queueStatusChartEnd
+            filterQueueStatusChart.queues = queueStatusChartQueues
+        }
+
+        if(queueStatusChartAlert === '' && filterQueueStatusChart.startTime != '' && filterQueueStatusChart.endTime != '' && filterQueueStatusChart.queues != '') {
+            $.ajax({
+                url: "/queueStatusTimeChart-filter",
+                type: 'POST',
+                data: filterQueueStatusChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let queueDataFilter = [];
+                    let totalStatus = 0;
+                    let totalQueues = 0, totalSuccessfulQueue = 0, totalNew = 0, totalInProgress = 0, totalFailed = 0, totalAbandoned = 0, totalRetried = 0;
+                    if(res.rpadQueueList.length > 0) {
+                        $('#rpad-chart9').removeClass('visibility-none')
+                        let order = 1;
+                        res.rpadQueueList.forEach(function(element) {
+                            Object.keys(element).forEach(function(key) {
+                                if(key === 'queueName'){
+                                    if(element[key] != null)
+                                        totalQueues = totalQueues + 1;
+                                } else if(key === 'successfulCount'){
+                                    if(element['queueName'] != null)
+                                        totalSuccessfulQueue = totalSuccessfulQueue + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                                else if(key ==='newCount'){
+                                    if(element['queueName'] != null)
+                                        totalNew = totalNew + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                                else if(key === 'inProgressCount'){
+                                    if(element['queueName'] != null)
+                                        totalInProgress = totalInProgress + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                                else if(key === 'failedCount'){
+                                    if(element['queueName'] != null)
+                                        totalFailed = totalFailed + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                                else if(key === 'abandonedCount'){
+                                    if(element['queueName'] != null)
+                                        totalAbandoned = totalAbandoned + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                                else if(key === 'retriedCount'){
+                                    if(element['queueName'] != null)
+                                        totalRetried = totalRetried + element[key];
+                                        totalStatus = totalStatus + element[key];
+                                }
+                            });
+                            
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('Successful')} : " + (100 / (totalStatus / totalSuccessfulQueue)).toFixed(2) + '%',
+                            value : totalSuccessfulQueue,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('New')} : " + (100 / (totalStatus / totalNew)).toFixed(2) + '%',
+                            value : totalNew,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('In Progress')} : " + (100 / (totalStatus / totalInProgress)).toFixed(2) + '%',
+                            value : totalInProgress,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('Failed')} : " + (100 / (totalStatus / totalFailed)).toFixed(2) + '%',
+                            value : totalFailed,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('Abandoned')} : " + (100 / (totalStatus / totalAbandoned)).toFixed(2) + '%',
+                            value : totalAbandoned,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        queueDataFilter.push({
+                            type : "#{__('Retried')} : " + (100 / (totalStatus / totalRetried)).toFixed(2) + '%',
+                            value : totalRetried,
+                            totalQueuesValue : totalQueues,
+                            totalStatusValue : totalStatus
+                        });
+                        totalStatus = 0;
+                        totalQueues = 0;
+                        totalSuccessfulQueue = 0;
+                        totalNew = 0;
+                        totalInProgress = 0;
+                        totalFailed = 0;
+                        totalAbandoned = 0;
+                        totalRetried = 0;
+                        
+                        piePlotQueue.changeData(queueDataFilter);
+                        piePlotQueue.render();
+                    }else{
+                        $('#rpad-chart9').addClass('visibility-none')
+                    }
+                },
+                error: function(err){
+                }
+            });
+        }
+    }

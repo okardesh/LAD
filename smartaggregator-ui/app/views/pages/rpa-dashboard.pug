@@ -145,20 +145,21 @@ block content
                 color: #1f2937;
                 margin: 0;
                 line-height: 1;
+                letter-spacing: -0.02em;
             }
             .dashboard-chip {
                 font-size: 12px;
-                color: #6b7280;
-                border: 1px solid #dbe1ea;
-                border-radius: 6px;
-                background: #fff;
-                padding: 3px 8px;
+                color: #64748b;
+                border: 1px solid #d7e1f0;
+                border-radius: 999px;
+                background: linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+                padding: 4px 10px;
             }
             .dashboard-topbar__right { display: flex; align-items: center; gap: 8px; }
             .dash-btn {
-                border: 1px solid #d7ddea;
-                background: #fff;
-                border-radius: 10px;
+                border: 1px solid #d1dbec;
+                background: linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+                border-radius: 12px;
                 height: 38px;
                 padding: 0 14px;
                 font-size: 14px;
@@ -167,20 +168,22 @@ block content
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
+                box-shadow: 0 2px 6px rgba(15,23,42,.05);
             }
             .dash-btn--primary {
-                border-color: #2f5ecc;
-                color: #2f5ecc;
+                border-color: #2754c6;
+                color: #ffffff;
+                background: linear-gradient(180deg,#3b6ff0 0%,#2754c6 100%);
             }
             .rpad-stats-row { display: flex !important; gap: 10px !important; flex-wrap: wrap !important; margin-bottom: 14px !important; }
             .rpad-stat-card {
                 flex: 1 !important;
                 min-width: 185px !important;
-                background: #ffffff !important;
-                border-radius: 8px !important;
+                background: linear-gradient(180deg,#ffffff 0%,#fbfdff 100%) !important;
+                border-radius: 12px !important;
                 padding: 14px 14px !important;
-                border: 1px solid #e7ebf2;
-                box-shadow: none !important;
+                border: 1px solid #dfe6f3;
+                box-shadow: 0 8px 18px rgba(16,24,40,.06) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
@@ -194,7 +197,7 @@ block content
             .rpad-stat-card__icon--blue,
             .rpad-stat-card__icon--purple,
             .rpad-stat-card__icon--orange,
-            .rpad-stat-card__icon--green { background: #e9eef7 !important; }
+            .rpad-stat-card__icon--green { background: #eaf1ff !important; }
             .rpad-stat-card__icon .svg-icon { color: #2f5ecc !important; stroke: #2f5ecc !important; }
 
             .dashboard-toolbar {
@@ -212,44 +215,58 @@ block content
                 max-width: 640px;
             }
             .dashboard-tab {
-                height: 36px;
+                height: 38px;
                 border: 1px solid #e3e7ef;
-                border-radius: 8px;
+                border-radius: 10px;
                 background: #f6f7fa;
                 color: #5a6575;
-                font-size: 20px;
+                font-size: 14px;
                 font-weight: 600;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
+                letter-spacing: .01em;
             }
             .dashboard-tab.active {
                 background: #fff;
                 border-color: #d4dbeb;
                 color: #303a4a;
+                box-shadow: 0 1px 2px rgba(16,24,40,.06);
             }
             .dashboard-actions {
                 display: flex;
-                align-items: center;
-                gap: 8px;
+                border: 1px solid #d7dfef;
+                border-radius: 12px;
+                background: linear-gradient(180deg,#f8faff 0%,#f2f6fd 100%);
+                padding: 2px;
+                gap: 4px;
             }
             .dash-chip-btn {
-                height: 36px;
-                border-radius: 8px;
+                height: 38px;
+                border-radius: 10px;
                 border: 1px solid #d7ddea;
                 padding: 0 14px;
-                font-size: 20px;
+                font-size: 14px;
                 font-weight: 600;
                 color: #3b4453;
                 background: #fff;
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
+                transition: all .18s ease;
+            }
+            .dash-chip-btn:hover {
+                border-color: #c5cfdf;
+                background: #f8faff;
             }
             .dash-chip-btn.primary {
                 background: #2f5ecc;
                 border-color: #2f5ecc;
                 color: #fff;
+            }
+            .dash-chip-btn.primary:hover {
+                background: #244ea9;
+                border-color: #244ea9;
             }
 
             .dashboard-config-backdrop {
@@ -437,22 +454,33 @@ block content
                 font-weight: 600;
             }
 
+            .chart-div { margin-bottom: 14px; }
             .chart-div .dashboard-big--div,
             .chart-div .dashboard-big--div--second1 {
                 background: #fff !important;
-                border: 1px solid #e7ebf2 !important;
-                border-radius: 8px !important;
-                box-shadow: none !important;
+                border: 1px solid #e6ebf3 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 10px 24px rgba(16,24,40,.06) !important;
+                overflow: hidden;
+                transition: transform .2s ease, box-shadow .2s ease;
+            }
+            .chart-div .dashboard-big--div:hover,
+            .chart-div .dashboard-big--div--second1:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 16px 28px rgba(16,24,40,.10) !important;
             }
             .second-area {
-                background: transparent !important;
+                background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%) !important;
                 border-bottom: 1px solid #eef2f7 !important;
-                padding: 12px 14px !important;
+                padding: 14px 16px !important;
+                margin-bottom: 0 !important;
             }
             .second-area li {
-                font-size: 22px !important;
+                font-size: 16px !important;
                 font-weight: 700 !important;
                 color: #1f2937 !important;
+                line-height: 1.2;
+                letter-spacing: .1px;
             }
 
             .page-wrapper:not(.dashboard-filters-open) button[id^='checkbox'],
@@ -462,6 +490,63 @@ block content
             .page-wrapper:not(.dashboard-filters-open) .chart-div .row.justify-content-center.mb-3,
             .page-wrapper:not(.dashboard-filters-open) .chart-div .row.justify-content-center.mb-4,
             .page-wrapper:not(.dashboard-filters-open) .chart-div [id^='alert'] { display: none !important; }
+
+            .labelRpa {
+                font-size: 12px !important;
+                color: #667085 !important;
+                font-weight: 600 !important;
+                margin-bottom: 6px !important;
+                display: inline-block;
+            }
+            .filter-button.btn {
+                min-height: 32px;
+                border-radius: 8px;
+                border: 1px solid #d6deea !important;
+                background: #f8faff !important;
+                color: #3a4455 !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                padding: 6px 12px !important;
+                margin: 4px !important;
+                line-height: 1.2;
+            }
+            .filter-button.btn:hover {
+                border-color: #bfcce2 !important;
+                background: #eef4ff !important;
+            }
+            .input-append.date {
+                position: relative;
+            }
+            .select2-container--default .select2-selection--multiple {
+                background: #fff !important;
+                box-shadow: inset 0 1px 2px rgba(16,24,40,.04);
+            }
+            .select2-container--default .select2-selection--multiple .select2-selection__choice {
+                background: #f6f8fc !important;
+                border: 1px solid #d9e2f1 !important;
+                border-radius: 8px !important;
+                color: #1f2937 !important;
+                font-weight: 600;
+            }
+            .calender-icon {
+                font-size: 14px !important;
+                color: #98a2b3;
+                top: 50%;
+                left: 12px;
+                transform: translateY(-50%);
+            }
+            .datepicker2,
+            .chart-select-module,
+            .select2-selection.select2-selection--multiple,
+            .select2-container--default .select2-selection--single {
+                border-radius: 8px !important;
+                border-color: #d5ddeb !important;
+                min-height: 38px !important;
+                font-size: 13px !important;
+            }
+            .datepicker2.form-control {
+                padding-left: 34px !important;
+            }
 
             .lastDataDateTransitionClass {
                 text-align: left !important;
@@ -497,6 +582,59 @@ block content
             var currentDay = currentDate.getDate();
 
             var formatedCurrentDate = ('0' + currentDay).slice(-2) + '/' + ('0' + currentDayMonth).slice(-2) + '/' + currentDayYear;
+
+            function parseDashboardDate(dateStr) {
+                if (!dateStr || typeof dateStr !== 'string') return null;
+                const parts = dateStr.split('/');
+                if (parts.length !== 3) return null;
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+                if (!day || !month || !year) return null;
+                return new Date(year, month - 1, day);
+            }
+
+            function formatDashboardDate(date) {
+                if (!date) return formatedCurrentDate;
+                return ('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear();
+            }
+
+            function getLastWeekRange(anchorDateStr) {
+                const anchorDate = parseDashboardDate(anchorDateStr) || parseDashboardDate(formatedCurrentDate) || new Date();
+                const end = new Date(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
+                const start = new Date(end);
+                start.setDate(end.getDate() - 6);
+                return {
+                    start: formatDashboardDate(start),
+                    end: formatDashboardDate(end)
+                };
+            }
+
+            function shiftDashboardDate(anchorDateStr, days) {
+                const baseDate = parseDashboardDate(anchorDateStr) || parseDashboardDate(formatedCurrentDate) || new Date();
+                const shifted = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+                shifted.setDate(shifted.getDate() + days);
+                return formatDashboardDate(shifted);
+            }
+
+            const dashboardDefaultDate = shiftDashboardDate(lastJobsDate || lastDataDate || formatedCurrentDate, -1);
+            const queueDefaultDate = shiftDashboardDate(lastQueueDate || lastJobsDate || formatedCurrentDate, -1);
+            const dashboardDataWeekRange = { start: dashboardDefaultDate, end: dashboardDefaultDate };
+            const queueDataWeekRange = { start: queueDefaultDate, end: queueDefaultDate };
+            const dashboardWeeklyRange = getLastWeekRange(dashboardDefaultDate);
+
+            function ensureSelectHasValue(selectName) {
+                const $select = $('select[name="' + selectName + '"]');
+                let selected = $select.val();
+                if (selected && selected.length > 0) return selected;
+                const allValues = $select.find('option').map(function () { return this.value; }).get().filter(Boolean);
+                if (allValues.length > 0) {
+                    $select.val(allValues);
+                    $select.trigger('change.select2');
+                    return allValues;
+                }
+                return [];
+            }
 
 
         include ../partials/header
@@ -845,7 +983,7 @@ block content
                                             if(locale === 'en')
                                                 img.header-info-icon(src='/assets/images/info.svg' data-toggle="tooltip", data-html="true", title="Working hours are based on 09:00 - 18:00." )
                                     div.non-overflow.p-3
-                                        .row
+                                        .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
                                                 .row.mb-1
                                                     .col-md-6

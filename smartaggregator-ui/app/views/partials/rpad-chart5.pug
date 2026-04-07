@@ -1,0 +1,209 @@
+div.active#rpad-chart5
+
+script.
+    // DEFAULT OLARAK GELEN OVERALL DAILY WORKING HOURS CHART VERILERI
+    var todayOverallControl = new Date();
+    var startTimeYearOverallControl = todayOverallControl.getFullYear();
+    var startTimeMonthOverallControl = todayOverallControl.getMonth()+1;
+    var startTimeDayOverallControl = todayOverallControl.getDate();
+    const { Column } = G2Plot
+    var lastStartTimeOverallControl = ('0' + startTimeDayOverallControl).slice(-2) + '/' + ('0' + startTimeMonthOverallControl).slice(-2) + '/' + startTimeYearOverallControl;
+    let workedDateValue5 = lastStartTimeOverallControl;
+    const overallChart = JSON.parse('!{JSON.stringify(overallChart)}');
+    let keyString5;
+    // Toplam değerleri saklamak için
+    var totalValues = {};
+    var releaseHourly = {};
+    // JSON verilerini dolaşarak toplam değerleri hesaplama
+    let md = 'Min.'
+        if(locale == 'tr')
+            md = "Dk."
+    for (var i = 0; i < overallChart.length; i++) {
+        var obj = overallChart[i];
+        Object.keys(obj).forEach(function(key) {
+            if(key === 'workDate'){
+                workedDateValue5 = obj[key];
+            }
+        });
+        for (var hour = 0; hour < 24; hour++) {
+            var key = "h" + hour;
+            if (totalValues[key]) {
+                totalValues[key] += obj[key];
+                if(obj[key] != 0 && (obj[key] != null || obj[key] != undefined)){
+                    releaseHourly[key] += "<br>"+obj['releaseName']+" - "+obj[key]+" "+md;
+                }
+            } else {
+                totalValues[key] = obj[key];
+                if(obj[key] != 0 && (obj[key] != null || obj[key] != undefined)){
+                    releaseHourly[key] = "<br>"+obj['releaseName']+" - "+obj[key]+" "+md;
+                }
+            }
+        }
+    }
+
+    // Sütun grafiği için
+    var chartOGCS2 = [];
+    for (var hour = 0; hour < 24; hour++) {
+    var key = "h" + hour;
+    if(key === 'h0' || key === 'h1' || key === 'h2' || key === 'h3' || key === 'h4' || key === 'h5' || key === 'h6' || key === 'h7' || key === 'h8' || key === 'h9' || key === 'h10' || key === 'h11' || key === 'h12' || key === 'h13' || key === 'h14' || key === 'h15' || key === 'h16' || key === 'h17' || key === 'h18' || key === 'h19' || key === 'h20' || key === 'h21' || key === 'h22' || key === 'h23'){
+        if(key.length == 2){
+            keyString5 = key.replace('h','0');
+        } else if(key.length == 3){
+            keyString5 = key.replace('h','');
+        }
+    }
+    var data = {
+        hour: keyString5,
+        value: totalValues[key] || 0,
+        releaseNameLong : releaseHourly[key] || ''
+    };
+    chartOGCS2.push(data);
+    }
+
+    const columnPlot = new Column('rpad-chart5', {
+        data : chartOGCS2,
+        xField: 'hour',
+        yField: 'value',
+        height: 565,
+        label: {
+            position: 'middle', // 'top', 'bottom', 'middle',
+            style: {
+            fill: '#FFFFFF',
+            opacity: 0.6,
+            },
+        },
+        tooltip: {
+        customContent: (title, data) => {
+            let insideItem;
+            if(data[0] != null || data[0] != undefined){
+                insideItem = data[0].data;
+                if(insideItem != null || insideItem != undefined){
+                    return `<div class="tooltip-div">
+                                <h5 class="tooltip-header">${insideItem.hour}</h5><h5 class="tooltip-content">#{__('Daily Working Hours')} : ${insideItem.value}</h5><h5 class="tooltip-content">#{__('Process Name')} : ${insideItem.releaseNameLong}</h5>
+                            </div>`;    
+                    }
+                }
+            },
+        },
+        xAxis: {
+            label: {
+            autoHide: true,
+            autoRotate: false,
+            },
+        },
+    });
+
+    columnPlot.render();
+
+    $( window ).on( "load", function() {
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="workDate2"]').datepicker(options);
+        let separatedRobots5 = filters.rpadHistoryList[4]?.robots?.split(', ') || undefined
+        let startTimeDatePicker = filters.rpadHistoryList[4]?.date1 || undefined
+        if (separatedRobots5 !== undefined){
+            $('select[name="odwRobots"]').val(separatedRobots5);
+        }
+        $('input[name="workDate2"]').datepicker("setDate", dashboardDataWeekRange.end);
+        dailyDensityChartFilterFunction5();
+        
+    })
+    $('input[name="workDate2"]').on('change', function () {
+        dailyDensityChartFilterFunction5();
+    })
+    $('select[name="odwRobots"]').on('change', function () {
+        dailyDensityChartFilterFunction5();
+    });
+
+
+    function dailyDensityChartFilterFunction5(){
+        const selectedDate5 = $(workDate2).val();
+        let odwRobots = ensureSelectHasValue('odwRobots');
+        let overallDensityChartAlert = '';
+
+        if(odwRobots.length < 1){
+            overallDensityChartAlert = overallDensityChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+
+        $('#alertOverallDailyChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + overallDensityChartAlert + "</p>").appendTo('#alertOverallDailyChart')
+
+        if(overallDensityChartAlert === '') {
+            filteroverallChart = {workDate2:selectedDate5, robots:odwRobots};
+            filteroverallChart.workDate2 = workDate2.value;
+            $.ajax({
+                url: "/overallChart-filter",
+                type: 'POST',
+                data: filteroverallChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let category5;
+                    if(res && res.rpadDailyIntensityList && res.rpadDailyIntensityList.length > 0) {
+                        $('#rpad-chart5').removeClass('visibility-none')
+                        // Toplam değerleri saklamak için nesne
+                        var totalValues = {};
+                        // JSON verilerini dolaşarak toplam değerleri hesapla
+                        let md = 'Min.'
+                        if(locale == 'tr')
+                            md = "Dk."
+                        for (var i = 0; i < res.rpadDailyIntensityList.length; i++) {
+                            var obj = res.rpadDailyIntensityList[i];
+                            for (var hour = 0; hour < 24; hour++) {
+                                var key = "h" + hour;
+                                if (totalValues[key]) {
+                                    totalValues[key] += obj[key];
+                                    if(obj[key] != 0 && (obj[key] != null || obj[key] != undefined)){
+                                        releaseHourly[key] += "<br>"+obj['releaseName']+" - "+obj[key]+" "+md;
+                                    }
+                                } else {
+                                    totalValues[key] = obj[key];
+                                    if(obj[key] != 0 && (obj[key] != null || obj[key] != undefined)){
+                                        releaseHourly[key] = "<br>"+obj['releaseName']+" - "+obj[key]+" "+md;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Sütun grafiği için veriyi hazırla
+                        var YENI1 = [];
+                        for (var hour = 0; hour < 24; hour++) {
+                        var key = "h" + hour;
+                        if(key === 'h0' || key === 'h1' || key === 'h2' || key === 'h3' || key === 'h4' || key === 'h5' || key === 'h6' || key === 'h7' || key === 'h8' || key === 'h9' || key === 'h10' || key === 'h11' || key === 'h12' || key === 'h13' || key === 'h14' || key === 'h15' || key === 'h16' || key === 'h17' || key === 'h18' || key === 'h19' || key === 'h20' || key === 'h21' || key === 'h22' || key === 'h23'){
+                            if(key.length == 2){
+                                keyString5 = key.replace('h','0');
+                            } else if(key.length == 3){
+                                keyString5 = key.replace('h','');
+                            }
+                        }
+                        Object.keys(obj).forEach(function(key) {
+                            if(key === 'workDate'){
+                                category5 = obj[key];
+                            }
+                        });
+                        var data = {
+                            hour: keyString5,
+                            value: totalValues[key] || 0,
+                            category : category5,
+                            releaseNameLong : releaseHourly[key] || ''
+
+                        };
+                        YENI1.push(data);
+                        }
+                        columnPlot.changeData(YENI1);
+                        columnPlot.render();
+                    }else{
+                        $('#rpad-chart5').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    $('#rpad-chart5').addClass('visibility-none')
+                }
+            });
+        }
+    }
+

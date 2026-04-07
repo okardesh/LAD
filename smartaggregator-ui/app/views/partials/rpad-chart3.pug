@@ -1,0 +1,257 @@
+div.active#rpad-chart3
+
+script.
+    // DEFAULT GELEN WORKING HOURS OCCUPANCY RATE CHART VERILERI
+    function toIntValue(value){
+        const parsed = parseInt(value, 10);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    var todayOccupancyControl = new Date();
+    var startTimeYearOccupancyControl = todayOccupancyControl.getFullYear();
+    var startTimeMonthOccupancyControl = todayOccupancyControl.getMonth()+1;
+    var startTimeDayOccupancyControl = todayOccupancyControl.getDate();
+
+    var lastStartTimeOccupancyControl = ('0' + startTimeDayOccupancyControl).slice(-2) + '/' + ('0' + startTimeMonthOccupancyControl).slice(-2) + '/' + startTimeYearOccupancyControl;
+    let workedDateValue = lastStartTimeOccupancyControl;
+    const workingHoursOccupancyChart = JSON.parse('!{JSON.stringify(workingHoursOccupancyChart)}');
+
+    const chartWHOR = [];
+    let totalOccupancy = 0;
+    let workedHoursValue = 0;
+    let freeHoursValue = 0;
+    workingHoursOccupancyChart.forEach(function(element) {
+        Object.keys(element).forEach(function(key) {
+            if(key === 'freeHours' || key === 'workedHours'){
+                totalOccupancy = totalOccupancy + toIntValue(element[key]);
+            }
+            if(key === 'freeHours'){
+                freeHoursValue = toIntValue(element[key])
+            } else if(key === 'workDate'){
+                if(element[key] === null){
+                    workedDateValue = new Date();
+                }
+                else{
+                    workedDateValue = element[key];
+                }
+            } else if(key === 'workedHours'){
+                workedHoursValue = toIntValue(element[key])
+            }
+        });
+    });
+    // workingHoursOccupancyChart.forEach(function(element){
+    //     Object.keys(element).forEach(function(key){
+    //         if (key === 'workedHours'){
+    //              totalOccupancy = totalOccupancy + parseInt(element[key])
+    //         }
+    //         else if (key === 'workedHours'){
+    //             workedHoursValue = parseInt
+    //         }
+    //     })
+    // })
+    let totalAvailableMinutes = toIntValue(workedHoursValue) + toIntValue(freeHoursValue);
+    let totalWorkedPercent = totalAvailableMinutes > 0 ? Math.round((toIntValue(workedHoursValue) / totalAvailableMinutes) * 100) : 0;
+    let totalFreePercent = totalAvailableMinutes > 0 ? Math.round((toIntValue(freeHoursValue) / totalAvailableMinutes) * 100) : 0;
+    totalOccupancy = 0;
+    chartWHOR.push({
+        type : `#{__('Worked Minutes')} : %${totalWorkedPercent} - ${workedHoursValue} #{__('Minutes')}`,
+        value : workedHoursValue,
+    });
+
+    chartWHOR.push({
+        type : `#{__('Free Minutes')} : %${totalFreePercent} - ${freeHoursValue} #{__('Minutes')}`,
+        value : freeHoursValue,
+    });
+    
+    const piePlot3 = new Pie('rpad-chart3', {
+        appendPadding: [8, 18, 0, 18],
+        data : chartWHOR,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 0.88,
+        height: 270,
+        innerRadius: 0.62,
+        label: {
+            type: 'inner',
+            offset: '-45%',
+            content: '',
+            style: {
+                textAlign: 'center',
+                fontSize: 11,
+                fill: '#111827',
+                fontWeight: 600
+                },
+        },
+        legend: {
+            layout: 'vertical',
+            position: 'bottom',
+            itemName: {
+                style: {
+                    fontSize: 12,
+                    fill: '#475467'
+                }
+            }
+        },
+        color: ['#62DAAB', '#FF4D4F',],
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header d-inline">${insideItem.type}</h5>
+                                </div>`;
+                        }
+                    }
+                }
+            },
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' }],
+        statistic: {
+            title: false,
+            content: {
+            style: {
+                whiteSpace: 'pre-wrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+            },
+            content: '',
+            },
+        },
+    });
+
+    piePlot3.render();
+
+    function requestOccupancySummaryForDate(selectedDate, robots){
+        return new Promise(function(resolve){
+            $.ajax({
+                url: "/robotsOccupancyRateChart-filter",
+                type: 'POST',
+                data: { startTime: selectedDate, endTime: selectedDate },
+                dataType: 'json',
+                success: function(res){
+                    if (res && res.rpadJobsList && res.rpadJobsList.length > 0) {
+                        let worked = 0, free = 0;
+                        res.rpadJobsList.forEach(function(row){
+                            worked += toIntValue(row.fullTime);
+                            free += toIntValue(row.freeTime);
+                        });
+                        resolve({ worked: worked, free: free });
+                        return;
+                    }
+
+                    resolve({ worked: 0, free: 0 });
+                },
+                error: function(){
+                    resolve({ worked: 0, free: 0 });
+                }
+            });
+        });
+    }
+
+    $( window ).on( "load", function() {
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="workDate"]').datepicker(options);
+        // EN SON CALISILAN GUNUN DEFAULT OLARAK CHARTA YANSITILMASINI SAGLAYAN KISIM
+        //- $('input[name="workDate"]').datepicker("setDate", workedDateValue);
+        //- $('input[name="workDate"]').attr('value', workedDateValue);
+        //-     dailyDensityChartFilterFunction3();
+        //- });
+        let workingHoursOccupancyRobots = filters.rpadHistoryList[2]?.robots?.split(', ') || undefined
+        let workingHoursOccupancyStartTime = filters.rpadHistoryList[2]?.date1 || undefined
+        if (workingHoursOccupancyRobots !== undefined ){
+            $('select[name="whoRobots"]').val(workingHoursOccupancyRobots);
+        }
+        $('input[name="workDate"]').datepicker("setDate", dashboardDataWeekRange.end);
+        dailyDensityChartFilterFunction3();
+    });
+
+        // DATEPICKERDA OLAN HER DEGISIKLIKTE dailyDensityChartFilterFunction3 FONKSIYONUNUN TETIKLENDIGI KISIM
+        $('input[name="workDate"]').on('change', function () {
+            dailyDensityChartFilterFunction3()
+        });
+        $('select[name="whoRobots"]').on('change', function () {
+            dailyDensityChartFilterFunction3();
+        });
+
+        // HER FILTRELEME ISLEMINDE GONDERILEN SORGU ISLEMINE AIT FONKSIYON
+        function dailyDensityChartFilterFunction3() {
+            const selectedDate = $(workDate).val();
+            let occupanyRobots = ensureSelectHasValue('whoRobots');
+            let workingHoursOcpChartAlert = '';
+
+            if (occupanyRobots.length < 1) {
+                workingHoursOcpChartAlert = workingHoursOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+            }
+            $('#alertWorkingHourChart').empty()
+            $("<p class='alertText' style='color:red!important;'>" + workingHoursOcpChartAlert + "</p>").appendTo('#alertWorkingHourChart')
+            if (workingHoursOcpChartAlert === '') {
+                filterworkingHoursOccupancyChart = {workDate: selectedDate, robots: occupanyRobots};
+                filterworkingHoursOccupancyChart.workDate = workDate.value;
+                $.ajax({
+                    url: "/workingHoursOccupancyChart-filter",
+                    type: 'POST',
+                    data: filterworkingHoursOccupancyChart,
+                    dataType: 'json', // added data type
+                    success: function (res) {
+                        let WHOC1 = [];
+                        if (res && res.rpadDailyIntensityList && res.rpadDailyIntensityList.length > 0) {
+                            $('#rpad-chart3').removeClass('visibility-none')
+                            res.rpadDailyIntensityList.forEach(function (element) {
+                                Object.keys(element).forEach(function (key) {
+                                    if (key === 'freeHours' || key === 'workedHours') {
+                                        totalOccupancy = totalOccupancy + toIntValue(element[key]);
+                                    }
+                                    if (key === 'freeHours') {
+                                        freeHoursValue = toIntValue(element[key])
+                                    } else if (key === 'workDate') {
+                                        workedDateValue = element[key]
+                                    } else if (key === 'workedHours') {
+                                        workedHoursValue = toIntValue(element[key])
+                                    }
+                                });
+                            });
+                            let freeMinutes = toIntValue(freeHoursValue);
+                            let workedMinutes = toIntValue(workedHoursValue);
+
+                            requestOccupancySummaryForDate(selectedDate, occupanyRobots).then(function(occ){
+                                if (freeMinutes === 0 && occ.free > 0) {
+                                    freeMinutes = toIntValue(occ.free);
+                                }
+                                if (workedMinutes === 0 && occ.worked > 0) {
+                                    workedMinutes = toIntValue(occ.worked);
+                                }
+
+                                let totalAvailableHours = freeMinutes + workedMinutes;
+                                let totalFreePercent = totalAvailableHours > 0 ? Math.round((freeMinutes / totalAvailableHours) * 100) : 0;
+                                let totalWorkedPercent = totalAvailableHours > 0 ? Math.round((workedMinutes / totalAvailableHours) * 100) : 0;
+                                totalOccupancy = 0;
+                                WHOC1.push({
+                                    type: `#{__('Worked Minutes')} : %${totalWorkedPercent} - ${workedMinutes} #{__('Minutes')}`,
+                                    value: workedMinutes,
+                                });
+
+                                WHOC1.push({
+                                    type: `#{__('Free Minutes')} : %${totalFreePercent} - ${freeMinutes} #{__('Minutes')}`,
+                                    value: freeMinutes,
+                                });
+                                piePlot3.changeData(WHOC1);
+                                piePlot3.render();
+                            });
+                        } else {
+                            $('#rpad-chart3').addClass('visibility-none')
+                        }
+
+                    },
+                    error: function (err) {
+                        $('#rpad-chart3').addClass('visibility-none')
+                    }
+                });
+            }
+        }
+ 

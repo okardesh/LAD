@@ -1,0 +1,395 @@
+div.active#rpad-chart1-1
+
+script.
+    // DEFAULT GELEN STATE ROBOTS CHART VERILERI
+    
+    const stateRobots = JSON.parse('!{JSON.stringify(stateRobots)}');
+
+    const dataRobots = [];
+    let totalRobots = 0, totalSuccessful = 0, totalFaulted = 0, totalStopped = 0
+    stateRobots.forEach(function(element) {
+        Object.keys(element).forEach(function(key) {
+            if(key === 'hostMachineName'){
+                if(element[key] != null)
+                    totalRobots = totalRobots + 1;
+                
+            } else if(key === 'successfulCount'){
+                if(element['hostMachineName'] != null)
+                    totalSuccessful = totalSuccessful + element[key];
+                
+            }
+            else if(key ==='faultedCount'){
+                if(element['hostMachineName'] != null)
+                    totalFaulted = totalFaulted + element[key];
+                
+            }
+            else if(key === 'stoppedCount'){
+                if(element['hostMachineName'] != null)
+                    totalStopped = totalStopped + element[key];
+                
+            }
+        });
+        
+    });
+    dataRobots.push({
+        type : "#{__('Successful')} : " + totalSuccessful,
+        value : totalSuccessful,
+        totalRobotsValue : totalRobots
+    });
+    dataRobots.push({
+        type : "#{__('Faulted')} : " + totalFaulted,
+        value : totalFaulted,
+        totalRobotsValue : totalRobots
+    });
+    dataRobots.push({
+        type : "#{__('Stopped')} : " + totalStopped,
+        value : totalStopped,
+        totalRobotsValue : totalRobots
+    });
+    
+    const piePlot4 = new Pie('rpad-chart1-1', {
+        appendPadding: [8, 18, 0, 18],
+        data: dataRobots,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 0.88,
+        height: 270,
+        innerRadius: 0.62,
+        label: {
+            type: 'inner',
+            autoRotate: false,
+            offset: '-45%',
+            content: '',
+            style: {
+                textAlign: 'center',
+                fontSize: 11,
+                fill: '#111827',
+                fontWeight: 600
+            },
+        },
+        legend: {
+            layout: 'vertical',
+            position: 'bottom',
+            itemName: {
+                style: {
+                    fontSize: 12,
+                    fill: '#475467'
+                }
+            }
+        },
+        color: ['#62DAAB','#FF4D4F','#6395F9'],
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' },{ type: 'element-highlight' }, { type: 'hover-cursor' }],
+        statistic: {
+                title: false,
+                content: {
+                style: {
+                    whiteSpace: 'pre-wrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                },
+                content: '',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                <h5 class="tooltip-header d-inline">#{__('Total')} ${insideItem.type}</h5></br>
+                                <h5 class="tooltip-header d-inline">#{__('Total')} Robot #{__('Counts')} : ${insideItem.totalRobotsValue} </h5>
+                            </div>`;
+                    }
+                }
+            }
+        },
+    });
+    piePlot4.render();
+    let responseControl = 0;
+    // DATEPICKERLARDA OLAN HER DEGISIKLIKTE stateChartFilterFunction FONKSIYONUNUN TETIKLENDIGI KISIM
+    $( window ).on( "load", function(){
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="startTimeStateChartDatePicker"]').datepicker(options);
+        $('input[name="endTimeStateChartDatePicker"]').datepicker(options);
+        // MY CODE IS HERE
+        let separatedRobots1 = filters.rpadHistoryList[0]?.robots?.split(', ') || undefined;
+        let chart1StartTime = filters.rpadHistoryList[0]?.date1 || undefined;
+        let chart1EndTime = filters.rpadHistoryList[0]?.date2 || undefined;
+        if (separatedRobots1 !== undefined){
+            $('select[name="statesRobots"]').val(separatedRobots1);
+        }
+        $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", dashboardDataWeekRange.start);
+        $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", dashboardDataWeekRange.end);
+        stateChartFilterFunction();
+
+    });
+        $('input[name="startTimeStateChartDatePicker"]').on('change', function () {
+            if (responseControl === 0) {
+                stateChartFilterFunction();
+            }else{
+                responseControl = 0;
+            }
+        });
+
+        $('input[name="endTimeStateChartDatePicker"]').on('change', function(){
+            if(responseControl === 0){
+                stateChartFilterFunction();
+            }else{
+                responseControl = 0;
+            }
+        });
+
+        $('select[name="statesRobots"]').on('change', function(){
+            stateChartFilterFunction();
+        });
+
+
+    // DATEPICKER ILE GINDERILEN TARIH ARALIKLARININ SORGUYA GONDERILMEDEN ONCE DUZENLENIGI KISIM
+    // stateChartFilterFunction FONKSIYONUNA PARAMETRE OLARAK GONDERILIR
+    function stateChartFilterFunction(){
+        let selectedDateStartDate2 = $('input[name="startTimeStateChartDatePicker"]').val();
+        let selectedDateEndDate2 = $('input[name="endTimeStateChartDatePicker"]').val();
+
+        let startDateDataDay = selectedDateStartDate2.slice(0, 2);
+        let startDateDataMonth = selectedDateStartDate2.slice(3, 5);
+        let startDateDataYear = selectedDateStartDate2.slice(6, 10);
+        startDateDataDate = new Date(startDateDataYear + '-' + startDateDataMonth + '-' + startDateDataDay);
+
+        let endDateDataDay = selectedDateEndDate2.slice(0, 2);
+        let endDateDataMonth = selectedDateEndDate2.slice(3, 5);
+        let endDateDataYear = selectedDateEndDate2.slice(6, 10);
+        endDateDataDate = new Date(endDateDataYear + '-' + endDateDataMonth + '-' + endDateDataDay);
+
+
+        let statesRobots = ensureSelectHasValue('statesRobots');
+        let companyId = $('label[id="getCompaniesID"]').val();
+        let stateChartAlert = '';
+        if(selectedDateStartDate2 === 'Start Date' || selectedDateStartDate2 === 'Başlangıç Tarihi' || selectedDateStartDate2 === 'Tarih Seçiniz'){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Start date is empty')}"
+        }
+        if (startDateDataDate > endDateDataDate && !(selectedDateStartDate2 === 'Start Date' || selectedDateStartDate2 === 'Başlangıç Tarihi' ) && !(selectedDateEndDate2 === 'End Date' || selectedDateEndDate2 === 'Bitiş Tarihi' || selectedDateEndDate2 === 'Tarih Seçiniz')) {
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('The start date must be less than the end date.')}"
+        }
+        if(selectedDateEndDate2 === 'End Date' || selectedDateEndDate2 === 'Bitiş Tarihi' || selectedDateEndDate2 === 'Tarih Seçiniz'){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('End date is empty')}"
+        }
+        if(statesRobots.length < 1){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertTextStateChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart')
+        if(stateChartAlert === '') {
+            $('input[name="selectedDateStartDate2"]').attr('value', selectedDateStartDate2);
+            $('input[name="selectedDateEndDate2"]').attr('value', selectedDateEndDate2);
+            let newStateChartFilter3 = statesRobots;
+            stateChartFilterRequest(selectedDateStartDate2, selectedDateEndDate2, newStateChartFilter3);
+        }
+    }
+
+    // AY BASINDAN ITIBAREN FILTRELEME - STATE ROBOTS
+    $('button[name="month-to-date3"]').on('click', function(){
+        responseControl = 1;
+        let newStateChartFilter3 = $('select[name="statesRobots"]').val();
+        let stateChartAlert = '';
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth(), 1);
+        var lastDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth() + 1, 0);
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+
+        if(newStateChartFilter3.length < 1){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertTextStateChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart');
+        
+        if(stateChartAlert === '') {
+            $('input[name="startTimeStateChartDatePicker"]').val(fullFirstDay);
+            $('input[name="endTimeStateChartDatePicker"]').val(fullLastDay);
+            $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", fullFirstDay);
+            $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", fullLastDay);
+            stateChartFilterRequest(fullFirstDay, fullLastDay, newStateChartFilter3);
+        }
+    });
+
+    // EN SON CASILISAN GUN FILTRESI - STATE ROBOTS
+    $('button[name="last-working-date3"]').on('click', function(){
+        responseControl = 1;
+        let newStateChartFilter3 = $('select[name="statesRobots"]').val();
+        var lastDataDate = $('input[name="workDate"]').val();
+        var monthDate = new Date()
+        firstDay = new Date(monthDate.getFullYear() , monthDate.getMonth() , 1)
+
+        const [day, month, year] = lastDataDate.split('/');
+
+        let stateChartAlert = '';
+
+        if(newStateChartFilter3.length < 1){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertTextStateChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart');
+        $('input[name="startTimeStateChartDatePicker"]').val(lastDataDate);
+        $('input[name="endTimeStateChartDatePicker"]').val(lastDataDate);
+        $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", lastDataDate);
+        $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", lastDataDate);
+        if(stateChartAlert === '') {
+            stateChartFilterRequest(lastDataDate,lastDataDate,newStateChartFilter3)
+        }
+    });
+
+    // YILIN BASINDAN ITIBAREN EN SON CALISILAN GUNE KADAR FILTRELEME - STATE ROBOTS
+    $('button[name="year-to-date3"]').on('click', function(){
+        responseControl = 1;
+        let newStateChartFilter3 = $('select[name="statesRobots"]').val();
+        let stateChartAlert = '';
+
+        var MonthDate = new Date();
+        var firstDay = new Date(new Date().getFullYear(), 0, 1);
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        if(newStateChartFilter3.length < 1){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertTextStateChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart');
+        $('input[name="startTimeStateChartDatePicker"]').val(fullFirstDay);
+        $('input[name="endTimeStateChartDatePicker"]').val(fullLastDay);
+        $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", fullFirstDay);
+        $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", fullLastDay);
+        if(stateChartAlert === '') {
+            stateChartFilterRequest(fullFirstDay, fullLastDay, newStateChartFilter3);
+        }
+    });
+
+    // SON CALISAN GUNE GORE EN SON CALISILAN HAFTA FILTRESI - STATE ROBOTS
+    $('button[name="last-week3"]').on('click', function(){
+        responseControl = 1;
+        let newStateChartFilter3 = $('select[name="statesRobots"]').val();
+        var lastWeekEnd = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+
+        let stateChartAlert = '';
+
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        let lastWeekStart = new Date(lastDataDate - 1000 * 60 * 60 * 24 * 7);
+
+        var lastWeekStartFormat = new Date(lastWeekStart);
+
+        lastWeekStartFormat =
+             ('0' + lastWeekStartFormat.getDate()).slice(-2) + '/' +
+            ('0' + (lastWeekStartFormat.getMonth()+1)).slice(-2) + '/' +
+            lastWeekStartFormat.getFullYear();
+
+        if(newStateChartFilter3.length < 1){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertTextStateChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart');
+        $('input[name="startTimeStateChartDatePicker"]').val(lastWeekStartFormat);
+        $('input[name="endTimeStateChartDatePicker"]').val(lastDataDate);
+        $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", lastWeekStartFormat);
+        $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", lastDataDate);
+
+        if(stateChartAlert === '') {
+            stateChartFilterRequest(lastWeekStartFormat, lastDataDate, newStateChartFilter3);
+        }
+    });
+    // HER FILTRELEME ISLEMINDE GONDERILEN SORGU ISLEMINE AIT FONKSIYON
+    function stateChartFilterRequest(startTime, endTime, robots){
+        filterRpadStateChart2 = {robots : robots, startTime:startTime, endTime : endTime}
+        $.ajax({
+            url: "/rpadStateChart2-filter",
+            type: 'POST',
+            data: filterRpadStateChart2,
+            dataType: 'json', // added data type
+            success: function(res) {
+                let newStateChart2 = [];
+                if(res && res.rpadJobsList && res.rpadJobsList.length > 0) {
+                    $('#rpad-chart1-1').removeClass('visibility-none')
+                    let totalRobots = 0, totalSuccessful = 0, totalFaulted = 0, totalStopped = 0
+                        res.rpadJobsList.forEach(function(element) {
+                            Object.keys(element).forEach(function(key) {
+                                if(key === 'hostMachineName'){
+                                    totalRobots = totalRobots + 1;
+                                } else if(key === 'successfulCount'){
+                                    totalSuccessful = totalSuccessful + element[key];
+                                }
+                                else if(key ==='faultedCount'){
+                                    totalFaulted = totalFaulted + element[key];
+                                }
+                                else if(key === 'stoppedCount'){
+                                    totalStopped = totalStopped + element[key];
+                                }
+                            });
+                        });
+                        newStateChart2.push({
+                            type : "#{__('Number of Successful Jobs')} : " + totalSuccessful,
+                            value : totalSuccessful,
+                            totalRobotsValue : totalRobots
+                        });
+                        newStateChart2.push({
+                            type : "#{__('Number of Faulted Jobs')} : " + totalFaulted,
+                            value : totalFaulted,
+                            totalRobotsValue : totalRobots
+                        });
+                        newStateChart2.push({
+                            type : "#{__('Number of Stopped Jobs')} : " + totalStopped,
+                            value : totalStopped,
+                            totalRobotsValue : totalRobots
+                        });
+
+                        totalRobots = 0;
+                        totalSuccessful = 0;
+                        totalFaulted = 0;
+                        totalStopped = 0;
+
+                    piePlot4.changeData(newStateChart2);
+                    piePlot4.render();
+                }else{
+                    $('#rpad-chart1-1').addClass('visibility-none')
+                }
+            },
+            error: function(err){
+            }
+        });
+    };
+
+
+
+
+
+

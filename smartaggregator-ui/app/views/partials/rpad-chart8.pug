@@ -1,0 +1,175 @@
+div.active#rpad-chart8
+
+script.
+    const queueTransactionTimeChart = JSON.parse('!{JSON.stringify(queueTransactionTimeChart)}');
+    const queueTransactionTimeChartDataDate = JSON.parse('!{JSON.stringify(jobsData)}');
+    const chartQTTC = [];
+    order = 1;
+    queueTransactionTimeChart.sort((a, b) => b.transactionExecutionTime - a.transactionExecutionTime).forEach(element => {
+        chartQTTC.push({
+            queueName : element.queueName.slice(0,20) + " - " + order,
+            transactionExecutionTime: element.transactionExecutionTime,
+            queueNameLong : element.queueName,
+            averageTime : element.averageTime
+        })
+        order++;
+    });
+
+    barPlot3 = new Bar('rpad-chart8', {
+        forceFit: true,
+        data : chartQTTC,
+        appendPadding : [20, 20, 20, 20],
+        height: 515,
+        xField: 'transactionExecutionTime',
+        yField: 'queueName',
+        scrollbar: {
+            type: 'vertical',
+            animate: false,
+        },
+        meta: {
+            type: {
+            alias: 'Transaction Execution Time',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header">${insideItem.queueNameLong}</h5><h5 class="tooltip-content">#{__('Total Job Time')} : ${insideItem.transactionExecutionTime} #{__('Minutes')}</h5><h5 class="tooltip-content">#{__('Average Time')} : ${insideItem.averageTime} #{__('Minutes')}</h5>
+                                </div>`;
+                    }
+                }
+            }
+        },
+    });
+
+    barPlot3.render();  
+
+    $( window ).on( "load", function(){
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="qttStartTime"]').datepicker(options);
+        $('input[name="qttEndTime"]').datepicker(options);
+        if (filters.rpadHistoryList[6] !== undefined){
+            let separatedRobots8 = filters.rpadHistoryList[6]?.robots?.split('|') || undefined;
+            if (separatedRobots8 !== undefined){
+                var queueArray = separatedRobots8[0].split(', ');
+                var robotArray = separatedRobots8[1].split(', ');
+            }else{
+                separatedRobots8 === undefined;
+            }
+            let chart8StartTime = filters.rpadHistoryList[6]?.date1 || undefined;
+            let chart8EndTime = filters.rpadHistoryList[6]?.date2 || undefined;
+            $('select[name="queueNames"]').val(queueArray);
+            $('select[name="queueRobots"]').val(robotArray);
+            $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+            $('input[name="qttEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            queueTransactionChartFilterFunction();
+        }else{
+            if (lastQueueDate  !== undefined) {
+                $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+                $('input[name="qttEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            } else {
+                $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
+                $('input[name="qttEndTime"]').datepicker("setDate", queueDataWeekRange.end);
+            }
+            queueTransactionChartFilterFunction();
+        } 
+    });
+
+    $('input[name="qttStartTime"]').on('change', function () {
+        queueTransactionChartFilterFunction();
+    });
+    $('input[name="qttEndTime"]').on('change', function (){
+        queueTransactionChartFilterFunction();
+    });
+    $('select[name="queueNames"]').on('change', function () {
+        queueTransactionChartFilterFunction();
+    });
+    $('select[name="queueRobots"]').on('change', function () {
+        queueTransactionChartFilterFunction();
+    });
+
+
+    function queueTransactionChartFilterFunction(){
+        const queueTransactionChartStart = $('input[name="qttStartTime"]').val();
+        const queueTransactionChartEnd = $('input[name="qttEndTime"]').val();
+        let queueTransactionChartQueues = ensureSelectHasValue('queueNames');
+        let queueTransactionChartRobots = ensureSelectHasValue('queueRobots');
+        let queueTransactionChartAlert = '';
+
+        let startDateDataDay = queueTransactionChartStart.slice(0, 2);
+        let startDateDataMonth = queueTransactionChartStart.slice(3, 5);
+        let startDateDataYear = queueTransactionChartStart.slice(6, 10);
+        startDateDataDate = new Date(startDateDataYear + '-' + startDateDataMonth + '-' + startDateDataDay);
+
+        let endDateDataDay = queueTransactionChartEnd.slice(0, 2);
+        let endDateDataMonth = queueTransactionChartEnd.slice(3, 5);
+        let endDateDataYear = queueTransactionChartEnd.slice(6, 10);
+        endDateDataDate = new Date(endDateDataYear + '-' + endDateDataMonth + '-' + endDateDataDay);
+
+        if(queueTransactionChartStart === 'Start Date' || queueTransactionChartStart === 'Başlangıç Tarihi' || queueTransactionChartStart === 'Tarih Seçiniz'){
+            queueTransactionChartAlert = queueTransactionChartAlert + ' * ' + "#{__('Start date is empty')}"
+        }
+        if (endDateDataDate < startDateDataDate && !(queueTransactionChartStart === 'Start Date' || queueTransactionChartStart === 'Başlangıç Tarihi' || queueTransactionChartStart === 'Tarih Seçiniz') && !(queueTransactionChartEnd === 'End Date' || queueTransactionChartEnd === 'Bitiş Tarihi' || queueTransactionChartEnd === 'Tarih Seçiniz')) {
+            queueTransactionChartAlert = queueTransactionChartAlert + ' * ' + "#{__('The start date must be less than the end date.')}"
+        }
+        if(queueTransactionChartEnd === 'End Date' || queueTransactionChartEnd === 'Bitiş Tarihi' || queueTransactionChartEnd === 'Tarih Seçiniz'){
+            queueTransactionChartAlert = queueTransactionChartAlert + ' * ' + "#{__('End date is empty')}"
+        }
+        if(queueTransactionChartQueues.length < 1){
+            queueTransactionChartAlert = queueTransactionChartAlert + ' * ' + "#{__('Queues are empty')}"
+        }
+        if(queueTransactionChartRobots.length < 1){
+            queueTransactionChartAlert = queueTransactionChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+
+        $('#alertTextQueueTransactionChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + queueTransactionChartAlert + "</p>").appendTo('#alertTextQueueTransactionChart')
+
+        if(queueTransactionChartAlert === '') {
+            filterQueueTransactionChart = {startTime:'', endTime:'', queues :'', robots :''};
+            filterQueueTransactionChart.startTime = queueTransactionChartStart
+            filterQueueTransactionChart.endTime = queueTransactionChartEnd
+            filterQueueTransactionChart.queues = queueTransactionChartQueues
+            filterQueueTransactionChart.robots = queueTransactionChartRobots
+        }
+
+        if(queueTransactionChartAlert === '' && filterQueueTransactionChart.startTime != '' && filterQueueTransactionChart.endTime != '' && filterQueueTransactionChart.queues != '' && filterQueueTransactionChart.robots != '') {
+            $.ajax({
+                url: "/queueTransactionTimeChart-filter",
+                type: 'POST',
+                data: filterQueueTransactionChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let TTWM = [];
+                    if(res && res.rpadQueueList && res.rpadQueueList.length > 0) {
+                        $('#rpad-chart8').removeClass('visibility-none')
+                        let order = 1;
+                        res.rpadQueueList.sort((a, b) => b.transactionExecutionTime - a.transactionExecutionTime).forEach(element => {
+                            TTWM.push({
+                                queueName : element.queueName.slice(0,20) + " - " + order,
+                                transactionExecutionTime: element.transactionExecutionTime,
+                                queueNameLong : element.queueName,
+                                averageTime : element.averageTime
+                            })
+                            order++;
+                        });
+                        barPlot3.changeData(TTWM);
+                        barPlot3.render();
+                    }else{
+                        $('#rpad-chart8').addClass('visibility-none')
+                    }
+                },
+                error: function(err){
+                }
+            });
+        }
+    }

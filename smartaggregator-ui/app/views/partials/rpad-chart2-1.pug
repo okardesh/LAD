@@ -1,0 +1,413 @@
+div.active#rpad-chart2-1
+
+script.
+    // DEFAULT GELEN ROBOTS OCCUPANCY RATE CHART VERILERI
+    const occupanyRobots = JSON.parse('!{JSON.stringify(occupanyRobots)}');
+    const dataRobots2 = [];
+
+    let totalRobots2 = 0, totalFullTime = 0, totalFreeTime = 0
+        occupanyRobots.forEach(function(element) {
+            Object.keys(element).forEach(function(key) {
+                if(key === 'hostMachineName'){
+                    if(element[key] != null)
+                        totalRobots2 = totalRobots2 + 1;
+                } else if(key === 'fullTime'){
+                    totalFullTime = totalFullTime + element[key];
+                }
+                else if(key ==='freeTime'){
+                    totalFreeTime = totalFreeTime + element[key];
+                }            
+            });
+        });
+    let totalFullTimePercent = (parseInt(totalFullTime)/((parseInt(totalFullTime) + parseInt(totalFreeTime))/100));
+    let totalFreeTimePercent = 100 - totalFullTimePercent;
+    dataRobots2.push({
+        type : "#{__('Full Time')} : %" + Math.round(totalFullTimePercent) + " - " + totalFullTime + " #{__('Minutes')}",
+        value : totalFullTime,
+        totalRobotsValue : totalRobots2
+    });
+    dataRobots2.push({
+        type : "#{__('Free Time')} : %" + Math.round(totalFreeTimePercent) + " - " + totalFreeTime + " #{__('Minutes')}",
+        value : totalFreeTime,
+        totalRobotsValue : totalRobots2
+    });
+
+    const piePlot5 = new Pie('rpad-chart2-1', {
+        appendPadding: [8, 18, 0, 18],
+        data: dataRobots2,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 0.88,
+        height: 270,
+        innerRadius: 0.62,
+        label: {
+            type: 'inner',
+            autoRotate: false,
+            offset: '-45%',
+            content: '',
+            style: {
+                textAlign: 'center',
+                fontSize: 11,
+                fill: '#111827',
+                fontWeight: 600
+            },
+        },
+        legend: {
+            layout: 'vertical',
+            position: 'bottom',
+            itemName: {
+                style: {
+                    fontSize: 12,
+                    fill: '#475467'
+                }
+            }
+        },
+        color: ['#62DAAB', '#FF4D4F',],
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' },{ type: 'element-highlight' }, { type: 'hover-cursor' }],
+        statistic: {
+                title: false,
+                content: {
+                style: {
+                    whiteSpace: 'pre-wrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                },
+                content: '',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header d-inline">#{__('Total')} ${insideItem.type} </h5></br>
+                                    <h5 class="tooltip-header d-inline">#{__('Total')} Robot #{__('Counts')} : ${insideItem.totalRobotsValue}</h5>
+                                </div>`;
+                    }
+                }
+            }
+        },
+    });
+
+    piePlot5.render();
+
+    function renderOccupancyFromRows(rows){
+        let newStateChart3 = [];
+        if (rows && rows.length > 0) {
+            $('#rpad-chart2-1').removeClass('visibility-none')
+            let totalRobots2 = 0, totalFullTime = 0, totalFreeTime = 0
+            rows.forEach(function(element) {
+                Object.keys(element).forEach(function(key) {
+                    if(key === 'hostMachineName'){
+                        totalRobots2 = totalRobots2 + 1;
+                    } else if(key === 'fullTime'){
+                        totalFullTime = totalFullTime + (parseInt(element[key], 10) || 0);
+                    }
+                    else if(key ==='freeTime'){
+                        totalFreeTime = totalFreeTime + (parseInt(element[key], 10) || 0);
+                    }
+                });
+            });
+
+            const totalMinutes = totalFullTime + totalFreeTime;
+            const totalFullTimePercent = totalMinutes > 0 ? Math.round((totalFullTime / totalMinutes) * 100) : 0;
+            const totalFreeTimePercent = totalMinutes > 0 ? Math.round((totalFreeTime / totalMinutes) * 100) : 0;
+
+            newStateChart3.push({
+                type : "#{__('Full Time')} : %" + totalFullTimePercent + " - " + totalFullTime + " #{__('Minutes')}",
+                value : totalFullTime,
+                totalRobotsValue : totalRobots2
+            });
+            newStateChart3.push({
+                type : "#{__('Free Time')} : %" + totalFreeTimePercent + " - " + totalFreeTime + " #{__('Minutes')}",
+                value : totalFreeTime,
+                totalRobotsValue : totalRobots2
+            });
+
+            piePlot5.changeData(newStateChart3);
+            piePlot5.render();
+        } else {
+            $('#rpad-chart2-1').addClass('visibility-none')
+        }
+    }
+
+    function requestOccupancyPerRobotFallback(startTime, endTime, robots){
+        const robotList = Array.isArray(robots) ? robots.filter(Boolean) : [];
+        if (robotList.length === 0) {
+            renderOccupancyFromRows([]);
+            return;
+        }
+
+        const requests = robotList.map(function(robot){
+            return new Promise(function(resolve){
+                $.ajax({
+                    url: "/robotsOccupancyRateChart2-filter",
+                    type: 'POST',
+                    data: { startTime: startTime, endTime: endTime, robots: [robot] },
+                    dataType: 'json',
+                    success: function(res){ resolve(res); },
+                    error: function(){ resolve(null); }
+                });
+            });
+        });
+
+        Promise.all(requests).then(function(results){
+            const mergedRows = [];
+            results.forEach(function(item){
+                if (item && item.rpadJobsList && item.rpadJobsList.length > 0) {
+                    mergedRows.push.apply(mergedRows, item.rpadJobsList);
+                }
+            });
+            if (mergedRows.length > 0) {
+                renderOccupancyFromRows(mergedRows);
+            } else {
+                $.ajax({
+                    url: "/robotsOccupancyRateChart-filter",
+                    type: 'POST',
+                    data: { startTime: startTime, endTime: endTime },
+                    dataType: 'json',
+                    success: function(res){
+                        if (res && res.rpadJobsList && res.rpadJobsList.length > 0) {
+                            renderOccupancyFromRows(res.rpadJobsList);
+                        } else {
+                            renderOccupancyFromRows([]);
+                        }
+                    },
+                    error: function(){
+                        renderOccupancyFromRows([]);
+                    }
+                });
+            }
+        });
+    }
+
+    // HER FILTRELEME ISLEMINDE GONDERILEN SORGU ISLEMINE AIT FONKSIYON
+    function robotsOccupancFilterRequest(startTime, endTime, robots){
+        filterRobotsOccupancyRateChart2 = {startTime:startTime, endTime : endTime, robots : robots};
+        $.ajax({
+            url: "/robotsOccupancyRateChart2-filter",
+            type: 'POST',
+            data: filterRobotsOccupancyRateChart2,
+            dataType: 'json', // added data type
+            success: function(res) {
+                if(res && res.rpadJobsList && res.rpadJobsList.length > 0) {
+                    renderOccupancyFromRows(res.rpadJobsList);
+                } else {
+                    requestOccupancyPerRobotFallback(startTime, endTime, robots);
+                }
+            },
+            error: function(err){
+                requestOccupancyPerRobotFallback(startTime, endTime, robots);
+            }
+        });
+    }
+
+    
+    let responseControl2 = 0;
+    // DATEPICKERLARDA OLAN HER DEGISIKLIKTE stateChartFilterFunction2 FONKSIYONUNUN TETIKLENDIGI KISIM
+    $( window ).on( "load", function(){
+        options = {
+            format: "dd/mm/yyyy",
+            orientation: 'bottom left',
+            language: locale,
+            autoclose: true,
+        };
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker(options);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker(options);
+        let separatedRobots2 = filters.rpadHistoryList[1]?.robots?.split(', ') || undefined
+        let chart2StartTime = filters.rpadHistoryList[1]?.date1 || undefined
+        let chart2EndTime = filters.rpadHistoryList[1]?.date2 || undefined
+        // Input alanlarının değerlerini güncelleme
+        if (separatedRobots2 !== undefined){
+            $('select[name="occupanyRobots"]').val(separatedRobots2);
+        }
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.start);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.end);
+        stateChartFilterFunction2();
+    });
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').on('change', function () {
+            if (responseControl2 === 0) {
+                stateChartFilterFunction2();
+            }else{
+                responseControl2 = 0;
+            }
+        });
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').on('change', function(){
+            if(responseControl2 === 0){
+                stateChartFilterFunction2();
+            }else{
+                responseControl2 = 0;
+            }
+        });
+        $('select[name="occupanyRobots"]').on('change', function(){
+            stateChartFilterFunction2();
+        });
+
+
+    // DATEPICKER ILE GINDERILEN TARIH ARALIKLARININ SORGUYA GONDERILMEDEN ONCE DUZENLENIGI KISIM
+    // robotsOccupancFilterRequest FONKSIYONUNA PARAMETRE OLARAK GONDERILIR
+    function stateChartFilterFunction2(){
+        let selectedDateStartDate3 = $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val();
+        let selectedDateEndDate3 = $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val();
+        let occupanyRobots = ensureSelectHasValue('occupanyRobots');
+        let robotOcpChartAlert = '';
+
+        let startDateDataDay = selectedDateStartDate3.slice(0, 2);
+        let startDateDataMonth = selectedDateStartDate3.slice(3, 5);
+        let startDateDataYear = selectedDateStartDate3.slice(6, 10);
+        startDateDataDate = new Date(startDateDataYear + '-' + startDateDataMonth + '-' + startDateDataDay);
+
+        let endDateDataDay = selectedDateEndDate3.slice(0, 2);
+        let endDateDataMonth = selectedDateEndDate3.slice(3, 5);
+        let endDateDataYear = selectedDateEndDate3.slice(6, 10);
+        endDateDataDate = new Date(endDateDataYear + '-' + endDateDataMonth + '-' + endDateDataDay);
+
+        if(selectedDateStartDate3 === 'Start Date' || selectedDateStartDate3 === 'Başlangıç Tarihi' || selectedDateStartDate3 === 'Tarih Seçiniz'){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Start date is empty')}"
+        }
+        if (endDateDataDate < startDateDataDate && !(selectedDateStartDate3 === 'Start Date' || selectedDateStartDate3 === 'Başlangıç Tarihi' || selectedDateStartDate3 === 'Tarih Seçiniz') && !(selectedDateEndDate3 === 'End Date' || selectedDateEndDate3 === 'Bitiş Tarihi' || selectedDateEndDate3 === 'Tarih Seçiniz')) {
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('The start date must be less than the end date.')}"
+        }
+        if(selectedDateEndDate3 === 'End Date' || selectedDateEndDate3 === 'Bitiş Tarihi' || selectedDateEndDate3 === 'Tarih Seçiniz'){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('End date is empty')}"
+        }
+        if(occupanyRobots.length < 1){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertrobotOcpChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + robotOcpChartAlert + "</p>").appendTo('#alertrobotOcpChart')
+        if(robotOcpChartAlert === '') {
+            let newStateChartFilter4 = occupanyRobots;
+                robotsOccupancFilterRequest(selectedDateStartDate3, selectedDateEndDate3, newStateChartFilter4);
+        }
+    }
+        
+    // AY BASINDAN ITIBAREN FILTRELEME
+    $('button[name="month-to-date4"]').on('click', function(){
+        responseControl2 = 1;
+        let newStateChartFilter4 = $('select[name="occupanyRobots"]').val();
+        let robotOcpChartAlert = '';
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth(), 1);
+        var lastDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth() + 1, 0);
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        if(newStateChartFilter4.length < 1){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertrobotOcpChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + robotOcpChartAlert + "</p>").appendTo('#alertrobotOcpChart');
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val(fullFirstDay);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val(fullLastDay);
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", fullFirstDay);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", fullLastDay);
+
+        if(robotOcpChartAlert === '') {
+            robotsOccupancFilterRequest(fullFirstDay, fullLastDay, newStateChartFilter4);
+        }
+    });
+    // EN SON CASILISAN GUN FILTRESI
+    $('button[name="last-working-date4"]').on('click', function(){
+        responseControl2 = 1;
+        let newStateChartFilter4 = $('select[name="occupanyRobots"]').val();
+        var lastDataDate = $('input[name="workDate"]').val();
+        let robotOcpChartAlert = '';       
+
+        if(newStateChartFilter4.length < 1){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertrobotOcpChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + robotOcpChartAlert + "</p>").appendTo('#alertrobotOcpChart');
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val(lastDataDate);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val(lastDataDate);
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", lastDataDate);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", lastDataDate);
+        
+        if(robotOcpChartAlert === '') {
+            robotsOccupancFilterRequest(lastDataDate, lastDataDate, newStateChartFilter4);
+        }
+    });
+
+    // YILIN BASINDAN ITIBAREN EN SON CALISILAN GUNE KADAR FILTRELEME
+    $('button[name="year-to-date4"]').on('click', function(){
+        responseControl2 = 1;
+        let newStateChartFilter4 = $('select[name="occupanyRobots"]').val();
+        let robotOcpChartAlert = '';
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(new Date().getFullYear(), 0, 1);
+        
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        if(newStateChartFilter4.length < 1){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertrobotOcpChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + robotOcpChartAlert + "</p>").appendTo('#alertrobotOcpChart');
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val(fullFirstDay);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val(fullLastDay);
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", fullFirstDay);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", fullLastDay);
+        if(robotOcpChartAlert === '') {
+            robotsOccupancFilterRequest(fullFirstDay, fullLastDay, newStateChartFilter4);
+        }
+    });
+
+    // SON CALISAN GUNE GORE EN SON CALISILAN HAFTA FILTRESI
+    $('button[name="last-week4"]').on('click', function(){
+        responseControl2 = 1;
+        let newStateChartFilter4 = $('select[name="occupanyRobots"]').val();
+        var lastWeekEnd = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+        let robotOcpChartAlert = '';
+        
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        let lastWeekStart = new Date(lastDataDate - 1000 * 60 * 60 * 24 * 7);
+        var lastWeekStartFormat = new Date(lastWeekStart);
+
+        lastWeekStartFormat =
+             ('0' + lastWeekStartFormat.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWeekStartFormat.getMonth()+1)).slice(-2) + '/' + 
+            lastWeekStartFormat.getFullYear();
+
+        if(newStateChartFilter4.length < 1){
+            robotOcpChartAlert = robotOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        $('#alertrobotOcpChart').empty();
+        $("<p class='alertText' style='color:red!important;'>" + robotOcpChartAlert + "</p>").appendTo('#alertrobotOcpChart');
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val(lastWeekStartFormat);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val(lastDataDate);
+        $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", lastWeekStartFormat);
+        $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", lastDataDate);
+        if(robotOcpChartAlert === '') {
+            robotsOccupancFilterRequest(lastWeekStartFormat, lastDataDate, newStateChartFilter4);
+        }
+    });

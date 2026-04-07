@@ -1,0 +1,259 @@
+div.active#rpad-chart4
+
+script.
+    // DEFAULT OLARAK GELEN DAILY DENSITY CHART VERILERI
+    const { Line } = G2Plot;
+    const dailyDensityChart = JSON.parse('!{JSON.stringify(dailyDensityChart)}');
+    const chartDDG = [];
+
+    currentDate.setDate(currentDate.getDate() - 7);
+
+    var newDayYear = currentDate.getFullYear();
+    var newDayMonth = currentDate.getMonth() + 1;
+    var newDay = currentDate.getDate();
+
+    var formattedDate = ('0' + newDay).slice(-2) + '/' + ('0' + newDayMonth).slice(-2) + '/' + newDayYear;
+
+
+    let category2;
+    let keyString;
+    dailyDensityChart.forEach(function(element) {
+        Object.keys(element).forEach(function(key) {
+            if(key === 'workDate'){
+                    category2 = element[key];
+            } else if(key === 'h0' || key === 'h1' || key === 'h2' || key === 'h3' || key === 'h4' || key === 'h5' || key === 'h6' || key === 'h7' || key === 'h8' || key === 'h9' || key === 'h10' || key === 'h11' || key === 'h12' || key === 'h13' || key === 'h14' || key === 'h15' || key === 'h16' || key === 'h17' || key === 'h18' || key === 'h19' || key === 'h20' || key === 'h21' || key === 'h22' || key === 'h23'){
+                if(key.length == 2){
+                    keyString = key.replace('h','0');
+                } else if(key.length == 3){
+                    keyString = key.replace('h','');
+                }
+                chartDDG.push({
+                    type : keyString, 
+                    value : element[key], 
+                    category : category2
+                });
+            }
+        });
+    });
+    
+    const line = new Line('rpad-chart4', {
+        data : chartDDG,
+        xField: 'type',
+        yField: 'value',
+        height: 490,
+        seriesField: 'category',
+        smooth: false,
+        tooltip: {
+            showMarkers: true, // 不展示 tooltip markers
+            shared: true,
+            customContent: (title, data) => {
+                let insideItem = ``;
+                for(let i = 0; i <= 14; i++){
+                    if(data[i] != null || data[i] != undefined){
+                        insideItem += `<li class="g2-tooltip-list-item">
+                                            <span style="background-color:${data[i].color}" class="g2-tooltip-marker"></span>
+                                            <span class="g2-tooltip-name">${data[i].data.category}</span>:<span class="g2-tooltip-value">${data[i].data.value}</span>
+                                        </li>`;
+                    }
+                }
+                return `<div class="g2-tooltip-title">${title}</div>
+                        <ul class="g2-tooltip-list">
+                            ${insideItem}
+                        </ul>`;
+            },
+        },
+        legend: {
+            visible: true,
+            flipPage: true,
+            maxRow:3
+        },
+    });
+
+    line.render();
+    
+    if(dailyDensityChart != ''){
+        let newDay = chartDDG[0].category.slice(0, 2);
+        let newMonth = chartDDG[0].category.slice(3, 5);
+        let newYear = chartDDG[0].category.slice(6, 10);
+
+        let newCategory2 = new Date(newYear + '-' + newMonth + '-' + newDay)
+        
+        var newToday = new Date(newCategory2);
+        var newStartTime = new Date(newCategory2);
+        var newEndTime = new Date(newCategory2);
+        newEndTime.setDate(newToday.getDate() - 7);
+
+        var newStartTimeYear = newStartTime.getFullYear();
+        var newStartTimeMonth = newStartTime.getMonth()+1;
+        var newStartTimeDay = newStartTime.getDate();
+        var lastStartTime = ('0' + newStartTimeDay).slice(-2) + '/' + ( '0' + newStartTimeMonth).slice(-2) + '/' + newStartTimeYear;
+
+        var newEndTimeYear = newEndTime.getFullYear();
+        var newEndTimeMonth = newEndTime.getMonth()+1;
+        var newEndTimeDay = newEndTime.getDate();
+
+        var lastEndTime = ('0' + newEndTimeDay).slice(-2) + '/' + ( '0' + newEndTimeMonth).slice(-2) + '/' + newEndTimeYear;
+        $( window ).on( "load", function(){
+            options = {
+                format: "dd/mm/yyyy",
+                orientation: 'bottom left',
+                language: locale,
+                autoclose: true,
+            };
+            $('input[name="startTime"]').datepicker(options);
+            $('input[name="endTime"]').datepicker(options);
+            //$('input[name="startTime"]').attr('value', lastEndTime)
+            //$('input[name="endTime"]').attr('value', lastStartTime)
+            //dailyDensityChartFilterFunction();
+            let separatedRobots4 = filters.rpadHistoryList[3]?.robots?.split(', ') || undefined;
+            let chart4StartTime = filters.rpadHistoryList[3]?.date1 || undefined;
+            let chart4EndTime = filters.rpadHistoryList[3]?.date2 || undefined;
+            if (separatedRobots4 !== undefined){
+                $('select[name="wdRobots"]').val(separatedRobots4);
+            }
+            $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
+            $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
+            dailyDensityChartFilterFunction();
+        });
+        //$('input[name="startTime"]').attr('value', lastEndTime)
+        //$('input[name="endTime"]').attr('value', lastStartTime)
+
+
+        $('input[name="startTime"]').on('change', function () {
+            dailyDensityChartFilterFunction();
+        });
+        $('input[name="endTime"]').on('change', function (){
+            dailyDensityChartFilterFunction();
+        });
+        $('select[name="wdRobots"]').on('change', function () {
+            dailyDensityChartFilterFunction();
+        });
+
+    }else{
+        var todayControl = new Date();
+
+        var startTimeYearControl = todayControl.getFullYear();
+        var startTimeMonthControl = todayControl.getMonth()+1;
+        var startTimeDayControl = todayControl.getDate();
+
+        var lastStartTimeControl = startTimeMonthControl + '-' + startTimeDayControl + '-' + startTimeYearControl;
+
+        var newTodayControl = new Date(lastStartTimeControl);
+        var newStartTimeControl = new Date(lastStartTimeControl);
+        var newEndTimeControl = new Date(lastStartTimeControl);
+        newEndTimeControl.setDate(newTodayControl.getDate() - 7);
+
+        var newStartTimeYearControl = newStartTimeControl.getFullYear();
+        var newStartTimeMonthControl = newStartTimeControl.getMonth()+1;
+        var newStartTimeDayControl = newStartTimeControl.getDate();
+
+        var startTimeControl = ('0' + newStartTimeDayControl).slice(-2) + '/' + ('0' + newStartTimeMonthControl).slice(-2) + '/' + newStartTimeYearControl;
+
+        var newEndTimeYearControl = newEndTimeControl.getFullYear();
+        var newEndTimeMonthControl = newEndTimeControl.getMonth()+1;
+        var newEndTimeDayControl = newEndTimeControl.getDate();
+
+        var endTimeControl = ('0' + newEndTimeDayControl).slice(-2) + '/' + ('0' + newEndTimeMonthControl).slice(-2) + '/' + newEndTimeYearControl;
+
+        $( window ).on( "load", function(){
+            options = {
+                format: "dd/mm/yyyy",
+                orientation: 'bottom left',
+                language: locale,
+                autoclose: true,
+            };
+            $('input[name="startTime"]').datepicker(options);
+            $('input[name="endTime"]').datepicker(options);
+            $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
+            $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
+            dailyDensityChartFilterFunction();
+        });
+        $('input[name="startTime"]').on('change', function () {
+            dailyDensityChartFilterFunction();
+        });
+        $('input[name="endTime"]').on('change', function () {
+            dailyDensityChartFilterFunction();
+        });
+        $('select[name="wdRobots"]').on('change', function () {
+            dailyDensityChartFilterFunction();
+        });
+
+    }
+    
+    function dailyDensityChartFilterFunction(){
+        const selectedDate2 = $(startTime).val();
+        const selectedDate3 = $(endTime).val();
+        let wdRobots = ensureSelectHasValue('wdRobots');
+        let dailyDensityChartAlert = '';
+
+        let startDateDataDay = selectedDate2.slice(0, 2);
+        let startDateDataMonth = selectedDate2.slice(3, 5);
+        let startDateDataYear = selectedDate2.slice(6, 10);
+        startDateDataDate = new Date(startDateDataYear + '-' + startDateDataMonth + '-' + startDateDataDay);
+
+        let endDateDataDay = selectedDate3.slice(0, 2);
+        let endDateDataMonth = selectedDate3.slice(3, 5);
+        let endDateDataYear = selectedDate3.slice(6, 10);
+        endDateDataDate = new Date(endDateDataYear + '-' + endDateDataMonth + '-' + endDateDataDay);
+
+       if(selectedDate2 === 'Start Date' || selectedDate2 === 'Başlangıç Tarihi' || selectedDate2 === 'Tarih Seçiniz'){
+            dailyDensityChartAlert = dailyDensityChartAlert + ' * ' + "#{__('Start date is empty')}"
+        }
+        if (endDateDataDate < startDateDataDate && !(selectedDate2 === 'Start Date' || selectedDate2 === 'Başlangıç Tarihi' || selectedDate2 === 'Tarih Seçiniz') && !(selectedDate3 === 'End Date' || selectedDate3 === 'Bitiş Tarihi' || selectedDate3 === 'Tarih Seçiniz')) {
+            dailyDensityChartAlert = dailyDensityChartAlert + ' * ' + "#{__('The start date must be less than the end date.')}"
+        }
+        if(selectedDate3 === 'End Date' || selectedDate3 === 'Bitiş Tarihi' || selectedDate3 === 'Tarih Seçiniz'){
+            dailyDensityChartAlert = dailyDensityChartAlert + ' * ' + "#{__('End date is empty')}"
+        }
+        if(wdRobots.length < 1){
+            dailyDensityChartAlert = dailyDensityChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+
+        $('#alertTextDailyDensityChart').empty()
+        $("<p class='alertText' style='color:red!important;'>" + dailyDensityChartAlert + "</p>").appendTo('#alertTextDailyDensityChart')
+
+        if(dailyDensityChartAlert === '') {
+            filterDailyDensityChart = {startTime:selectedDate2, endTime : selectedDate3, robots: wdRobots }
+            $.ajax({
+                url: "/dailyDensityChart-filter",
+                type: 'POST',
+                data: filterDailyDensityChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let DDG1 = [];
+                    if(res && res.rpadDailyIntensityList && res.rpadDailyIntensityList.length > 0) {
+                        $('#rpad-chart4').removeClass('visibility-none')
+                        res.rpadDailyIntensityList.forEach(function(element) {
+                        Object.keys(element).forEach(function(key) {
+                            if(key === 'workDate'){
+                                category2 = element[key];
+                            } else if(key === 'h0' || key === 'h1' || key === 'h2' || key === 'h3' || key === 'h4' || key === 'h5' || key === 'h6' || key === 'h7' || key === 'h8' || key === 'h9' || key === 'h10' || key === 'h11' || key === 'h12' || key === 'h13' || key === 'h14' || key === 'h15' || key === 'h16' || key === 'h17' || key === 'h18' || key === 'h19' || key === 'h20' || key === 'h21' || key === 'h22' || key === 'h23'){
+                                if(key.length == 2){
+                                    keyString = key.replace('h','0');
+                                } else if(key.length == 3){
+                                    keyString = key.replace('h','');
+                                }
+                                DDG1.push({
+                                    type : keyString, 
+                                    value : element[key], 
+                                    category : category2
+                                });
+                            }
+                        });
+                    });
+                        line.changeData(DDG1);
+                        line.render();
+                    }else{
+                        $('#rpad-chart4').addClass('visibility-none')
+                    }
+                },
+                error: function(err){
+                }
+            });
+        }
+    }
+        
+
+
+
+ 
