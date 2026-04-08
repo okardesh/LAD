@@ -233,6 +233,31 @@ block content
                 gap: 8px;
                 box-shadow: 0 2px 6px rgba(15,23,42,.05);
             }
+            .dash-btn--ai {
+                border-color: #6f44d5;
+                color: #eae3ff;
+                background: linear-gradient(180deg,#2b1f58 0%,#24144a 100%);
+                box-shadow: 0 0 0 1px rgba(156,115,255,.25), 0 10px 24px rgba(50,25,95,.35);
+                font-weight: 600;
+            }
+            .dash-btn--ai:hover {
+                color: #f3edff;
+                background: linear-gradient(180deg,#342369 0%,#2a1a56 100%);
+                border-color: #8156eb;
+            }
+            .dash-btn__ai-icon {
+                width: 18px;
+                height: 18px;
+                display: inline-block;
+                flex-shrink: 0;
+            }
+            .dash-btn__ai-icon path {
+                stroke: #c9b6ff;
+                stroke-width: 1.9;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+                fill: none;
+            }
             .dash-btn--primary {
                 border-color: #2754c6;
                 color: #ffffff;
@@ -356,6 +381,138 @@ block content
                 flex-direction: column;
             }
             .dashboard-config-panel.open { right: 0; }
+
+            .dashboard-ai-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(16,24,40,.35);
+                z-index: 2098;
+                display: none;
+            }
+            .dashboard-ai-backdrop.open { display: block; }
+            .dashboard-ai-panel {
+                position: fixed;
+                top: 0;
+                right: -480px;
+                width: 460px;
+                max-width: 96vw;
+                height: 100vh;
+                background: #ffffff;
+                z-index: 2099;
+                border-left: 1px solid #e5e7eb;
+                box-shadow: -12px 0 40px rgba(2, 6, 23, .18);
+                transition: right .25s ease;
+                display: flex;
+                flex-direction: column;
+            }
+            .dashboard-ai-panel.open { right: 0; }
+            .ai-head {
+                min-height: 64px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                padding: 10px 14px;
+                border-bottom: 1px solid #edf1f6;
+            }
+            .ai-head__title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1f2937;
+                line-height: 1.1;
+            }
+            .ai-head__meta {
+                font-size: 12px;
+                color: #64748b;
+            }
+            .ai-close {
+                border: none;
+                background: transparent;
+                color: #94a3b8;
+                font-size: 24px;
+                line-height: 1;
+            }
+            .ai-controls {
+                padding: 10px 14px;
+                border-bottom: 1px solid #edf1f6;
+                background: #f8fbff;
+            }
+            .ai-label {
+                display: block;
+                font-size: 12px;
+                font-weight: 600;
+                color: #4b5563;
+                margin-bottom: 6px;
+            }
+            .ai-select {
+                width: 100%;
+                height: 38px;
+                border: 1px solid #d6deea;
+                border-radius: 10px;
+                padding: 0 10px;
+                background: #ffffff;
+                color: #1f2937;
+                font-size: 13px;
+            }
+            .ai-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 14px;
+                background: linear-gradient(180deg,#f7faff 0%,#f4f7fc 100%);
+            }
+            .ai-msg {
+                max-width: 92%;
+                border-radius: 12px;
+                padding: 10px 12px;
+                margin-bottom: 10px;
+                font-size: 13px;
+                line-height: 1.45;
+                white-space: pre-wrap;
+            }
+            .ai-msg--assistant {
+                background: #ffffff;
+                border: 1px solid #dbe5f4;
+                color: #2d3748;
+                margin-right: auto;
+            }
+            .ai-msg--user {
+                background: linear-gradient(180deg,#3b6ff0 0%,#2754c6 100%);
+                color: #ffffff;
+                margin-left: auto;
+            }
+            .ai-compose {
+                border-top: 1px solid #edf1f6;
+                padding: 12px 14px;
+                background: #ffffff;
+            }
+            .ai-compose__row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .ai-input {
+                flex: 1;
+                height: 38px;
+                border: 1px solid #d6deea;
+                border-radius: 10px;
+                padding: 0 10px;
+                font-size: 13px;
+                color: #1f2937;
+            }
+            .ai-send {
+                border: 1px solid #2f5ecc;
+                background: #2f5ecc;
+                color: #ffffff;
+                border-radius: 10px;
+                height: 38px;
+                padding: 0 14px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            .ai-send:disabled {
+                opacity: .6;
+                cursor: not-allowed;
+            }
             .cfg-head {
                 height: 58px;
                 display: flex;
@@ -990,6 +1147,7 @@ block content
                 .dashboard-toolbar { flex-direction: column; align-items: stretch; }
                 .dashboard-actions { width: 100%; }
                 .dash-chip-btn { flex: 1; justify-content: center; }
+                .dashboard-ai-panel { width: 100vw; max-width: 100vw; }
             }
         script.
             const {Pie} = G2Plot;
@@ -998,6 +1156,7 @@ block content
             const uploadMode = !{JSON.stringify(uploadMode || false)}
             const lastDataDateInformation = JSON.parse('!{JSON.stringify(lastDataDateInformation)}')
             const lastQueueDateInformation = JSON.parse('!{JSON.stringify(lastQueueDateInformation)}')
+            const aiChartSeedData = JSON.parse('!{JSON.stringify(aiChartSeedData)}')
             const lastDataDate = lastDataDateInformation[0]?.lastDate
             const lastJobsDate = lastDataDateInformation[0]?.lastJobsDate
             var lastQueueDate = lastQueueDateInformation[0]?.lastQueueDate || undefined
@@ -1117,6 +1276,12 @@ block content
                             a.dash-btn(href=`${originalPath()}?lang=en`)
                                 i.svg-icon(data-feather='globe')
                                 span EN
+                        button#dashboardAIAgentBtn.dash-btn.dash-btn--ai(type='button')
+                            svg.dash-btn__ai-icon(viewBox='0 0 24 24' aria-hidden='true' focusable='false')
+                                path(d='M12 3 L13.8 8.2 L19 10 L13.8 11.8 L12 17 L10.2 11.8 L5 10 L10.2 8.2 Z')
+                                path(d='M18 4 L18.7 6.1 L20.8 6.8 L18.7 7.5 L18 9.6 L17.3 7.5 L15.2 6.8 L17.3 6.1 Z')
+                                path(d='M6 14 L6.6 15.7 L8.3 16.3 L6.6 16.9 L6 18.6 L5.4 16.9 L3.7 16.3 L5.4 15.7 Z')
+                            span AI Agent
 
                 .row
                     .col-sm-6.align-self-center
@@ -1254,6 +1419,25 @@ block content
 
                     .cfg-footer
                         button#dashboardConfigSave.cfg-save-btn(type='button') Kaydet
+
+                .dashboard-ai-backdrop#dashboardAIAgentBackdrop
+                aside.dashboard-ai-panel#dashboardAIAgentPanel
+                    .ai-head
+                        .ai-head__left
+                            .ai-head__title AI Agent
+                            .ai-head__meta Dashboard charts and data Q&A
+                        button.ai-close#dashboardAIAgentClose(type='button') ×
+                    .ai-controls
+                        label.ai-label(for='dashboardAiModel') LLM Model (Ollama)
+                        select#dashboardAiModel.ai-select
+                            option(value='') Select a model
+                    .ai-messages#dashboardAiMessages
+                        .ai-msg.ai-msg--assistant
+                            | Ask me anything about the dashboard data, trends, or current chart filters.
+                    form#dashboardAiForm.ai-compose
+                        .ai-compose__row
+                            input#dashboardAiQuestion.ai-input(type='text' placeholder='Ask about the chart data...' autocomplete='off')
+                            button#dashboardAiAskBtn.ai-send(type='submit') Ask
                 .row#sortable
                     .col-sm-6.align-self-center
                     .col-sm-6.align-self-center.d-flex.justify-content-end
@@ -1693,6 +1877,239 @@ block content
 
                     $(document).ready(function() {
 
+                        function scrollAiMessagesToBottom() {
+                            const el = document.getElementById('dashboardAiMessages');
+                            if (el) el.scrollTop = el.scrollHeight;
+                        }
+
+                        function appendAiMessage(role, text) {
+                            const safeText = text || '';
+                            const cls = role === 'user' ? 'ai-msg ai-msg--user' : 'ai-msg ai-msg--assistant';
+                            const $msg = $('<div></div>').addClass(cls).text(safeText);
+                            $('#dashboardAiMessages').append($msg);
+                            scrollAiMessagesToBottom();
+                            return $msg;
+                        }
+
+                        function buildAiContextPayload() {
+                            return {
+                                generatedAt: new Date().toISOString(),
+                                locale: locale,
+                                lastDataDateInformation: lastDataDateInformation,
+                                lastQueueDateInformation: lastQueueDateInformation,
+                                activeFilters: {
+                                    statesRobots: $('#statesRobots').val() || [],
+                                    occupanyRobots: $('#occupanyRobots').val() || [],
+                                    whoRobots: $('#whoRobots').val() || [],
+                                    wdRobots: $('#wdRobots').val() || [],
+                                    odwRobots: $('#odwRobots').val() || [],
+                                    releaseRobots: $('#releaseRobots').val() || [],
+                                    queueNames: $('#queueNames').val() || [],
+                                    queueRobots: $('#queueRobots').val() || [],
+                                    queueStatusNames: $('#queueStatusNames').val() || [],
+                                    startTimeStateChartDatePicker: $('#startTimeStateChartDatePicker').val() || '',
+                                    endTimeStateChartDatePicker: $('#endTimeStateChartDatePicker').val() || '',
+                                    startTimeRobotsOccupancyRateDatePicker: $('#startTimeRobotsOccupancyRateDatePicker').val() || '',
+                                    endTimeRobotsOccupancyRateDatePicker: $('#endTimeRobotsOccupancyRateDatePicker').val() || '',
+                                    workDate: $('#workDate').val() || '',
+                                    startTime: $('#startTime').val() || '',
+                                    endTime: $('#endTime').val() || '',
+                                    workDate2: $('#workDate2').val() || '',
+                                    releaseYear: $('#releaseTotalTimeChart_year').val() || '',
+                                    releaseMonth: $('#releaseTotalTimeChart_month').val() || '',
+                                    qttStartTime: $('#qttStartTime').val() || '',
+                                    qttEndTime: $('#qttEndTime').val() || '',
+                                    queueStatusStartTime: $('#queueStatusStartTime').val() || '',
+                                    queueStatusEndTime: $('#queueStatusEndTime').val() || ''
+                                },
+                                datasets: {
+                                    jobsData: (aiChartSeedData.jobsData || []).slice(0, 400),
+                                    rpadStateChart: aiChartSeedData.rpadStateChart || [],
+                                    workingHoursOccupancyChart: aiChartSeedData.workingHoursOccupancyChart || [],
+                                    totalJobTimeChart: aiChartSeedData.totalJobTimeChart || [],
+                                    overallChart: aiChartSeedData.overallChart || [],
+                                    robotsOccupancyRateChart: aiChartSeedData.robotsOccupancyRateChart || [],
+                                    releaseTotalTimeChart: aiChartSeedData.releaseTotalTimeChart || [],
+                                    dailyDensityChart: aiChartSeedData.dailyDensityChart || [],
+                                    queueTransactionTimeChart: aiChartSeedData.queueTransactionTimeChart || [],
+                                    queueStatusChart: aiChartSeedData.queueStatusChart || []
+                                }
+                            };
+                        }
+
+                        function loadOllamaModels() {
+                            const $model = $('#dashboardAiModel');
+                            $model.prop('disabled', true);
+                            $model.html('<option value="">Loading models...</option>');
+
+                            $.ajax({
+                                url: '/ai-agent/models',
+                                type: 'GET',
+                                dataType: 'json'
+                            }).done(function (res) {
+                                const models = res && res.models ? res.models : [];
+                                if (!models.length) {
+                                    $model.html('<option value="">No model found in Ollama</option>');
+                                    return;
+                                }
+                                let optionsHtml = '<option value="">Select a model</option>';
+                                models.forEach(function (name, idx) {
+                                    optionsHtml += '<option value="' + name + '"' + (idx === 0 ? ' selected' : '') + '>' + name + '</option>';
+                                });
+                                $model.html(optionsHtml);
+                            }).fail(function (xhr) {
+                                const errMsg = xhr && xhr.responseJSON && xhr.responseJSON.error
+                                    ? xhr.responseJSON.error
+                                    : 'Could not fetch Ollama models.';
+                                $model.html('<option value="">Model load failed</option>');
+                                appendAiMessage('assistant', errMsg);
+                            }).always(function () {
+                                $model.prop('disabled', false);
+                            });
+                        }
+
+                        function openAiPanel() {
+                            $('#dashboardAIAgentBackdrop').addClass('open');
+                            $('#dashboardAIAgentPanel').addClass('open');
+                            if (!$('#dashboardAiModel').data('loaded')) {
+                                loadOllamaModels();
+                                $('#dashboardAiModel').data('loaded', true);
+                            }
+                        }
+
+                        function closeAiPanel() {
+                            $('#dashboardAIAgentBackdrop').removeClass('open');
+                            $('#dashboardAIAgentPanel').removeClass('open');
+                        }
+
+                        $('#dashboardAIAgentBtn').on('click', function () {
+                            openAiPanel();
+                        });
+
+                        $('#dashboardAIAgentClose, #dashboardAIAgentBackdrop').on('click', function () {
+                            closeAiPanel();
+                        });
+
+                        $('#dashboardAiForm').on('submit', function (e) {
+                            e.preventDefault();
+                            const model = $('#dashboardAiModel').val();
+                            const question = ($('#dashboardAiQuestion').val() || '').trim();
+                            const contextPayload = buildAiContextPayload();
+
+                            if (!model) {
+                                appendAiMessage('assistant', 'Please select an Ollama model first.');
+                                return;
+                            }
+
+                            if (!question) {
+                                return;
+                            }
+
+                            appendAiMessage('user', question);
+                            $('#dashboardAiQuestion').val('');
+                            $('#dashboardAiAskBtn').prop('disabled', true).text('Thinking...');
+
+                            const $assistantMsg = appendAiMessage('assistant', '');
+
+                            function finishAskButton() {
+                                $('#dashboardAiAskBtn').prop('disabled', false).text('Ask');
+                            }
+
+                            async function streamAnswer() {
+                                const response = await fetch('/ai-agent/chat-stream', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        model: model,
+                                        question: question,
+                                        context: contextPayload
+                                    })
+                                });
+
+                                if (!response.ok || !response.body) {
+                                    throw new Error('Stream is not available.');
+                                }
+
+                                const reader = response.body.getReader();
+                                const decoder = new TextDecoder();
+                                let buffer = '';
+                                let fullText = '';
+
+                                while (true) {
+                                    const read = await reader.read();
+                                    if (read.done) break;
+
+                                    buffer += decoder.decode(read.value, { stream: true });
+                                    const lines = buffer.split('\n');
+                                    buffer = lines.pop() || '';
+
+                                    lines.forEach(function (line) {
+                                        const trimmed = (line || '').trim();
+                                        if (!trimmed) return;
+
+                                        try {
+                                            const parsed = JSON.parse(trimmed);
+                                            if (parsed.error) {
+                                                throw new Error(parsed.error);
+                                            }
+                                            if (parsed.token) {
+                                                fullText += parsed.token;
+                                                $assistantMsg.text(fullText);
+                                                scrollAiMessagesToBottom();
+                                            }
+                                        } catch (parseError) {
+                                            throw parseError;
+                                        }
+                                    });
+                                }
+
+                                if (!fullText.trim()) {
+                                    $assistantMsg.text('No answer returned.');
+                                }
+                            }
+
+                            function fallbackAnswer() {
+                                $.ajax({
+                                    url: '/ai-agent/chat',
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    dataType: 'json',
+                                    data: JSON.stringify({
+                                        model: model,
+                                        question: question,
+                                        context: contextPayload
+                                    })
+                                }).done(function (res) {
+                                    const answer = res && res.answer ? res.answer : 'No answer returned.';
+                                    $assistantMsg.text(answer);
+                                    scrollAiMessagesToBottom();
+                                }).fail(function (xhr) {
+                                    const errMsg = xhr && xhr.responseJSON && xhr.responseJSON.error
+                                        ? xhr.responseJSON.error
+                                        : 'AI agent request failed.';
+                                    $assistantMsg.text(errMsg);
+                                    scrollAiMessagesToBottom();
+                                }).always(function () {
+                                    finishAskButton();
+                                });
+                            }
+
+                            if (window.fetch && window.ReadableStream && window.TextDecoder) {
+                                streamAnswer()
+                                    .then(function () {
+                                        finishAskButton();
+                                    })
+                                    .catch(function () {
+                                        fallbackAnswer();
+                                    });
+                                return;
+                            }
+
+                            fallbackAnswer();
+                        });
+
                         $('#dashboardFilterBtn').on('click', function () {
                             $('.page-wrapper').toggleClass('dashboard-filters-open');
                             $(this).toggleClass('primary');
@@ -1973,7 +2390,7 @@ block content
                         
 
                         //chartların içindeki filtreleri kaydedildiği yer
-                        $("input, select").on("change", function () {
+                        $("input:not(#dashboardAiQuestion), select:not(#dashboardAiModel)").on("change", function () {
                             //veriler burada depolanacak.
                             var chartData = []
                             let startTimeStateChartDatePicker = $("#startTimeStateChartDatePicker").val()
