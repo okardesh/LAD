@@ -1,0 +1,48 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+      
+    .page-wrapper
+      .page-breadcrumb
+        .row
+          .col-12.align-self-center
+            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Operation')}
+            .d-flex.align-items-center
+              nav(aria-label='breadcrumb')
+                ol.breadcrumb.m-0.p-0
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/') #{__('Home')}
+                  li.breadcrumb-item
+                    a.text-muted(href='/operations') #{__('Operations')}
+                  li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Operation')}
+        .row.mt-4.ml-0
+          div#info.text-primary&attributes({'data-html': info})
+      .container-fluid.p-3
+        .card
+          .card-body
+            .row
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='method') #{__('Method')}
+                  select.form-control.custom-select(name='method', id='method', disabled)
+                      option(value='GET', selected= operation.method === 'GET') #{__('GET')}
+                      option(value='POST', selected= operation.method === 'POST') #{__('POST')}
+                      option(value='PUT', selected= operation.method === 'PUT') #{__('PUT')}
+                      option(value='DELETE', selected= operation.method === 'DELETE') #{__('DELETE')}
+              .col-md-3
+                .form-group
+                    label.col-form-label(for='path') #{__('Path')}
+                    input.form-control(type='text', name='path', id='path',autocomplete = "off" , placeholder=__('Path'), value=operation.path, readonly)
+              .col-md-3
+                .form-group
+                    label.col-form-label(for='status') #{__('Status')}
+                    br
+                    input(type='checkbox' name='status' id='status' checked=operation.status === 1 data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small" disabled)
+            .row
+              .col-md-6
+                .form-group
+                    label.col-form-label(for='description') #{__('Description')}
+                    input.form-control(type='text', name='description', id='description', placeholder=__('Description'), value=operation.description, readonly)

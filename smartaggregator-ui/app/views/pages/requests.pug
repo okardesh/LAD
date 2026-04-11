@@ -1,0 +1,76 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-6.col-lg-5.col-xl-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Deadline Delays')}
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Deadline Delays')}
+
+
+                    .col-md-6.col-lg-7.col-xl-8
+                            .row.justify-content-end
+                                .col-sm-6.col-md-4.col-lg-4
+                                    .row.justify-content-end
+                                        button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                            i.fas.fa-download
+                                            |  #{__('Export')}
+
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+
+            .container-fluid.p-3
+                div.d-none.reasons
+                    + showDropdown('DEADLINE_REASONS', 'reason', 'reason', false, false)
+                .card
+                    .card-header.bg-transparent
+                    .card-body
+                        .table-responsive.dragscroll
+                            table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                thead
+                                    tr
+                                        th(data-name='approvalStatus', data-searchable='on', data-sortable='on' , data-object='deadline').status #{__('Status')}
+                                        th(data-name='formalName',data-searchable= user.userType === 0 ? 'on' : 'off', data-sortable='on') #{__('Subsidiary')}
+                                        th(data-name='reportDate',data-type="date", data-searchable='on', data-sortable='on') #{__('ReportDate')}
+                                        th(data-name='reportType', data-searchable='on', data-sortable='on') #{__('ReportType')}
+                                        th(data-name='dueDate',data-type="date", data-searchable='on', data-sortable='on') #{__('DueDate')}
+                                        th(data-name='description', data-searchable='on', data-sortable='on') #{__('Description')}
+                                        th(data-name='reason', data-searchable='on', data-sortable='on') #{__('Reason')}
+                                        th.notexport #{__('Action')}
+                                if deadlines
+                                    tbody&attributes({'data-item': 'deadline'})
+                                        if user.rolePermissionAll
+                                            each deadline in deadlines
+                                                tr
+                                                    td(style='font-weight:bold; text-align:center; color:  ' +  getStatusColor(deadline.approvalStatus))=  statusNewApprovalChange(deadline.approvalStatus)
+                                                    - let s = subsidiaries.find(o => o.uuid === deadline.subsidiary)
+                                                    td= s && s.formalName
+                                                    td= deadline.reportDate
+                                                    td= __(deadline.reportType)
+                                                    td= deadline.dueDate
+                                                    td
+                                                        if deadline.description
+                                                            a.descript-detail(href='javascript:void(0)')&attributes({'data-content': deadline.description})
+                                                                i.fa.fa-paperclip
+                                                                |  #{__('Detail')}
+                                                    td 
+                                                        if deadline.reason!=null
+                                                            |   #{__(deadline.reason)}
+                                                    - let entrant = user.userType === 1 && user.subsidiary === deadline.subsidiary && ['N', 'C', 'R'].includes(deadline.approvalStatus) && user.rolePermissionAll.includes('/v1/deadline/{uuid}/waiting_PUT')
+                                                    - let canceler = user.userType === 1 && user.subsidiary === deadline.subsidiary && deadline.approvalStatus === 'W' && user.rolePermissionAll.includes('/v1/deadline/{uuid}/cancel_PUT')
+                                                    - let approver = user.userType === 0 && user.uuid !== deadline.lastUpdater && (user.rolePermissionAll.includes('/v1/deadline/{uuid}/reject_PUT') || user.rolePermissionAll.includes('/v1/deadline/{uuid}/approve_PUT'))
+                                                    td.text-center&attributes({'data-value': deadline.uuid},{'data-entrant':entrant ? 'true' : 'false'} ,{'data-canceler':canceler ? 'true' : 'false'} , {'data-approver':approver ? 'true' : 'false'} , {'data-auth':user} , {'data-processes': 'deadlineProcesses'} , {'data-required': 'true'})
+                                                        if entrant || canceler || approver
+                                                                button.btn-request.btn-rounded.btn.btn-sm.btn-primary(type='Popup')
+                                                                    i.fas.fa-check-square
+                                                                    | #{__('Approval Processes')}

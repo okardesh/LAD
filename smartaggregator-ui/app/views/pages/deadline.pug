@@ -1,0 +1,92 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='deadline', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid', value=deadline.groupId)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Deadline')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/deadlines') #{__('Deadlines')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Deadline')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if deadline.groupId
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='reportType') #{__('ReportType')}
+                                        select.form-control.custom-select(name='reportType', id='reportType')
+                                            option(value='Daily', selected= deadline.reportType === 'Daily') #{__('Daily')}
+                                            option(value='Monthly', selected= deadline.reportType === 'Monthly') #{__('Monthly')}
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='reportDates') #{__('ReportDate')}
+                                        input.form-control.datepicker(name='reportDates', id='reportDates', autocomplete="off", placeholder=__('ReportDate'), value=deadline.reportDates)&attributes({'data-multiple': 'true'})
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='dueDate') #{__('DueDate')}
+                                        input.form-control.datepicker(name='dueDate', id='dueDate', autocomplete="off", placeholder=__('DueDate'), value=deadline.dueDate)
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox'  name='status' id='status' checked=!deadline.status || deadline.status === 1, data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+
+                                .col-md-12
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label(for='subsidiaries') #{__('Subsidiary')}
+                                        .row
+                                            .justify-content-end
+                                                input#financialToggle.ml-3&attributes({'data-value': subsidiaries})(type='checkbox' , value='1' , name='financial'  checked="false")
+                                                label.col-form-label.mb-1 #{__('Financial')}
+                                                input#nonFinancialToggle.ml-5&attributes({'data-value': subsidiaries})(type='checkbox' , value='1' , name='nonFinancial'  checked="false")
+                                                label.col-form-label.mb-1 #{__('NonFinancial')}
+                                            //button#announcementAddAllSubsidiarybutton.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12.ml-auto.selectAll.mb-1.mr-3(type='button')
+                                            //    i.far.fa-check-square
+                                            //    |  #{__('Select All')}
+                                        select.financialList.js-multiple-select.js-states.form-control(multiple='multiple', name='subsidiaries', id='subsidiaries')
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid, selected=deadline.subsidiaries.includes(subsidiary.uuid))= subsidiary.formalName
+
+                        script.
+                            $('#deleteRecord').on('click', function (e) {
+                                e.preventDefault();
+                                removeConfirm("deadline");
+                            });

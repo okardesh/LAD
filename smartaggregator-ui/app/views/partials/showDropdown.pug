@@ -1,0 +1,26 @@
+mixin showDropdown(key, id, name, isMultiple, selected)
+  if isMultiple
+    select.js-multiple-select.js-states.form-control(multiple='multiple', name=name, id=id)
+      if allDropdowns.content
+        each dropdown in allDropdowns.content
+          if (dropdown.key === key)
+            if dropdown.items
+              each item in dropdown.items
+                if item.status === 1
+                  if locale === "tr"
+                    option(value=item.value, selected=selected ? item.value == selected: false)= item.descriptionTr
+                  else
+                    option(value=item.value, selected=selected ? item.value == selected: false)= item.descriptionEn
+  else
+    select.js-multiple-select.form-control.custom-select(name=name, id=id)
+      if allDropdowns.content
+        each dropdown in allDropdowns.content
+          if (dropdown.key === key)
+            if dropdown.items
+              option
+              each item in dropdown.items
+                if item.status === 1
+                  if locale === "tr"
+                    option(value=item.value, selected=selected ? item.value == selected: false)= item.descriptionTr
+                  else
+                    option(value=item.value, selected=selected ? item.value == selected: false)= item.descriptionEn

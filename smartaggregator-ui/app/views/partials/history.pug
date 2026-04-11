@@ -1,0 +1,49 @@
+mixin history(histories, uri, isSubsidiary = false, isApproval = false)
+  if histories
+    .container-fluid.p-3
+      .card
+        .card-header.bg-transparent
+          .row.align-items-baseline
+            .com-sm-5.col-md-5.col-lg-4.mb-0
+              h5
+                i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                  | #{__('Data History')}
+
+        .card-body
+            .table-responsive.dragscroll
+              table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                thead
+                  tr
+                    th.notexport  
+                    if isSubsidiary
+                      th #{__('Subsidiary Code')}
+                      th #{__('Report Date')}
+                      th #{__('Report Type')}
+                    if isApproval
+                      th #{__('Approval Status')}
+                      th #{__('Approval Message')}
+                      th #{__('Approval Reason')}
+                    th #{__('Status')}
+                    th #{__('Last Updated By')}
+                    th #{__('Last Updated Time')}
+                    
+                tbody
+                  each history in histories
+                    tr
+                      if history.hasContent
+                        td.text-center
+                          a(href=uri + '/' + history.uuid + '?luc=' + history.luc)
+                            i.fas.fa-eye.fa-2x
+                      else
+                        td.text-center &nbsp;
+                      if isSubsidiary
+                        td=history.subsidiaryCode
+                        td=history.reportDate
+                        td=history.reportType
+                      if isApproval
+                        td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(history.approvalStatus))=status(history.approvalStatus)
+                        td=history.approvalMessage
+                        td=history.approvalReason
+                      td(style='font-weight:bold; text-align:center; color:  ' +  getStatusColor(history.status))=status(history.status)
+                      td=history.userFullName
+                      td=history.lastUpdatedTime

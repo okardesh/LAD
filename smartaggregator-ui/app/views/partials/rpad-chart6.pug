@@ -1,0 +1,124 @@
+div.active#rpad-chart6
+
+script.
+    const { Bar } = G2Plot;
+    const totalJobTimeChart = JSON.parse('!{JSON.stringify(totalJobTimeChart)}');
+    const chartTTW = [];
+    totalJobTimeChart.sort((a, b) => a.state - b.state).forEach(element => {
+        chartTTW.push({
+              hostMachineName : element.hostMachineName,
+              totalJobTime : element.totalJobTime,
+        })
+        
+    });
+        const barPlot = new Bar('rpad-chart6', {
+        data : chartTTW,
+        appendPadding : [10, 10, 10, 10],
+        height: 544,
+        xField: 'totalJobTime',
+        yField: 'hostMachineName',
+        color: (window.__rpad3dEnabled !== false) ? () => 'l(0) 0:#7fd8ff 0.5:#5ea9f6 1:#2f5ecc' : '#4e86e8',
+        barStyle: (window.__rpad3dEnabled !== false) ? {
+            radius: [0, 8, 8, 0],
+            shadowColor: 'rgba(15, 23, 42, 0.24)',
+            shadowBlur: 10,
+            shadowOffsetY: 6,
+        } : { radius: [0, 2, 2, 0] },
+        meta: {
+            type: {
+            alias: 'Total Time',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header">Robot Name</h5><h5 class="tooltip-content">Total Job Time : ${insideItem.totalJobTime}</h5>
+                                </div>`;    
+                    }
+                }
+            }
+        },
+        minBarWidth: 20,
+        maxBarWidth: 20,
+        xAxis: {
+            grid: {
+                line: {
+                    style: {
+                        stroke: '#e8edf7',
+                        lineDash: [4, 4]
+                    }
+                }
+            }
+        }
+        });
+
+        barPlot.render();
+
+        $('select[name="totalJobTimeChart_filter"]').on('change', function(){
+            switch($(this).attr('id').split('_').pop()) {
+                case 'year':
+                    filtertotalJobTimeChart = {year:'', month:'',};
+                    filtertotalJobTimeChart.year = $(this).val();
+                    const today = new Date();
+                    let getYear = today.getFullYear();
+                    let newOptions = {}
+                    if(getYear == $(this).val()){
+                        newOptions = {
+                            "Ay Seç": "","Ocak": 1,"Şubat": 2,"Mart": 3,
+                            "Nisan": 4,"Mayıs": 5,"Haziran": 6,
+                            "Temmuz": 7,"Ağustos": 8,"Eylül": 9,
+                            "Ekim": 10,"Kasım": 11,"Aralık": 12
+                        };
+                    }else{
+                        newOptions = {
+                            "Çeyrek Seç": "",
+                            "1. Çeyrek": [1,2,3],
+                            "2. Çeyrek": [4,5,6],
+                            "3. Çeyrek": [7,8,9],
+                            "4. Çeyrek": [10,11,12]
+                        };
+                    }
+
+                    var $el = $("#totalJobTimeChart_month");
+                    $el.empty();
+                    $.each(newOptions, function(key,value) {
+                        $el.append($("<option></option>").attr("value", value).text(key));
+                    });
+                    
+                    break;
+                case 'month':
+                    filtertotalJobTimeChart.month = ($(this).val() && $(this).val() !== '') ? $(this).val().split(',').map(Number) : '';
+                    break;
+            }
+            if(filtertotalJobTimeChart.year != '' && filtertotalJobTimeChart.month != '') {
+                $.ajax({
+                    url: "/totalJobTimeChart-filter",
+                    type: 'POST',
+                    data: filtertotalJobTimeChart,
+                    dataType: 'json', // added data type
+                    success: function(res) {
+                        let TTM = [];
+                        if(res && res.rpadJobsList && res.rpadJobsList.length > 0) {
+                            $('#rpad-chart6').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                TTM.push({
+                                    hostMachineName : element.hostMachineName,
+                                    totalJobTime : element.totalJobTime,
+                                })
+                            });
+                            barPlot.changeData(TTM);
+                            barPlot.render();
+                        }else{
+                            $('#rpad-chart6').addClass('visibility-none')
+                        }
+                        
+                    },
+                    error: function(err){
+                    }
+                });
+            }
+        })

@@ -1,0 +1,70 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+
+    .page-wrapper
+      form(id='tableColumnModel', method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        input(type='hidden', name='uuid', id='uuid' value= table.uuid)
+        input(type='hidden', name='columns', id='columns')
+        .page-breadcrumb
+          .row
+            .col-md-5.col-lg-4.align-self-center
+              h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('TableColumnModel')}
+              .d-flex.align-items-center
+                nav(aria-label='breadcrumb')
+                  ol.breadcrumb.m-0.p-0
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/') #{__('Home')}
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/table-column-models') #{__('TableColumnModels')}
+                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('TableColumnModel')}
+            .col-md-7.col-lg-8
+              .row.justify-content-end
+                if table.uuid
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                      i.far.fa-edit
+                      |  #{__('Update')}
+          .row.mt-4.ml-0
+            div#info.text-primary&attributes({'data-html': info})
+        .container-fluid.p-3
+          .card
+            .card-body
+              .table-responsive.dragscroll
+                table#table-columns.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                  thead
+                    tr
+                      th.notexport
+                      th(data-toggle='tooltip', data-placement='top', title='Column Name') #{__('Column Name')}
+                      th(data-toggle='tooltip', data-placement='top', title='Column Type') #{__('Column Type')}
+                      th(data-toggle='tooltip', data-placement='top', title='Column Size') #{__('Column Size')}
+                      th(data-toggle='tooltip', data-placement='top', title='Dropdown') #{__('Dropdown')}
+                  tbody
+                    each column, index in table.columns
+                      tr
+                        td.reorder= column.order || index+1
+                            input.form-control(type='hidden', name='uuid::', value=column.uuid)
+                        td= __(toCamelCase(column.name)) + " - " + column.name
+                            input.form-control(type='hidden', name='name::', value=column.name)
+                        td
+                          select.form-control.custom-select(name='type::')
+                            option(value='text', selected= column.type === 'text') #{__('Text')}
+                            option(value='date', selected= column.type === 'date') #{__('Date')}
+                            option(value='number', selected= column.type === 'number') #{__('Number')}
+                            option(value='rate', selected= column.type === 'rate') #{__('Rate')}
+                            option(value='amount', selected= column.type === 'amount') #{__('Amount')}
+                            option(value='dropdown', selected= column.type === 'dropdown') #{__('Dropdown')}
+                        td
+                          select.form-control.custom-select(name='size::')
+                            option(value='small', selected= column.size === 'small') #{__('Small')}
+                            option(value='medium', selected= column.size === 'medium') #{__('Medium')}
+                            option(value='large', selected= column.size === 'large') #{__('Large')}
+                        td
+                          select.form-control.custom-select(name='dropdown::', style= column.type === 'dropdown' ? "" : "display:none")
+                            if allDropdowns
+                              each dropdown in allDropdowns.content
+                                option(value=dropdown.key,  selected= column.dropdown === dropdown.key)= dropdown.key

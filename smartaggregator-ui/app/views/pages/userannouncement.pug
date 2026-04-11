@@ -1,0 +1,52 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+      
+    .page-wrapper
+      form(id='announcement', method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        input(type='hidden', name='uuid', id='uuid' value= announcement.uuid)
+        .page-breadcrumb
+          .row
+            .col-md-5.col-lg-4.align-self-center
+              h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Announcement')}
+              .d-flex.align-items-center
+                nav(aria-label='breadcrumb')
+                  ol.breadcrumb.m-0.p-0
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/') #{__('Home')}
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/userAnnouncements') #{__('Announcements')}
+                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Announcement')}
+            .col-md-7.col-lg-8
+              .row.justify-content-end
+          .row.mt-4.ml-0
+            div#info.text-primary&attributes({'data-html': info})
+        .container-fluid.p-3
+            .card
+              .card-body
+
+                .row
+                  .col-md-3
+                    .form-group
+                      label.col-form-label(for='subject') #{__('Subject')}
+                      input.form-control(type='text', name='subject', id='subject', placeholder=__('Subject'), value=announcement.subject, readonly)
+                  .col-md-3
+
+                .row
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='summernoteUserAnnouncement') #{__('Message')}
+                      textarea.form-control(type='textarea', rows=10, wrap=true, name='message', id="summernoteUserAnnouncement",placeholder=__('Message'))
+                         =announcement.message
+
+
+                if(announcement.enableAccept)
+                  .row
+                    .col-sm-4.col-md-2
+                      button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='accept', disabled=(announcementUser && announcementUser.isAccepted==1))
+                        i.fas.fa-plus
+                        |  #{__('Accepted')}

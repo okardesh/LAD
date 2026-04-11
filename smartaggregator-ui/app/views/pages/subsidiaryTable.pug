@@ -1,0 +1,104 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+
+    .page-wrapper
+      form(id='subsidiaryTable', method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        input(type='hidden', name='uuid', id='uuid' value= subsidiaryTable.uuid)
+        input(type='hidden', name='columns', id='columns')
+        .page-breadcrumb
+          .row
+            .col-md-5.col-lg-4.align-self-center
+              h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Subsidiary Table')}
+              .d-flex.align-items-center
+                nav(aria-label='breadcrumb')
+                  ol.breadcrumb.m-0.p-0
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/') #{__('Home')}
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/subsidiary-tables') #{__('Subsidiary Tables')}
+                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Subsidiary Table')}
+            .col-md-7.col-lg-8
+              .row.justify-content-end
+                if subsidiaryTable.uuid
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                      i.fas.fa-plus
+                      |  #{__('New')}
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                      i.far.fa-edit
+                      |  #{__('Update')}
+                  .col-sm-4.col-lg-3
+                    button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                      i.fa.fa-trash-alt
+                      |  #{__('Delete')}
+                else
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                      i.fas.fa-save
+                      |  #{__('Save')}
+          .row.mt-4.ml-0
+            div#info.text-primary&attributes({'data-html': info})
+        .container-fluid.p-3
+          .card
+            .card-body
+              .row
+                .col-md-6
+                  label.col-form-label(for='subsidiary') #{__('Subsidiary')}
+                  if subsidiaryTable.tableName
+                    input.form-control(type='hidden', name='subsidiary', id='subsidiary' value=subsidiaryTable.subsidiary)
+                    h4.text-dark.font-weight-medium= subsidiaryTable.subsidiaryName
+                  else
+                    select.js-multiple-select.js-states.form-control(name='subsidiary', id='subsidiary')
+                      if subsidiaries
+                        each subsidiary in subsidiaries
+                          option(value=subsidiary.uuid)= subsidiary.formalName
+                .col-md-6
+                  label.col-form-label(for='table') #{__('tableName')}
+                  if subsidiaryTable.tableName
+                    input.form-control(type='hidden', name='table', id='table', value=subsidiaryTable.table)
+                    h4.text-dark.font-weight-medium= __('model.' + subsidiaryTable.tableName) + " - " + subsidiaryTable.tableName
+                  else
+                    select.js-multiple-select.js-states.form-control.tableNameFiltering(name='table', id='table')
+                      if tables
+                        each table in tables
+                          option(value=table.uuid)= __('model.' + table.name) + " - " + table.name
+          .card
+            .card-body
+              .table-responsive.dragscroll
+                table#table-columns.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                  thead
+                    tr
+                      th.notexport
+                      th(data-toggle='tooltip', data-placement='top', title='Column Name') #{__('Column Name')}
+                      th(data-toggle='tooltip', data-placement='top', title='Flag') #{__('Flag')}
+                  tbody
+                    if subsidiaryTable.columns
+                      each column, index in subsidiaryTable.columns
+                        tr
+                          td.text-center=column.order || index+1
+                            input.form-control(type='hidden', name='uuid::', value=column.uuid)
+                          td= __(toCamelCase(column.name)) + " - " + column.name
+                            input.form-control(type='hidden', name='column::', value=column.column)
+                          td.text-center
+                            input(type='checkbox'  name='flag::' checked=!column.flag || column.flag === "1")&attributes({'data-toggle': 'toggle', 'data-on': __('Active'), 'data-off': __('Passive'), 'data-style': 'ios', 'data-size': 'medium'})
+                    else
+                      each t in tables
+                        each column, index in t.columns
+                          tr&attributes({'data-value': t.uuid})
+                            td.text-center=column.order || index+1
+                            td= __(toCamelCase(column.name)) + " - " + column.name
+                              input.form-control(type='hidden', name='column::', value=column.uuid)
+                            td.text-center
+                              input(type='checkbox'  name='flag::' checked=!column.flag || column.flag === "1")&attributes({'data-toggle': 'toggle', 'data-on': __('Active'), 'data-off': __('Passive'), 'data-style': 'ios', 'data-size': 'medium'})
+
+                script.
+                  $('#deleteRecord').on('click', function (e) {
+                    e.preventDefault();
+                    removeConfirm("subsidiaryTable");
+                  });

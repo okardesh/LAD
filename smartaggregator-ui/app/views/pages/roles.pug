@@ -1,0 +1,75 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+
+    .page-wrapper
+      .page-breadcrumb
+        .row
+          .col-md-6.col-lg-5.col-xl-4.align-self-center
+            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Roles')}
+             if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+              a.statistic-btn(href="#",onclick="openPopupDocuments();")
+                .far.fa-file
+
+            .d-flex.align-items-center
+              nav(aria-label='breadcrumb')
+                ol.breadcrumb.m-0.p-0
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/') #{__('Home')}
+                  li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Roles')}
+          .col-md-6.col-lg-7.col-xl-8
+            form(id='role', method='POST')
+              input(type='hidden', name='_csrf', value=_csrf)
+              .row.justify-content-end
+                .col-sm-6.col-md-12.col-lg-6
+                  .row.justify-content-end
+                    .col-6
+                      button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                        i.fas.fa-plus
+                        |  #{__('New')}
+                    .col-6
+                      button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                        i.fas.fa-download
+                        |  #{__('Export')}
+        .row.mt-4.ml-0
+            div#info.text-primary&attributes({'data-html': info})
+      .container-fluid.p-3
+        .row
+          .col-12
+            .card
+              .card-body
+                .table-responsive.dragscroll
+                    table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                      thead
+                        tr
+                          th.notexport
+                          th(data-name='status', data-searchable='on', data-sortable='on', data-toggle='tooltip', data-placement='right', title=__('Status')) #{__('Status')}
+                          th(data-name='code', data-searchable='on', data-sortable='on', data-toggle='tooltip', data-placement='right', title=__('Code')) #{__('Code')}
+                          th(data-name='description', data-searchable='on', data-sortable='on', data-toggle='tooltip', data-placement='right', title=__('Description')) #{__('Description')}
+                          th(data-name='approvalStatus', data-searchable='on', data-sortable='on', data-toggle='tooltip', data-placement='right', title=__('Approval Status')) #{__('Approval Status')}
+                          if(user.rolePermissionAll.includes('/v1/roles/{uuid}/sendForApproval_POST') || user.rolePermissionAll.includes('/v1/roles/{uuid}/approve_POST'))
+                            th.notexport(data-toggle='tooltip', data-placement='right', title=__('Approval Processes')) #{__('Approval Processes')}
+                      if roles
+                        tbody
+                          each role in roles.content
+                            tr
+                              td.text-center
+                                a(href='/role/' + role.uuid)
+                                  i.fas.fa-eye.fa-2x
+                              td(style='font-weight:bold; text-align:center; color:  ' + getStatusColor(role.status))=status(role.status)
+                              td=role.code
+                              td=role.description
+                              td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(role.approvalStatus))=statusNewApprovalChange(role.approvalStatus)
+                              if(user.rolePermissionAll.includes('/v1/roles/{uuid}/sendForApproval_POST') || user.rolePermissionAll.includes('/v1/roles/{uuid}/approve_POST'))
+                                  td.text-center&attributes({'data-value': role.uuid} , {'data-approval': role.approvalStatus} , {'data-auth': user} , {'data-message': role.approvalMessage} , {'data-controller': 'roles'})
+                                    button.myBtn.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-10(title='Popup')
+                                      i.fas.fa-check-square
+                                      |
+                                      | #{__('Approval Processes')}
+                +pagination(roles)
+              script.
+                function openPopupDocuments() {
+                  getFilesWindow("ROLES");
+                }

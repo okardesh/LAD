@@ -1,0 +1,176 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+
+        .page-wrapper
+            .container.mt-2
+                form(id='company', method='POST')
+                    input(type='hidden', name='_csrf', value=_csrf)
+                    .page-breadcrumb
+                        .row.d-flex.justify-content-end
+                            .col-md-6.col-lg-7.col-xl-8
+                                .row.justify-content-end
+                                    .col-sm-6.col-md-12.col-lg-6
+                                        .row.justify-content-end
+                                            .col-sm-6.col-lg-6.d-flex.justify-content-end.me-0.users-padding-right
+                                                button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='new')
+                                                    i.fas.fa-plus
+                                                    |  #{__('New')}
+                                            .col-sm-6.col-lg-6.d-flex.justify-content-end.me-0.users-padding-right
+                                                button.exportToExcel.button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='button', name='export', value='xlsx')
+                                                        i.fas.fa-download
+                                                        |  #{__('Export')}
+                    .container-fluid.users-padding-left.mt-3
+                        .row
+                            .col-12.users-padding-right.users-padding-left
+                                .card
+                                    .card-body
+                                        .row
+                                            .col-md-12
+                                                div.user-big--div
+                                                    ul.second-area.non-overflow
+                                                        li.active #{__('Companies')}
+                                        .table-responsive.dragscroll
+                                            table#companiesTable.display(style='width:100%')
+                                                thead
+                                                    tr
+                                                        th.p-2.notexport(style="min-width: 80px!important;")
+                                                        th.p-2.notexport(style="min-width: 80px!important;", data-name='description', data-toggle='tooltip', data-placement='right', title=__('description.LOGO')) #{__('Logo')}
+                                                        th.p-2(style="min-width: 120px!important;", data-name='status', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.STATUS')) #{__('Status')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='formalName', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.FORMAL_NAME')) #{__('FormalName')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='subsidiaryCode', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('')) #{__('Company Code')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='mainContactName', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_NAME')) #{__('MainContactName')}
+                                                        th.p-2(style="min-width: 80px!important;", data-name='mainContactEmail', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_EMAIL')) #{__('MainContactEmail')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='mainContactPhone', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_PHONE')) #{__('MainContactPhone')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='website', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.WEBSITE')) #{__('WebSite')}
+                                                    tr.filters
+                                                        th.p-2.notexport(style="min-width: 80px!important;")
+                                                        th.p-2.notexport(style="min-width: 80px!important;", data-name='description', data-toggle='tooltip', data-placement='right', title=__('description.LOGO')) #{__('Logo')}
+                                                        th.p-2(style="min-width: 120px!important;", data-name='status', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.STATUS')) #{__('Status')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='formalName', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.FORMAL_NAME')) #{__('FormalName')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='subsidiaryCode', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('')) #{__('Company Code')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='mainContactName', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_NAME')) #{__('MainContactName')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='mainContactEmail', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_EMAIL')) #{__('MainContactEmail')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='mainContactPhone', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.MAIN_CONTACT_PHONE')) #{__('MainContactPhone')}
+                                                        th.p-2(style="min-width: 100px!important;", data-name='website', data-searchable='off', data-sortable='off',data-toggle='tooltip', data-placement='right', title=__('description.WEBSITE')) #{__('WebSite')}
+                                                if subsidiaries
+                                                    tbody
+                                                        each subsidiary in subsidiaries.content
+                                                            tr
+                                                                td.text-center
+                                                                    a.p-3(href='/company/' + subsidiary.uuid)
+                                                                        i.fas.fa-eye.fa-2x
+                                                                td.text-center.align-middle
+                                                                    if subsidiary !== 'undefined' && subsidiary.img
+                                                                        img(height=48 src='data:image/jpeg;base64,' + subsidiary.img)
+                                                                    else
+                                                                        img(height=48 src='/assets/images/gallery/company.png')
+                                                                td.align-middle(style='font-weight:bold; text-align:center; color:  ' + getStatusColor(subsidiary.status))=status(subsidiary.status)
+                                                                td.align-middle.text-center=subsidiary.formalName
+                                                                td.align-middle.text-center=subsidiary.subsidiaryCode
+                                                                td.align-middle.text-center=subsidiary.mainContactName
+                                                                td.align-middle.text-center
+                                                                    a(href='mailto:' + subsidiary.mainContactEmail)=subsidiary.mainContactEmail
+                                                                td.align-middle.text-center=subsidiary.mainContactPhone
+                                                                td.align-middle.text-center
+                                                                    a(href=subsidiary.website, target='_blank')
+                                                                        i.fas.fa-location-arrow.pr-1
+                                                                        =subsidiary.website
+
+                                    +pagination(subsidiaries)
+                                    span#customerdata(data-customerdata=subsidiaries.content)
+                                script.
+                                    function openPopupDocuments() {
+                                        getFilesWindow("SUBSIDIARIES");
+                                    }
+                                    let valueList = [];
+                                    const customerData = $('#customerdata').data('customerdata');
+                                    if (customerData && Array.isArray(customerData)) {
+                                        customerData.forEach(function(element) {
+                                            valueList.push({ value : element.uuid})
+                                        });
+                                    }
+
+                                    $(".btnCompaniesID").on('click', function () {
+                                        let currentItemId = $(this)[0].outerText.split("\n")[0];
+                                        if (customerData && Array.isArray(customerData)) {
+                                            let productInfo = customerData.filter(el=>el.uuid == currentItemId)[0];
+                                            $(this).html();
+                                            $('#getCompaniesID').html(currentItemId)
+                                            localStorage.setItem('companiesID',currentItemId);
+                                        }
+                                    });
+                                    $(document).ready(function() {
+                                        var table = $('#companiesTable').DataTable({
+                                            orderCellsTop: true,
+                                            fixedHeader: true,
+                                            searching: true,
+                                            paging: false,
+                                            sDom: "rtipl",
+                                            columnDefs: [
+                                                {
+                                                    searchable: false,
+                                                    orderable: false,
+                                                    targets: 0,
+                                                },
+                                                {
+                                                    searchable: false,
+                                                    orderable: false,
+                                                    targets: 1,
+                                                },
+                                                {
+                                                    searchable: false,
+                                                    orderable: false,
+                                                    targets: 2,
+                                                },
+                                            ],
+                                            order: [[3, 'asc']],
+                                            initComplete: function () {
+                                                var api = this.api();
+                                                // For each searchable/sortable column
+                                                var searchableColumns = [];
+                                                api.columns().every(function() {
+                                                    if (this.index() >= 3) searchableColumns.push(this.index());
+                                                });
+
+                                                api.columns(searchableColumns)
+                                                    .eq(0)
+                                                    .each(function (colIdx) {
+                                                        // Set the header cell to contain the input element
+                                                        var header = api.column(colIdx).header();
+                                                        if (!header) return;
+
+                                                        var cell = $('.filters th').eq($(header).index());
+                                                        var title = $(cell).text();
+                                                        $(cell).html('<input type="text" style="width: 120px!important;" placeholder="' + title + '" />');
+                                    
+                                                        // On every keypress in this input
+                                                        $('input', cell)
+                                                            .off('keyup change')
+                                                            .on('change', function (e) {
+                                                                // Get the search value
+                                                                $(this).attr('title', $(this).val());
+                                                                var regexr = '({search})';
+                                                                var cursorPosition = this.selectionStart;
+                                                                // Search the column for that value
+                                                                api.column(colIdx)
+                                                                    .search(
+                                                                        this.value != ''
+                                                                            ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                                                            : '',
+                                                                        this.value != '',
+                                                                        this.value == ''
+                                                                    )
+                                                                    .draw();
+                                                            })
+                                                            .on('keyup', function (e) {
+                                                                e.stopPropagation();
+                                                                $(this).trigger('change');
+                                                                $(this).focus()[0].setSelectionRange(cursorPosition, cursorPosition);
+                                                            });
+                                                    });
+                                            },
+                                        });
+                                    });

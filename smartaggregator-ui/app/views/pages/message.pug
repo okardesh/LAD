@@ -1,0 +1,69 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='message', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid' value=__message.uuid)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Message')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/messages') #{__('Messages')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Message')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if __message.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='type') #{__('Type')}
+                                        select.form-control.custom-select(name='type', id='type')
+                                            option(value='1', selected= __message.type === 1) #{__('Info')}
+                                            option(value='2', selected= __message.type === 2) #{__('Warning')}
+                                            option(value='3', selected= __message.type === 3) #{__('Error')}
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='code') #{__('Code')}
+                                        input.form-control(type='text', name='code', id='code',autocomplete = "off" , placeholder=__('Code'), value=__message.code)
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='description') #{__('Description')}
+                                        input.form-control(type='text', name='description', id='description',autocomplete = "off" , placeholder=__('Description'), value=__message.description)
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox' name='status' id='status' checked=message.status === 1 data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")

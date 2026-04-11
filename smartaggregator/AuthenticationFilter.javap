@@ -1,0 +1,848 @@
+Compiled from "AuthenticationFilter.java"
+public class com.linktera.rpadashboard.filter.AuthenticationFilter extends org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter {
+  private final org.springframework.security.authentication.AuthenticationManager authenticationManager;
+
+  private final biz.linktera.rpadashboard.service.UsersService usersService;
+
+  private final com.linktera.rpadashboard.service.AppUsersService appUserService;
+
+  private final biz.linktera.rpadashboard.service.SubsidiaryService subsidiaryService;
+
+  private final com.linktera.rpadashboard.service.AppOperationsService appOperationsService;
+
+  private final com.linktera.rpadashboard.service.AppOrganizationsService appOrganizationsService;
+
+  private final com.linktera.rpadashboard.service.AppParametersService appParametersService;
+
+  private final boolean isLdap;
+
+  private final java.lang.String ldapUrl;
+
+  private final java.lang.String ldapBaseName;
+
+  private final java.lang.String ldapCommonName;
+
+  private final java.lang.String ldapPrincipalPrefix;
+
+  private final java.lang.String ldapPrincipalSuffix;
+
+  private final java.lang.String ldapAuthMethod;
+
+  private final java.lang.String ldapProtocol;
+
+  public com.linktera.rpadashboard.filter.AuthenticationFilter(org.springframework.security.authentication.AuthenticationManager, org.springframework.context.ApplicationContext);
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method org/springframework/security/web/authentication/UsernamePasswordAuthenticationFilter."<init>":()V
+       4: aload_0
+       5: aload_1
+       6: putfield      #2                  // Field authenticationManager:Lorg/springframework/security/authentication/AuthenticationManager;
+       9: aload_0
+      10: aload_2
+      11: ldc           #3                  // class com/linktera/rpadashboard/service/AppUsersService
+      13: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      18: checkcast     #3                  // class com/linktera/rpadashboard/service/AppUsersService
+      21: putfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+      24: aload_0
+      25: aload_2
+      26: ldc           #6                  // class biz/linktera/rpadashboard/service/UsersService
+      28: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      33: checkcast     #6                  // class biz/linktera/rpadashboard/service/UsersService
+      36: putfield      #7                  // Field usersService:Lbiz/linktera/rpadashboard/service/UsersService;
+      39: aload_0
+      40: aload_2
+      41: ldc           #8                  // class biz/linktera/rpadashboard/service/SubsidiaryService
+      43: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      48: checkcast     #8                  // class biz/linktera/rpadashboard/service/SubsidiaryService
+      51: putfield      #9                  // Field subsidiaryService:Lbiz/linktera/rpadashboard/service/SubsidiaryService;
+      54: aload_0
+      55: aload_2
+      56: ldc           #10                 // class com/linktera/rpadashboard/service/AppOperationsService
+      58: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      63: checkcast     #10                 // class com/linktera/rpadashboard/service/AppOperationsService
+      66: putfield      #11                 // Field appOperationsService:Lcom/linktera/rpadashboard/service/AppOperationsService;
+      69: aload_0
+      70: aload_2
+      71: ldc           #12                 // class com/linktera/rpadashboard/service/AppOrganizationsService
+      73: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      78: checkcast     #12                 // class com/linktera/rpadashboard/service/AppOrganizationsService
+      81: putfield      #13                 // Field appOrganizationsService:Lcom/linktera/rpadashboard/service/AppOrganizationsService;
+      84: aload_0
+      85: aload_2
+      86: ldc           #14                 // class com/linktera/rpadashboard/service/AppParametersService
+      88: invokeinterface #4,  2            // InterfaceMethod org/springframework/context/ApplicationContext.getBean:(Ljava/lang/Class;)Ljava/lang/Object;
+      93: checkcast     #14                 // class com/linktera/rpadashboard/service/AppParametersService
+      96: putfield      #15                 // Field appParametersService:Lcom/linktera/rpadashboard/service/AppParametersService;
+      99: aload_2
+     100: invokeinterface #16,  1           // InterfaceMethod org/springframework/context/ApplicationContext.getEnvironment:()Lorg/springframework/core/env/Environment;
+     105: astore_3
+     106: aload_0
+     107: ldc           #17                 // String ldap
+     109: aload_3
+     110: ldc           #18                 // String app.auth.method
+     112: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     117: invokevirtual #20                 // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+     120: putfield      #21                 // Field isLdap:Z
+     123: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     126: new           #23                 // class java/lang/StringBuilder
+     129: dup
+     130: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     133: ldc           #25                 // String [AUTHENTICATION] LDAP (true/false) :
+     135: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     138: aload_0
+     139: getfield      #21                 // Field isLdap:Z
+     142: invokevirtual #27                 // Method java/lang/StringBuilder.append:(Z)Ljava/lang/StringBuilder;
+     145: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     148: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     151: aload_0
+     152: aload_3
+     153: ldc           #30                 // String spring.ldap.urls
+     155: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     160: putfield      #31                 // Field ldapUrl:Ljava/lang/String;
+     163: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     166: new           #23                 // class java/lang/StringBuilder
+     169: dup
+     170: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     173: ldc           #32                 // String [AUTHENTICATION] LDAP URL:
+     175: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     178: aload_0
+     179: getfield      #31                 // Field ldapUrl:Ljava/lang/String;
+     182: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     185: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     188: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     191: aload_0
+     192: aload_3
+     193: ldc           #33                 // String spring.ldap.base
+     195: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     200: putfield      #34                 // Field ldapBaseName:Ljava/lang/String;
+     203: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     206: new           #23                 // class java/lang/StringBuilder
+     209: dup
+     210: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     213: ldc           #35                 // String [AUTHENTICATION] LDAP Base:
+     215: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     218: aload_0
+     219: getfield      #34                 // Field ldapBaseName:Ljava/lang/String;
+     222: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     225: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     228: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     231: aload_0
+     232: aload_3
+     233: ldc           #36                 // String app.ldap.commons
+     235: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     240: putfield      #37                 // Field ldapCommonName:Ljava/lang/String;
+     243: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     246: new           #23                 // class java/lang/StringBuilder
+     249: dup
+     250: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     253: ldc           #38                 // String [AUTHENTICATION] LDAP Commons:
+     255: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     258: aload_0
+     259: getfield      #37                 // Field ldapCommonName:Ljava/lang/String;
+     262: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     265: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     268: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     271: aload_0
+     272: aload_3
+     273: ldc           #39                 // String app.ldap.principalPrefix
+     275: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     280: putfield      #40                 // Field ldapPrincipalPrefix:Ljava/lang/String;
+     283: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     286: new           #23                 // class java/lang/StringBuilder
+     289: dup
+     290: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     293: ldc           #41                 // String [AUTHENTICATION] LDAP Principal Prefix:
+     295: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     298: aload_0
+     299: getfield      #40                 // Field ldapPrincipalPrefix:Ljava/lang/String;
+     302: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     305: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     308: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     311: aload_0
+     312: aload_3
+     313: ldc           #42                 // String app.ldap.principalSuffix
+     315: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     320: putfield      #43                 // Field ldapPrincipalSuffix:Ljava/lang/String;
+     323: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     326: new           #23                 // class java/lang/StringBuilder
+     329: dup
+     330: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     333: ldc           #44                 // String [AUTHENTICATION] LDAP Principal Suffix:
+     335: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     338: aload_0
+     339: getfield      #43                 // Field ldapPrincipalSuffix:Ljava/lang/String;
+     342: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     345: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     348: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     351: aload_0
+     352: aload_3
+     353: ldc           #45                 // String app.ldap.auth
+     355: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     360: putfield      #46                 // Field ldapAuthMethod:Ljava/lang/String;
+     363: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     366: new           #23                 // class java/lang/StringBuilder
+     369: dup
+     370: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     373: ldc           #47                 // String [AUTHENTICATION] LDAP Method:
+     375: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     378: aload_0
+     379: getfield      #46                 // Field ldapAuthMethod:Ljava/lang/String;
+     382: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     385: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     388: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     391: aload_0
+     392: aload_3
+     393: ldc           #48                 // String app.ldap.protocol
+     395: invokeinterface #19,  2           // InterfaceMethod org/springframework/core/env/Environment.getProperty:(Ljava/lang/String;)Ljava/lang/String;
+     400: putfield      #49                 // Field ldapProtocol:Ljava/lang/String;
+     403: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     406: new           #23                 // class java/lang/StringBuilder
+     409: dup
+     410: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     413: ldc           #50                 // String [AUTHENTICATION] LDAP Protocol:
+     415: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     418: aload_0
+     419: getfield      #49                 // Field ldapProtocol:Ljava/lang/String;
+     422: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     425: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     428: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     431: return
+
+  public org.springframework.security.core.Authentication attemptAuthentication(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse);
+    Code:
+       0: new           #51                 // class com/fasterxml/jackson/databind/ObjectMapper
+       3: dup
+       4: invokespecial #52                 // Method com/fasterxml/jackson/databind/ObjectMapper."<init>":()V
+       7: aload_1
+       8: invokeinterface #53,  1           // InterfaceMethod javax/servlet/http/HttpServletRequest.getInputStream:()Ljavax/servlet/ServletInputStream;
+      13: ldc           #54                 // class com/linktera/rpadashboard/common/Login
+      15: invokevirtual #55                 // Method com/fasterxml/jackson/databind/ObjectMapper.readValue:(Ljava/io/InputStream;Ljava/lang/Class;)Ljava/lang/Object;
+      18: checkcast     #54                 // class com/linktera/rpadashboard/common/Login
+      21: astore        4
+      23: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      26: new           #23                 // class java/lang/StringBuilder
+      29: dup
+      30: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+      33: ldc           #56                 // String [AUTHENTICATION] Username:
+      35: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      38: aload         4
+      40: invokevirtual #57                 // Method com/linktera/rpadashboard/common/Login.getUsername:()Ljava/lang/String;
+      43: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      46: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      49: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      52: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      55: ldc           #58                 // String [AUTHENTICATION] Password: ********
+      57: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      60: aload_0
+      61: getfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+      64: aload         4
+      66: invokevirtual #57                 // Method com/linktera/rpadashboard/common/Login.getUsername:()Ljava/lang/String;
+      69: invokeinterface #59,  2           // InterfaceMethod com/linktera/rpadashboard/service/AppUsersService.findByUsername:(Ljava/lang/String;)Lcom/linktera/rpadashboard/dto/AppUsersDto;
+      74: astore        5
+      76: aload         5
+      78: ifnonnull     91
+      81: new           #60                 // class com/linktera/rpadashboard/exception/AuthException
+      84: dup
+      85: ldc           #61                 // String User not found.
+      87: invokespecial #62                 // Method com/linktera/rpadashboard/exception/AuthException."<init>":(Ljava/lang/String;)V
+      90: athrow
+      91: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      94: new           #23                 // class java/lang/StringBuilder
+      97: dup
+      98: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     101: ldc           #63                 // String [AUTHENTICATION] User Found. UUID:
+     103: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     106: aload         5
+     108: invokevirtual #64                 // Method com/linktera/rpadashboard/dto/AppUsersDto.getUuid:()Ljava/util/UUID;
+     111: invokevirtual #65                 // Method java/lang/StringBuilder.append:(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+     114: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     117: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     120: aload_0
+     121: getfield      #21                 // Field isLdap:Z
+     124: ifeq          192
+     127: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     130: ldc           #66                 // String [AUTHENTICATION] Authentication Method: LDAP
+     132: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     135: aload_0
+     136: aload         4
+     138: invokevirtual #57                 // Method com/linktera/rpadashboard/common/Login.getUsername:()Ljava/lang/String;
+     141: aload         4
+     143: invokevirtual #67                 // Method com/linktera/rpadashboard/common/Login.getPassword:()Ljava/lang/String;
+     146: invokespecial #68                 // Method isLdapRegistered:(Ljava/lang/String;Ljava/lang/String;)V
+     149: aload_0
+     150: getfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+     153: aload         4
+     155: invokevirtual #57                 // Method com/linktera/rpadashboard/common/Login.getUsername:()Ljava/lang/String;
+     158: invokeinterface #69,  2           // InterfaceMethod com/linktera/rpadashboard/service/AppUsersService.loadUserByUsername:(Ljava/lang/String;)Lorg/springframework/security/core/userdetails/UserDetails;
+     163: astore        6
+     165: new           #70                 // class org/springframework/security/authentication/UsernamePasswordAuthenticationToken
+     168: dup
+     169: aload         6
+     171: aload         6
+     173: invokeinterface #71,  1           // InterfaceMethod org/springframework/security/core/userdetails/UserDetails.getPassword:()Ljava/lang/String;
+     178: aload         6
+     180: invokeinterface #72,  1           // InterfaceMethod org/springframework/security/core/userdetails/UserDetails.getAuthorities:()Ljava/util/Collection;
+     185: invokespecial #73                 // Method org/springframework/security/authentication/UsernamePasswordAuthenticationToken."<init>":(Ljava/lang/Object;Ljava/lang/Object;Ljava/util/Collection;)V
+     188: astore_3
+     189: goto          227
+     192: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     195: ldc           #74                 // String [AUTHENTICATION] Authentication Method: Default
+     197: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     200: aload_0
+     201: getfield      #2                  // Field authenticationManager:Lorg/springframework/security/authentication/AuthenticationManager;
+     204: new           #70                 // class org/springframework/security/authentication/UsernamePasswordAuthenticationToken
+     207: dup
+     208: aload         4
+     210: invokevirtual #57                 // Method com/linktera/rpadashboard/common/Login.getUsername:()Ljava/lang/String;
+     213: aload         4
+     215: invokevirtual #67                 // Method com/linktera/rpadashboard/common/Login.getPassword:()Ljava/lang/String;
+     218: invokespecial #75                 // Method org/springframework/security/authentication/UsernamePasswordAuthenticationToken."<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+     221: invokeinterface #76,  2           // InterfaceMethod org/springframework/security/authentication/AuthenticationManager.authenticate:(Lorg/springframework/security/core/Authentication;)Lorg/springframework/security/core/Authentication;
+     226: astore_3
+     227: aload_3
+     228: invokeinterface #77,  1           // InterfaceMethod org/springframework/security/core/Authentication.isAuthenticated:()Z
+     233: ifeq          326
+     236: aload_0
+     237: getfield      #21                 // Field isLdap:Z
+     240: ifne          276
+     243: new           #78                 // class org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder
+     246: dup
+     247: invokespecial #79                 // Method org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder."<init>":()V
+     250: aload         4
+     252: invokevirtual #67                 // Method com/linktera/rpadashboard/common/Login.getPassword:()Ljava/lang/String;
+     255: aload         5
+     257: invokevirtual #80                 // Method com/linktera/rpadashboard/dto/AppUsersDto.getPassword:()Ljava/lang/String;
+     260: invokevirtual #81                 // Method org/springframework/security/crypto/bcrypt/BCryptPasswordEncoder.matches:(Ljava/lang/CharSequence;Ljava/lang/String;)Z
+     263: ifeq          276
+     266: aload         5
+     268: aload         4
+     270: invokevirtual #67                 // Method com/linktera/rpadashboard/common/Login.getPassword:()Ljava/lang/String;
+     273: invokevirtual #82                 // Method com/linktera/rpadashboard/dto/AppUsersDto.setPassword:(Ljava/lang/String;)V
+     276: aload         5
+     278: aload_1
+     279: ldc           #84                 // String User-Agent
+     281: invokeinterface #85,  2           // InterfaceMethod javax/servlet/http/HttpServletRequest.getHeader:(Ljava/lang/String;)Ljava/lang/String;
+     286: invokevirtual #86                 // Method com/linktera/rpadashboard/dto/AppUsersDto.setLastLoggedUserAgent:(Ljava/lang/String;)V
+     289: aload         5
+     291: invokestatic  #87                 // Method com/linktera/rpadashboard/util/DateUtil.newDateTime:()Ljava/util/Date;
+     294: invokevirtual #88                 // Method com/linktera/rpadashboard/dto/AppUsersDto.setLastLoggedTime:(Ljava/util/Date;)V
+     297: aload         5
+     299: aload_1
+     300: ldc           #89                 // String X-Forwarded-For
+     302: invokeinterface #85,  2           // InterfaceMethod javax/servlet/http/HttpServletRequest.getHeader:(Ljava/lang/String;)Ljava/lang/String;
+     307: invokevirtual #90                 // Method com/linktera/rpadashboard/dto/AppUsersDto.setLastLoggedIp:(Ljava/lang/String;)V
+     310: aload_0
+     311: getfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+     314: aload         5
+     316: invokevirtual #64                 // Method com/linktera/rpadashboard/dto/AppUsersDto.getUuid:()Ljava/util/UUID;
+     319: aload         5
+     321: invokeinterface #91,  3           // InterfaceMethod com/linktera/rpadashboard/service/AppUsersService.update:(Ljava/util/UUID;Ljava/lang/Object;)V
+     326: aload_3
+     327: areturn
+     328: astore        4
+     330: new           #60                 // class com/linktera/rpadashboard/exception/AuthException
+     333: dup
+     334: aload         4
+     336: invokevirtual #93                 // Method java/io/IOException.getLocalizedMessage:()Ljava/lang/String;
+     339: invokespecial #62                 // Method com/linktera/rpadashboard/exception/AuthException."<init>":(Ljava/lang/String;)V
+     342: athrow
+    Exception table:
+       from    to  target type
+           0   327   328   Class java/io/IOException
+
+  protected void successfulAuthentication(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, javax.servlet.FilterChain, org.springframework.security.core.Authentication) throws java.io.IOException;
+    Code:
+       0: aload         4
+       2: invokeinterface #94,  1           // InterfaceMethod org/springframework/security/core/Authentication.getPrincipal:()Ljava/lang/Object;
+       7: checkcast     #95                 // class org/springframework/security/core/userdetails/User
+      10: astore        5
+      12: new           #96                 // class java/util/ArrayList
+      15: dup
+      16: invokespecial #97                 // Method java/util/ArrayList."<init>":()V
+      19: astore        6
+      21: new           #98                 // class java/util/HashMap
+      24: dup
+      25: invokespecial #99                 // Method java/util/HashMap."<init>":()V
+      28: astore        7
+      30: new           #51                 // class com/fasterxml/jackson/databind/ObjectMapper
+      33: dup
+      34: invokespecial #52                 // Method com/fasterxml/jackson/databind/ObjectMapper."<init>":()V
+      37: astore        8
+      39: aload         4
+      41: invokeinterface #100,  1          // InterfaceMethod org/springframework/security/core/Authentication.getAuthorities:()Ljava/util/Collection;
+      46: invokeinterface #101,  1          // InterfaceMethod java/util/Collection.stream:()Ljava/util/stream/Stream;
+      51: invokedynamic #102,  0            // InvokeDynamic #0:apply:()Ljava/util/function/Function;
+      56: invokeinterface #103,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+      61: ldc           #105                // String ,
+      63: invokestatic  #106                // Method java/util/stream/Collectors.joining:(Ljava/lang/CharSequence;)Ljava/util/stream/Collector;
+      66: invokeinterface #107,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+      71: checkcast     #108                // class java/lang/String
+      74: astore        9
+      76: aload         4
+      78: invokeinterface #100,  1          // InterfaceMethod org/springframework/security/core/Authentication.getAuthorities:()Ljava/util/Collection;
+      83: invokeinterface #109,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+      88: astore        11
+      90: aload         11
+      92: invokeinterface #110,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+      97: ifeq          148
+     100: aload         11
+     102: invokeinterface #111,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     107: checkcast     #112                // class org/springframework/security/core/GrantedAuthority
+     110: astore        12
+     112: aload_0
+     113: getfield      #11                 // Field appOperationsService:Lcom/linktera/rpadashboard/service/AppOperationsService;
+     116: aload         12
+     118: invokeinterface #113,  1          // InterfaceMethod org/springframework/security/core/GrantedAuthority.getAuthority:()Ljava/lang/String;
+     123: invokeinterface #114,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppOperationsService.findByRoleCode:(Ljava/lang/String;)Ljava/util/List;
+     128: astore        10
+     130: aload         10
+     132: ifnull        145
+     135: aload         6
+     137: aload         10
+     139: invokeinterface #115,  2          // InterfaceMethod java/util/List.addAll:(Ljava/util/Collection;)Z
+     144: pop
+     145: goto          90
+     148: aload         6
+     150: invokeinterface #116,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     155: astore        11
+     157: aload         11
+     159: invokeinterface #110,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+     164: ifeq          260
+     167: aload         11
+     169: invokeinterface #111,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     174: checkcast     #117                // class com/linktera/rpadashboard/dto/AppOperationsDto
+     177: astore        12
+     179: invokestatic  #118                // Method com/linktera/rpadashboard/constant/GeneralConstants.getStaticPaths:()Ljava/util/Set;
+     182: aload         12
+     184: invokevirtual #119                // Method com/linktera/rpadashboard/dto/AppOperationsDto.getPath:()Ljava/lang/String;
+     187: invokeinterface #120,  2          // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+     192: ifne          257
+     195: aload         12
+     197: invokevirtual #121                // Method com/linktera/rpadashboard/dto/AppOperationsDto.getIsSideMenu:()I
+     200: iconst_1
+     201: if_icmpne     257
+     204: aload         12
+     206: invokevirtual #119                // Method com/linktera/rpadashboard/dto/AppOperationsDto.getPath:()Ljava/lang/String;
+     209: ldc           #122                // String /
+     211: invokevirtual #123                // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+     214: iconst_2
+     215: aaload
+     216: astore        13
+     218: ldc           #124                // String systems
+     220: aload         13
+     222: invokevirtual #20                 // Method java/lang/String.equalsIgnoreCase:(Ljava/lang/String;)Z
+     225: ifeq          242
+     228: aload         12
+     230: invokevirtual #119                // Method com/linktera/rpadashboard/dto/AppOperationsDto.getPath:()Ljava/lang/String;
+     233: ldc           #122                // String /
+     235: invokevirtual #123                // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+     238: iconst_3
+     239: aaload
+     240: astore        13
+     242: aload         7
+     244: aload         13
+     246: aload         12
+     248: invokevirtual #125                // Method com/linktera/rpadashboard/dto/AppOperationsDto.getId:()Ljava/lang/Long;
+     251: invokeinterface #126,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     256: pop
+     257: goto          157
+     260: new           #96                 // class java/util/ArrayList
+     263: dup
+     264: aload         7
+     266: invokeinterface #127,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+     271: invokespecial #128                // Method java/util/ArrayList."<init>":(Ljava/util/Collection;)V
+     274: astore        11
+     276: aload_0
+     277: getfield      #7                  // Field usersService:Lbiz/linktera/rpadashboard/service/UsersService;
+     280: aload_0
+     281: getfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+     284: aload         5
+     286: invokevirtual #129                // Method org/springframework/security/core/userdetails/User.getUsername:()Ljava/lang/String;
+     289: invokeinterface #130,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppUsersService.getUser:(Ljava/lang/String;)Lcom/linktera/rpadashboard/dto/AppUsersDto;
+     294: invokevirtual #64                 // Method com/linktera/rpadashboard/dto/AppUsersDto.getUuid:()Ljava/util/UUID;
+     297: invokeinterface #131,  2          // InterfaceMethod biz/linktera/rpadashboard/service/UsersService.get:(Ljava/util/UUID;)Ljava/lang/Object;
+     302: checkcast     #132                // class com/linktera/rpadashboard/dto/AppUsersDto
+     305: astore        12
+     307: aload_0
+     308: getfield      #15                 // Field appParametersService:Lcom/linktera/rpadashboard/service/AppParametersService;
+     311: getstatic     #133                // Field com/linktera/rpadashboard/enums/Parameters.SUPER_ADMIN_USERS:Lcom/linktera/rpadashboard/enums/Parameters;
+     314: invokevirtual #134                // Method com/linktera/rpadashboard/enums/Parameters.name:()Ljava/lang/String;
+     317: invokeinterface #135,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppParametersService.findByKey:(Ljava/lang/String;)Lcom/linktera/rpadashboard/dto/AppParametersDto;
+     322: invokestatic  #136                // Method java/util/Optional.ofNullable:(Ljava/lang/Object;)Ljava/util/Optional;
+     325: aload         12
+     327: invokedynamic #137,  0            // InvokeDynamic #1:accept:(Lcom/linktera/rpadashboard/dto/AppUsersDto;)Ljava/util/function/Consumer;
+     332: invokevirtual #138                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+     335: aload_0
+     336: getfield      #9                  // Field subsidiaryService:Lbiz/linktera/rpadashboard/service/SubsidiaryService;
+     339: aload         12
+     341: invokevirtual #139                // Method com/linktera/rpadashboard/dto/AppUsersDto.getSubsidiaryId:()Ljava/lang/Long;
+     344: invokeinterface #140,  2          // InterfaceMethod biz/linktera/rpadashboard/service/SubsidiaryService.lookup:(Ljava/lang/Long;)Ljava/util/UUID;
+     349: astore        13
+     351: aload_0
+     352: getfield      #9                  // Field subsidiaryService:Lbiz/linktera/rpadashboard/service/SubsidiaryService;
+     355: aload         13
+     357: invokeinterface #141,  2          // InterfaceMethod biz/linktera/rpadashboard/service/SubsidiaryService.get:(Ljava/util/UUID;)Ljava/lang/Object;
+     362: checkcast     #142                // class com/linktera/rpadashboard/dto/AppSubsidiaryDto
+     365: astore        14
+     367: aload         14
+     369: ifnull        438
+     372: aload         14
+     374: invokevirtual #143                // Method com/linktera/rpadashboard/dto/AppSubsidiaryDto.getApprovalStatus:()Ljava/lang/String;
+     377: getstatic     #144                // Field com/linktera/rpadashboard/enums/ApprovalStatus.APPROVAL:Lcom/linktera/rpadashboard/enums/ApprovalStatus;
+     380: invokevirtual #145                // Method com/linktera/rpadashboard/enums/ApprovalStatus.getCode:()Ljava/lang/String;
+     383: invokevirtual #146                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     386: ifeq          438
+     389: aload         12
+     391: aload_0
+     392: getfield      #9                  // Field subsidiaryService:Lbiz/linktera/rpadashboard/service/SubsidiaryService;
+     395: aload         12
+     397: invokevirtual #139                // Method com/linktera/rpadashboard/dto/AppUsersDto.getSubsidiaryId:()Ljava/lang/Long;
+     400: invokeinterface #140,  2          // InterfaceMethod biz/linktera/rpadashboard/service/SubsidiaryService.lookup:(Ljava/lang/Long;)Ljava/util/UUID;
+     405: invokevirtual #147                // Method com/linktera/rpadashboard/dto/AppUsersDto.setSubsidiary:(Ljava/util/UUID;)V
+     408: aload_0
+     409: getfield      #15                 // Field appParametersService:Lcom/linktera/rpadashboard/service/AppParametersService;
+     412: getstatic     #148                // Field com/linktera/rpadashboard/enums/Parameters.INCLUDE_SINGLETON:Lcom/linktera/rpadashboard/enums/Parameters;
+     415: invokevirtual #134                // Method com/linktera/rpadashboard/enums/Parameters.name:()Ljava/lang/String;
+     418: invokeinterface #135,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppParametersService.findByKey:(Ljava/lang/String;)Lcom/linktera/rpadashboard/dto/AppParametersDto;
+     423: invokestatic  #136                // Method java/util/Optional.ofNullable:(Ljava/lang/Object;)Ljava/util/Optional;
+     426: aload         12
+     428: aload         14
+     430: invokedynamic #149,  0            // InvokeDynamic #2:accept:(Lcom/linktera/rpadashboard/dto/AppUsersDto;Lcom/linktera/rpadashboard/dto/AppSubsidiaryDto;)Ljava/util/function/Consumer;
+     435: invokevirtual #138                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+     438: aload         8
+     440: aload         12
+     442: invokevirtual #150                // Method com/fasterxml/jackson/databind/ObjectMapper.writeValueAsString:(Ljava/lang/Object;)Ljava/lang/String;
+     445: astore        15
+     447: aload_0
+     448: getfield      #13                 // Field appOrganizationsService:Lcom/linktera/rpadashboard/service/AppOrganizationsService;
+     451: aload_0
+     452: getfield      #13                 // Field appOrganizationsService:Lcom/linktera/rpadashboard/service/AppOrganizationsService;
+     455: aload         12
+     457: invokevirtual #151                // Method com/linktera/rpadashboard/dto/AppUsersDto.getOrganizationId:()Ljava/lang/Long;
+     460: invokeinterface #152,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppOrganizationsService.lookup:(Ljava/lang/Long;)Ljava/util/UUID;
+     465: invokeinterface #153,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppOrganizationsService.get:(Ljava/util/UUID;)Ljava/lang/Object;
+     470: checkcast     #154                // class com/linktera/rpadashboard/dto/AppOrganizationsDto
+     473: astore        16
+     475: invokestatic  #155                // Method io/jsonwebtoken/Jwts.claims:()Lio/jsonwebtoken/Claims;
+     478: astore        17
+     480: aload         17
+     482: aload         5
+     484: invokevirtual #129                // Method org/springframework/security/core/userdetails/User.getUsername:()Ljava/lang/String;
+     487: invokeinterface #156,  2          // InterfaceMethod io/jsonwebtoken/Claims.setSubject:(Ljava/lang/String;)Lio/jsonwebtoken/Claims;
+     492: pop
+     493: aload         17
+     495: new           #157                // class java/util/Date
+     498: dup
+     499: invokestatic  #158                // Method java/lang/System.currentTimeMillis:()J
+     502: ldc2_w        #159                // long 423000000l
+     505: ladd
+     506: invokespecial #161                // Method java/util/Date."<init>":(J)V
+     509: invokeinterface #162,  2          // InterfaceMethod io/jsonwebtoken/Claims.setExpiration:(Ljava/util/Date;)Lio/jsonwebtoken/Claims;
+     514: pop
+     515: aload         17
+     517: ldc           #163                // String Authorities
+     519: aload         9
+     521: invokeinterface #164,  3          // InterfaceMethod io/jsonwebtoken/Claims.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     526: pop
+     527: aload         17
+     529: ldc           #165                // String User-Uuid
+     531: aload_0
+     532: getfield      #5                  // Field appUserService:Lcom/linktera/rpadashboard/service/AppUsersService;
+     535: aload         5
+     537: invokevirtual #129                // Method org/springframework/security/core/userdetails/User.getUsername:()Ljava/lang/String;
+     540: invokeinterface #130,  2          // InterfaceMethod com/linktera/rpadashboard/service/AppUsersService.getUser:(Ljava/lang/String;)Lcom/linktera/rpadashboard/dto/AppUsersDto;
+     545: invokevirtual #64                 // Method com/linktera/rpadashboard/dto/AppUsersDto.getUuid:()Ljava/util/UUID;
+     548: invokeinterface #164,  3          // InterfaceMethod io/jsonwebtoken/Claims.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     553: pop
+     554: aload         17
+     556: ldc           #166                // String sideMenuPermission
+     558: aload         8
+     560: aload         11
+     562: invokevirtual #150                // Method com/fasterxml/jackson/databind/ObjectMapper.writeValueAsString:(Ljava/lang/Object;)Ljava/lang/String;
+     565: invokeinterface #164,  3          // InterfaceMethod io/jsonwebtoken/Claims.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     570: pop
+     571: aload         17
+     573: ldc           #167                // String UserDetails
+     575: aload         15
+     577: invokeinterface #164,  3          // InterfaceMethod io/jsonwebtoken/Claims.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     582: pop
+     583: aload         17
+     585: ldc           #168                // String organization
+     587: aload         8
+     589: aload         16
+     591: invokevirtual #150                // Method com/fasterxml/jackson/databind/ObjectMapper.writeValueAsString:(Ljava/lang/Object;)Ljava/lang/String;
+     594: invokeinterface #164,  3          // InterfaceMethod io/jsonwebtoken/Claims.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     599: pop
+     600: invokestatic  #169                // Method io/jsonwebtoken/Jwts.builder:()Lio/jsonwebtoken/JwtBuilder;
+     603: aload         17
+     605: invokeinterface #170,  2          // InterfaceMethod io/jsonwebtoken/JwtBuilder.setClaims:(Lio/jsonwebtoken/Claims;)Lio/jsonwebtoken/JwtBuilder;
+     610: getstatic     #171                // Field io/jsonwebtoken/SignatureAlgorithm.HS512:Lio/jsonwebtoken/SignatureAlgorithm;
+     613: ldc           #172                // String 123!@#$%^PLM-123!@#$%^PLM
+     615: invokevirtual #173                // Method java/lang/String.getBytes:()[B
+     618: invokeinterface #174,  3          // InterfaceMethod io/jsonwebtoken/JwtBuilder.signWith:(Lio/jsonwebtoken/SignatureAlgorithm;[B)Lio/jsonwebtoken/JwtBuilder;
+     623: invokeinterface #175,  1          // InterfaceMethod io/jsonwebtoken/JwtBuilder.compact:()Ljava/lang/String;
+     628: astore        18
+     630: aload_2
+     631: ldc           #176                // String Authorization
+     633: new           #23                 // class java/lang/StringBuilder
+     636: dup
+     637: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     640: ldc           #177                // String Bearer
+     642: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     645: aload         18
+     647: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     650: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     653: invokeinterface #178,  3          // InterfaceMethod javax/servlet/http/HttpServletResponse.addHeader:(Ljava/lang/String;Ljava/lang/String;)V
+     658: return
+
+  private void isLdapRegistered(java.lang.String, java.lang.String);
+    Code:
+       0: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: ldc           #179                // String [AUTHENTICATION] LDAP Authentication: Started
+       5: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+       8: new           #180                // class java/util/Hashtable
+      11: dup
+      12: invokespecial #181                // Method java/util/Hashtable."<init>":()V
+      15: astore_3
+      16: aload_3
+      17: ldc           #183                // String java.naming.factory.initial
+      19: ldc           #184                // String com.sun.jndi.ldap.LdapCtxFactory
+      21: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      24: pop
+      25: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      28: ldc           #186                // String [AUTHENTICATION] LDAP Context Factory: com.sun.jndi.ldap.LdapCtxFactory
+      30: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      33: aload_3
+      34: ldc           #187                // String java.naming.provider.url
+      36: aload_0
+      37: getfield      #31                 // Field ldapUrl:Ljava/lang/String;
+      40: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      43: pop
+      44: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      47: new           #23                 // class java/lang/StringBuilder
+      50: dup
+      51: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+      54: ldc           #32                 // String [AUTHENTICATION] LDAP URL:
+      56: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      59: aload_0
+      60: getfield      #31                 // Field ldapUrl:Ljava/lang/String;
+      63: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      66: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      69: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      72: aload_3
+      73: ldc           #188                // String java.naming.security.protocol
+      75: aload_0
+      76: getfield      #49                 // Field ldapProtocol:Ljava/lang/String;
+      79: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+      82: pop
+      83: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+      86: new           #23                 // class java/lang/StringBuilder
+      89: dup
+      90: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+      93: ldc           #189                // String [AUTHENTICATION] LDAP Security Protocol:
+      95: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      98: aload_0
+      99: getfield      #49                 // Field ldapProtocol:Ljava/lang/String;
+     102: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     105: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     108: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     111: aload_3
+     112: ldc           #190                // String java.naming.security.authentication
+     114: aload_0
+     115: getfield      #46                 // Field ldapAuthMethod:Ljava/lang/String;
+     118: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     121: pop
+     122: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     125: new           #23                 // class java/lang/StringBuilder
+     128: dup
+     129: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     132: ldc           #191                // String [AUTHENTICATION] LDAP Auth Method:
+     134: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     137: aload_0
+     138: getfield      #46                 // Field ldapAuthMethod:Ljava/lang/String;
+     141: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     144: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     147: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     150: aload_1
+     151: astore        4
+     153: aload_0
+     154: getfield      #40                 // Field ldapPrincipalPrefix:Ljava/lang/String;
+     157: invokestatic  #192                // Method org/apache/logging/log4j/util/Strings.isNotBlank:(Ljava/lang/String;)Z
+     160: ifeq          192
+     163: new           #23                 // class java/lang/StringBuilder
+     166: dup
+     167: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     170: aload_0
+     171: getfield      #40                 // Field ldapPrincipalPrefix:Ljava/lang/String;
+     174: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     177: ldc           #193                // String =
+     179: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     182: aload         4
+     184: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     187: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     190: astore        4
+     192: aload_0
+     193: getfield      #43                 // Field ldapPrincipalSuffix:Ljava/lang/String;
+     196: invokestatic  #192                // Method org/apache/logging/log4j/util/Strings.isNotBlank:(Ljava/lang/String;)Z
+     199: ifeq          231
+     202: new           #23                 // class java/lang/StringBuilder
+     205: dup
+     206: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     209: aload         4
+     211: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     214: ldc           #194                // String @
+     216: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     219: aload_0
+     220: getfield      #43                 // Field ldapPrincipalSuffix:Ljava/lang/String;
+     223: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     226: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     229: astore        4
+     231: aload_0
+     232: getfield      #37                 // Field ldapCommonName:Ljava/lang/String;
+     235: invokestatic  #192                // Method org/apache/logging/log4j/util/Strings.isNotBlank:(Ljava/lang/String;)Z
+     238: ifeq          270
+     241: new           #23                 // class java/lang/StringBuilder
+     244: dup
+     245: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     248: aload         4
+     250: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     253: ldc           #105                // String ,
+     255: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     258: aload_0
+     259: getfield      #37                 // Field ldapCommonName:Ljava/lang/String;
+     262: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     265: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     268: astore        4
+     270: aload_0
+     271: getfield      #34                 // Field ldapBaseName:Ljava/lang/String;
+     274: invokestatic  #192                // Method org/apache/logging/log4j/util/Strings.isNotBlank:(Ljava/lang/String;)Z
+     277: ifeq          309
+     280: new           #23                 // class java/lang/StringBuilder
+     283: dup
+     284: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     287: aload         4
+     289: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     292: ldc           #105                // String ,
+     294: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     297: aload_0
+     298: getfield      #34                 // Field ldapBaseName:Ljava/lang/String;
+     301: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     304: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     307: astore        4
+     309: aload_3
+     310: ldc           #195                // String java.naming.security.principal
+     312: aload         4
+     314: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     317: pop
+     318: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     321: new           #23                 // class java/lang/StringBuilder
+     324: dup
+     325: invokespecial #24                 // Method java/lang/StringBuilder."<init>":()V
+     328: ldc           #196                // String [AUTHENTICATION] LDAP Principal:
+     330: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     333: aload         4
+     335: invokevirtual #26                 // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+     338: invokevirtual #28                 // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+     341: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     344: aload_3
+     345: ldc           #197                // String java.naming.security.credentials
+     347: aload_2
+     348: invokevirtual #185                // Method java/util/Hashtable.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     351: pop
+     352: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     355: ldc           #198                // String [AUTHENTICATION] LDAP Password: ********
+     357: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     360: new           #199                // class javax/naming/directory/InitialDirContext
+     363: dup
+     364: aload_3
+     365: invokespecial #200                // Method javax/naming/directory/InitialDirContext."<init>":(Ljava/util/Hashtable;)V
+     368: astore        5
+     370: aload         5
+     372: invokeinterface #201,  1          // InterfaceMethod javax/naming/directory/DirContext.close:()V
+     377: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     380: ldc           #202                // String [AUTHENTICATION] LDAP Authentication: Success
+     382: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     385: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     388: ldc           #203                // String [AUTHENTICATION] LDAP Authentication: Ended
+     390: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     393: goto          430
+     396: astore_3
+     397: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     400: ldc           #205                // String [AUTHENTICATION] LDAP Authentication: Failed
+     402: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     405: new           #60                 // class com/linktera/rpadashboard/exception/AuthException
+     408: dup
+     409: aload_3
+     410: invokevirtual #206                // Method java/lang/Exception.getLocalizedMessage:()Ljava/lang/String;
+     413: invokespecial #62                 // Method com/linktera/rpadashboard/exception/AuthException."<init>":(Ljava/lang/String;)V
+     416: athrow
+     417: astore        6
+     419: getstatic     #22                 // Field java/lang/System.out:Ljava/io/PrintStream;
+     422: ldc           #203                // String [AUTHENTICATION] LDAP Authentication: Ended
+     424: invokevirtual #29                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+     427: aload         6
+     429: athrow
+     430: return
+    Exception table:
+       from    to  target type
+           8   385   396   Class java/lang/Exception
+           8   385   417   any
+         396   419   417   any
+
+  private static void lambda$successfulAuthentication$3(com.linktera.rpadashboard.dto.AppUsersDto, com.linktera.rpadashboard.dto.AppSubsidiaryDto, com.linktera.rpadashboard.dto.AppParametersDto);
+    Code:
+       0: aload_2
+       1: invokevirtual #207                // Method com/linktera/rpadashboard/dto/AppParametersDto.getValue:()Ljava/lang/String;
+       4: invokestatic  #136                // Method java/util/Optional.ofNullable:(Ljava/lang/Object;)Ljava/util/Optional;
+       7: aload_0
+       8: aload_1
+       9: invokedynamic #208,  0            // InvokeDynamic #3:accept:(Lcom/linktera/rpadashboard/dto/AppUsersDto;Lcom/linktera/rpadashboard/dto/AppSubsidiaryDto;)Ljava/util/function/Consumer;
+      14: invokevirtual #138                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+      17: return
+
+  private static void lambda$null$2(com.linktera.rpadashboard.dto.AppUsersDto, com.linktera.rpadashboard.dto.AppSubsidiaryDto, java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_2
+       2: ldc           #209                // String ;
+       4: invokevirtual #123                // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+       7: invokestatic  #210                // Method java/util/Arrays.stream:([Ljava/lang/Object;)Ljava/util/stream/Stream;
+      10: invokedynamic #211,  0            // InvokeDynamic #4:apply:()Ljava/util/function/Function;
+      15: invokeinterface #103,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+      20: invokestatic  #212                // Method java/util/stream/Collectors.toList:()Ljava/util/stream/Collector;
+      23: invokeinterface #107,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+      28: checkcast     #213                // class java/util/List
+      31: aload_1
+      32: invokevirtual #214                // Method com/linktera/rpadashboard/dto/AppSubsidiaryDto.getSubsidiaryCode:()Ljava/lang/String;
+      35: invokeinterface #215,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+      40: invokevirtual #216                // Method com/linktera/rpadashboard/dto/AppUsersDto.setIncludeToSingleton:(Z)V
+      43: return
+
+  private static void lambda$successfulAuthentication$1(com.linktera.rpadashboard.dto.AppUsersDto, com.linktera.rpadashboard.dto.AppParametersDto);
+    Code:
+       0: aload_1
+       1: invokevirtual #207                // Method com/linktera/rpadashboard/dto/AppParametersDto.getValue:()Ljava/lang/String;
+       4: invokestatic  #136                // Method java/util/Optional.ofNullable:(Ljava/lang/Object;)Ljava/util/Optional;
+       7: aload_0
+       8: invokedynamic #217,  0            // InvokeDynamic #5:accept:(Lcom/linktera/rpadashboard/dto/AppUsersDto;)Ljava/util/function/Consumer;
+      13: invokevirtual #138                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+      16: return
+
+  private static void lambda$null$0(com.linktera.rpadashboard.dto.AppUsersDto, java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: ldc           #209                // String ;
+       4: invokevirtual #123                // Method java/lang/String.split:(Ljava/lang/String;)[Ljava/lang/String;
+       7: invokestatic  #210                // Method java/util/Arrays.stream:([Ljava/lang/Object;)Ljava/util/stream/Stream;
+      10: invokedynamic #211,  0            // InvokeDynamic #4:apply:()Ljava/util/function/Function;
+      15: invokeinterface #103,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+      20: invokestatic  #212                // Method java/util/stream/Collectors.toList:()Ljava/util/stream/Collector;
+      23: invokeinterface #107,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+      28: checkcast     #213                // class java/util/List
+      31: aload_0
+      32: invokevirtual #218                // Method com/linktera/rpadashboard/dto/AppUsersDto.getEmail:()Ljava/lang/String;
+      35: invokeinterface #215,  2          // InterfaceMethod java/util/List.contains:(Ljava/lang/Object;)Z
+      40: invokevirtual #219                // Method com/linktera/rpadashboard/dto/AppUsersDto.setSuperAdmin:(Z)V
+      43: return
+}

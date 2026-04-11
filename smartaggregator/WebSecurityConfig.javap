@@ -1,0 +1,104 @@
+Compiled from "WebSecurityConfig.java"
+public class com.linktera.rpadashboard.config.WebSecurityConfig extends org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter {
+  com.linktera.rpadashboard.component.Property property;
+
+  org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
+
+  com.linktera.rpadashboard.service.AppUsersService appUsersService;
+
+  org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder bCrypt;
+
+  public com.linktera.rpadashboard.config.WebSecurityConfig();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter."<init>":()V
+       4: return
+
+  protected void configure(org.springframework.security.config.annotation.web.builders.HttpSecurity) throws java.lang.Exception;
+    Code:
+       0: aload_1
+       1: invokevirtual #2                  // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.cors:()Lorg/springframework/security/config/annotation/web/configurers/CorsConfigurer;
+       4: invokevirtual #3                  // Method org/springframework/security/config/annotation/web/configurers/CorsConfigurer.and:()Lorg/springframework/security/config/annotation/SecurityBuilder;
+       7: checkcast     #4                  // class org/springframework/security/config/annotation/web/builders/HttpSecurity
+      10: invokevirtual #5                  // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.csrf:()Lorg/springframework/security/config/annotation/web/configurers/CsrfConfigurer;
+      13: invokevirtual #6                  // Method org/springframework/security/config/annotation/web/configurers/CsrfConfigurer.disable:()Lorg/springframework/security/config/annotation/web/HttpSecurityBuilder;
+      16: checkcast     #4                  // class org/springframework/security/config/annotation/web/builders/HttpSecurity
+      19: invokevirtual #7                  // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.authorizeRequests:()Lorg/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry;
+      22: getstatic     #8                  // Field org/springframework/http/HttpMethod.GET:Lorg/springframework/http/HttpMethod;
+      25: iconst_1
+      26: anewarray     #9                  // class java/lang/String
+      29: dup
+      30: iconst_0
+      31: ldc           #10                 // String /v2/api-docs
+      33: aastore
+      34: invokevirtual #11                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry.antMatchers:(Lorg/springframework/http/HttpMethod;[Ljava/lang/String;)Ljava/lang/Object;
+      37: checkcast     #12                 // class org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl
+      40: invokevirtual #13                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl.permitAll:()Lorg/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry;
+      43: getstatic     #8                  // Field org/springframework/http/HttpMethod.GET:Lorg/springframework/http/HttpMethod;
+      46: iconst_1
+      47: anewarray     #9                  // class java/lang/String
+      50: dup
+      51: iconst_0
+      52: ldc           #14                 // String /status
+      54: aastore
+      55: invokevirtual #11                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry.antMatchers:(Lorg/springframework/http/HttpMethod;[Ljava/lang/String;)Ljava/lang/Object;
+      58: checkcast     #12                 // class org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl
+      61: invokevirtual #13                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl.permitAll:()Lorg/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry;
+      64: invokevirtual #15                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry.anyRequest:()Ljava/lang/Object;
+      67: checkcast     #12                 // class org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl
+      70: invokevirtual #16                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$AuthorizedUrl.authenticated:()Lorg/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry;
+      73: invokevirtual #17                 // Method org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer$ExpressionInterceptUrlRegistry.and:()Lorg/springframework/security/config/annotation/web/HttpSecurityBuilder;
+      76: checkcast     #4                  // class org/springframework/security/config/annotation/web/builders/HttpSecurity
+      79: new           #18                 // class com/linktera/rpadashboard/filter/AuthenticationFilter
+      82: dup
+      83: aload_0
+      84: invokevirtual #19                 // Method authenticationManager:()Lorg/springframework/security/authentication/AuthenticationManager;
+      87: aload_0
+      88: invokevirtual #20                 // Method getApplicationContext:()Lorg/springframework/context/ApplicationContext;
+      91: invokespecial #21                 // Method com/linktera/rpadashboard/filter/AuthenticationFilter."<init>":(Lorg/springframework/security/authentication/AuthenticationManager;Lorg/springframework/context/ApplicationContext;)V
+      94: invokevirtual #22                 // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.addFilter:(Ljavax/servlet/Filter;)Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;
+      97: new           #23                 // class com/linktera/rpadashboard/filter/AuthorizationFilter
+     100: dup
+     101: aload_0
+     102: invokevirtual #19                 // Method authenticationManager:()Lorg/springframework/security/authentication/AuthenticationManager;
+     105: aload_0
+     106: getfield      #24                 // Field property:Lcom/linktera/rpadashboard/component/Property;
+     109: invokeinterface #25,  1           // InterfaceMethod com/linktera/rpadashboard/component/Property.getEnvironment:()Ljava/lang/String;
+     114: aload_0
+     115: getfield      #26                 // Field appUsersService:Lcom/linktera/rpadashboard/service/AppUsersService;
+     118: invokespecial #27                 // Method com/linktera/rpadashboard/filter/AuthorizationFilter."<init>":(Lorg/springframework/security/authentication/AuthenticationManager;Ljava/lang/String;Lcom/linktera/rpadashboard/service/AppUsersService;)V
+     121: invokevirtual #22                 // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.addFilter:(Ljavax/servlet/Filter;)Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;
+     124: invokevirtual #28                 // Method org/springframework/security/config/annotation/web/builders/HttpSecurity.sessionManagement:()Lorg/springframework/security/config/annotation/web/configurers/SessionManagementConfigurer;
+     127: getstatic     #29                 // Field org/springframework/security/config/http/SessionCreationPolicy.STATELESS:Lorg/springframework/security/config/http/SessionCreationPolicy;
+     130: invokevirtual #30                 // Method org/springframework/security/config/annotation/web/configurers/SessionManagementConfigurer.sessionCreationPolicy:(Lorg/springframework/security/config/http/SessionCreationPolicy;)Lorg/springframework/security/config/annotation/web/configurers/SessionManagementConfigurer;
+     133: pop
+     134: return
+
+  public void configure(org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder) throws java.lang.Exception;
+    Code:
+       0: aload_1
+       1: aload_0
+       2: getfield      #31                 // Field userDetailsService:Lorg/springframework/security/core/userdetails/UserDetailsService;
+       5: invokevirtual #32                 // Method org/springframework/security/config/annotation/authentication/builders/AuthenticationManagerBuilder.userDetailsService:(Lorg/springframework/security/core/userdetails/UserDetailsService;)Lorg/springframework/security/config/annotation/authentication/configurers/userdetails/DaoAuthenticationConfigurer;
+       8: aload_0
+       9: getfield      #33                 // Field bCrypt:Lorg/springframework/security/crypto/bcrypt/BCryptPasswordEncoder;
+      12: invokevirtual #34                 // Method org/springframework/security/config/annotation/authentication/configurers/userdetails/DaoAuthenticationConfigurer.passwordEncoder:(Lorg/springframework/security/crypto/password/PasswordEncoder;)Lorg/springframework/security/config/annotation/authentication/configurers/userdetails/AbstractDaoAuthenticationConfigurer;
+      15: pop
+      16: return
+
+  org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource();
+    Code:
+       0: new           #35                 // class org/springframework/web/cors/UrlBasedCorsConfigurationSource
+       3: dup
+       4: invokespecial #36                 // Method org/springframework/web/cors/UrlBasedCorsConfigurationSource."<init>":()V
+       7: astore_1
+       8: aload_1
+       9: ldc           #37                 // String /**
+      11: new           #38                 // class org/springframework/web/cors/CorsConfiguration
+      14: dup
+      15: invokespecial #39                 // Method org/springframework/web/cors/CorsConfiguration."<init>":()V
+      18: invokevirtual #40                 // Method org/springframework/web/cors/CorsConfiguration.applyPermitDefaultValues:()Lorg/springframework/web/cors/CorsConfiguration;
+      21: invokevirtual #41                 // Method org/springframework/web/cors/UrlBasedCorsConfigurationSource.registerCorsConfiguration:(Ljava/lang/String;Lorg/springframework/web/cors/CorsConfiguration;)V
+      24: aload_1
+      25: areturn
+}

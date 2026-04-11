@@ -1,0 +1,158 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='document' method='post', enctype='multipart/form-data')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid',value=document.uuid)
+                input(type='hidden', name='document', id='document',value=document.document)
+
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Document')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/documents') #{__('Documents')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Documents')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if document.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='code') #{__('Document Code')}
+                                        input.form-control(type='text', name='code', id='code', placeholder=__('Document Code') tabindex=0, value=document.code)
+
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='screenCodeSelect') #{__('Screen Code')}
+                                        select.form-control.custom-select(name='screenCode', id='screenCodeSelect')
+                                            each screenCode in screenCodes
+                                                option(value=screenCode, selected=document.screenCode==screenCode)=__(screenCode)
+
+                            .row
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='descriptionTr') #{__('Description')} (TR)
+                                        input.form-control(type='text', name='descriptionTr', id='descriptionTr',autocomplete = "off" , placeholder=__('Description'),row=3, tabindex=1, value=document.descriptionTr)
+
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='descriptionEn') #{__('Description')} (EN)
+                                        input.form-control(type='text', name='descriptionEn', id='descriptionEn',autocomplete = "off" , placeholder=__('Description'),row=3, tabindex=2, value=document.descriptionEn)
+
+                            .row(id='subsidiaryList')
+                                .col-md-6
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label(for='subsidiaryList') #{__('Subsidiaries')}
+                                            button.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12.ml-auto.selectAll(type='button')
+                                                i.far.fa-check-square
+                                                |  #{__('Select All')}
+                                        select.js-multiple-select.js-states.form-control(multiple='multiple',name='subsidiaries', id='subsidiaries')
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid, selected=document.subsidiaries.includes(subsidiary.uuid))=subsidiary.formalName
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='organizationView') &nbsp; #{__('Organization View')}
+                                        br
+                                        input(type='checkbox'  name='organizationView' id='organizationView' checked=document.organizationView === 1 ? true : false, data-toggle='toggle' data-on=__('On') data-off=__('Off') data-style="ios" data-size="small")
+
+                            .row
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='file') #{__('Data Transfer File')}
+                                        input.file-document-input(type='file' name='file' data-msg-placeholder='(.xls, .xlsx, .doc, .docx, .pdf, .pptx, .ppt, .pps, .txt)')
+                                        br
+                                        i #{__('Max File size 20MB')}
+
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox'  name='status' id='status' checked=!document.status || document.status === 1, data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+
+            if  document.history
+                .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                            | #{__('Data History')}
+
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#documentTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th
+                                            th #{__('Code')}
+                                            th #{__('Screen Code')}
+                                            th #{__('Description')} (TR)
+                                            th #{__('Description')} (EN)
+                                            th #{__('Last Updated By')}
+                                            th #{__('Last Updated Time')}
+                                            th #{__('Approval Status')}
+                                    tbody
+                                        each item in document.history
+                                            tr
+                                                td
+                                                td=item.code
+                                                td=__(item.screenCode)
+                                                td=item.descriptionTr
+                                                td=item.descriptionEn
+                                                td=item.lastUpdaterName
+                                                td=item.lastUpdatedTime
+                                                td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(item.approvalStatus))=status(item.approvalStatus)
+
+            - let selectedScreenCode = document.screenCode;
+            script.
+                $('#deleteRecord').on('click', function (e) {
+                    e.preventDefault();
+                    removeConfirm("document");
+                });
+                $(document).ready(function () {
+                    $(".file-document-input").fileinput({
+                        language: locale,
+                        theme: "fa",
+                        showPreview: false,
+                        showCancel: false,
+                        showUpload: false,
+                        elErrorContainer: "#errorBlock",
+                        mainClass: "input-group-sm"
+                    });
+                });

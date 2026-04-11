@@ -1,0 +1,354 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        style.
+            .super-admin-page {
+                background: #f4f6f9;
+                min-height: calc(100vh - 64px);
+                padding: 24px 24px 40px;
+            }
+            .super-admin-head {
+                background: #fff;
+                border: 1px solid #eceff5;
+                border-radius: 12px;
+                padding: 20px 22px;
+                box-shadow: 0 2px 8px rgba(28, 39, 60, 0.04);
+                margin-bottom: 18px;
+            }
+            .super-admin-title {
+                margin: 0;
+                font-size: 24px;
+                font-weight: 700;
+                color: #1f2937;
+                line-height: 1.2;
+            }
+            .super-admin-subtitle {
+                margin-top: 6px;
+                color: #6b7280;
+                font-size: 13px;
+            }
+            .super-admin-info {
+                margin-top: 12px;
+                font-size: 13px;
+            }
+            .super-admin-accordion .card {
+                border: 1px solid #e7ebf3;
+                border-radius: 12px !important;
+                overflow: hidden;
+                margin-bottom: 14px;
+                box-shadow: 0 2px 10px rgba(28, 39, 60, 0.05);
+            }
+            .super-admin-accordion .card-header {
+                background: #ffffff;
+                border-bottom: 1px solid #edf1f7;
+                padding: 0;
+            }
+            .super-admin-accordion .btn-link {
+                width: 100%;
+                text-align: left;
+                color: #1f2937;
+                font-weight: 600;
+                text-decoration: none;
+                padding: 14px 18px;
+                font-size: 15px;
+            }
+            .super-admin-accordion .btn-link:hover,
+            .super-admin-accordion .btn-link:focus {
+                text-decoration: none;
+                color: #1849a9;
+            }
+            .super-admin-accordion .card-body {
+                background: #fcfdff;
+                padding: 18px;
+            }
+            .super-admin-accordion label.col-form-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: #4b5563;
+                margin-bottom: 6px;
+                padding-bottom: 0;
+            }
+            .super-admin-accordion .form-control,
+            .super-admin-accordion .custom-select {
+                height: 38px;
+                border-radius: 8px;
+                border-color: #d8deea;
+                box-shadow: none;
+                font-size: 13px;
+            }
+            .super-admin-accordion .form-control:focus,
+            .super-admin-accordion .custom-select:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 0.15rem rgba(59,130,246,.15);
+            }
+            .super-admin-submit {
+                margin-top: 23px;
+                height: 38px !important;
+                border-radius: 8px !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                border: none !important;
+                background: #2563eb !important;
+                color: #fff !important;
+            }
+            .super-admin-submit:hover {
+                background: #1d4ed8 !important;
+            }
+            @media (max-width: 991px) {
+                .super-admin-page {
+                    padding: 16px;
+                }
+                .super-admin-submit {
+                    margin-top: 10px;
+                }
+            }
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper.super-admin-page
+            form(id='superAdminForm', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                .super-admin-head
+                    h1.super-admin-title #{__('Super Admin')}
+                    .super-admin-subtitle #{__('Platform-level administrative operations')}
+                    .super-admin-info
+                        div#info.text-primary&attributes({'data-html': info})
+
+                #accordion.super-admin-accordion
+                    .card
+                        #headingOne.card-header
+                            h5.mb-0
+                                button.btn.btn-link(data-toggle='collapse' data-target='#collapseOne' aria-expanded='true' aria-controls='collapseOne' type="button") #{__('CopyRule')}
+                        #collapseOne.collapse.show(aria-labelledby='headingOne' data-parent='#accordion')
+                            .card-body
+                                .row
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label #{__('Replication Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control.collapseOneSelectOne(name='sourceSubsidiaryRule', id='sourceSubsidiaryRule')
+                                            option(value="")
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label #{__('Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control.collapseOneSelectTwo(name='targetSubsidiaryRule', id='targetSubsidiaryRule')
+                                            option(value="")
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-2
+                                        button#copyRule.super-admin-submit.waves-effect.waves-light.btn-primary.btn-sm.font-12(type='button', name='action', value='copyRule') #{__('Send')}
+
+                    .card
+                        #headingTwo.card-header
+                            h5.mb-0
+                                button.btn.btn-link.collapsed(data-toggle='collapse' data-target='#collapseTwo' aria-expanded='false' aria-controls='collapseTwo' type="button") #{__('CopyReconciliation')}
+                        #collapseTwo.collapse(aria-labelledby='headingTwo' data-parent='#accordion')
+                            .card-body
+                                .row
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label #{__('Replication Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control.collapseTwoSelectOne(name='sourceSubsidiaryReconciliation', id='sourceSubsidiaryReconciliation')
+                                            option(value="")
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label #{__('Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control.collapseTwoSelectTwo(name='targetSubsidiaryReconciliation', id='targetSubsidiaryReconciliation')
+                                            option(value="")
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-2
+                                        button#reconciliationId.super-admin-submit.waves-effect.waves-light.btn-primary.btn-sm.font-12(type='button', name='action', value='reconciliationCopy') #{__('Send')}
+
+                    .card
+                        #headingThree.card-header
+                            h5.mb-0
+                                button.btn.btn-link.collapsed(data-toggle='collapse' data-target='#collapseThree' aria-expanded='false' aria-controls='collapseThree' type="button") #{__('Change Subsidiary Code')}
+                        #collapseThree.collapse(aria-labelledby='headingThree' data-parent='#accordion')
+                            .card-body
+                                .row
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label #{__('Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control(name='sourceSubsidiary', id='sourceSubsidiary')
+                                            option(value="")
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-4
+                                        label.col-form-label(for='targetSubsidiaryCode') #{__('subsidiaryCode')}
+                                        input.form-control(type='text', name='targetSubsidiaryCode', id='targetSubsidiaryCode', autocomplete='off', placeholder=__('subsidiaryCode'), maxlength='3', style='text-transform:uppercase;')
+                                    .col-sm-12.col-md-2
+                                        button#changeSubsidiary.super-admin-submit.waves-effect.waves-light.btn-primary.btn-sm.font-12(type='button', name='action', value='changeSubCode') #{__('Send')}
+
+                    .card
+                        #headingFour.card-header
+                            h5.mb-0
+                                button.btn.btn-link.collapsed(data-toggle='collapse' data-target='#collapseFour' aria-expanded='false' aria-controls='collapseFour' type="button") #{__('Delete Table')}
+                        #collapseFour.collapse(aria-labelledby='headingFour' data-parent='#accordion')
+                            .card-body
+                                .row
+                                    .col-sm-12.col-md-3
+                                        label.col-form-label(for='subsidiary_table') #{__('Subsidiary')}
+                                        select.js-multiple-select.js-states.form-control(name='subsidiary_table', id='subsidiary_table')
+                                            option(value='')
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid)= subsidiary.formalName
+                                    .col-sm-12.col-md-2
+                                        label.col-form-label #{__('ReportType')}
+                                        select.form-control.custom-select(name='reportType_table', id='reportType_table')
+                                            option(value='Daily') #{__('Daily')}
+                                            option(value='Monthly') #{__('Monthly')}
+                                    .col-sm-12.col-md-3
+                                        label.col-form-label(for='reportDate_table') #{__('reportDate')}
+                                        input.form-control.datepicker(name='reportDate_table', id='reportDate_table', autocomplete='off', placeholder=__('reportDate'))
+                                    .col-sm-12.col-md-2
+                                        label.col-form-label(for='tableName_del') #{__('Table Name')}
+                                        select.js-multiple-select.js-states.form-control(name='tableName_del', id='tableName_del')
+                                            option(value="")
+                                            if tableNameList
+                                                each s in tableNameList
+                                                    option(value=s)= __('model.' + s)
+                                    .col-sm-12.col-md-2
+                                        button#deleteTable.super-admin-submit.waves-effect.waves-light.btn-primary.btn-sm.font-12(type='button', name='action', value='deleteTable') #{__('Send')}
+        script.
+            var subsidiaries = !{JSON.stringify(subsidiaries).replace(/<\//g, '<\\/')}
+            var tableNameList = !{JSON.stringify(tableNameList).replace(/<\//g, '<\\/')}
+
+            function removeConfirmWithParameter(formName, buttonValue) {
+                $.confirm({
+                    columnClass: 'medium',
+                    title: i18n["Are you sure ?"],
+                    content: i18n["Do you want to perform this operation? This action cannot be undone."],
+                    closeIcon: true,
+                    draggable: false,
+                    type: 'red',
+                    buttons: {
+                        confirm: {
+                            text: i18n["Yes"],
+                            btnClass: 'btn-red',
+                            action: function () {
+                                let confirmButton = $('<button/>', {
+                                    text: 'delete',
+                                    type: 'submit',
+                                    name: 'action',
+                                    value: buttonValue.toString(),
+                                    style: 'display:none'
+                                });
+                                $('#superAdminForm').append(confirmButton);
+                                confirmButton.click();
+                            }
+                        },
+                        cancel: {
+                            btnClass: 'btn-blue',
+                            text: i18n["No"]
+                        }
+                    }
+                });
+            }
+            $('#copyRule').on('click', function (e) {
+                e.preventDefault();
+                var copyRuleRequiredBool = false;
+                $("#collapseOne").find('select').each(function () {
+                    if ($(this).val() == null || $(this).val() == "") {
+                        copyRuleRequiredBool = true;
+                    }
+                })
+                if (copyRuleRequiredBool == false) {
+                    removeConfirmWithParameter("superAdmin", 'copyRule');
+                } else {
+                    $.alert({
+                        title: i18n['Error'],
+                        content: i18n['Fields cannot be left blank'],
+                        type: 'red',
+                    });
+                    copyRuleRequiredBool = false;
+                }
+
+            });
+
+            $('#reconciliationId').on('click', function (e) {
+                e.preventDefault();
+                var copyReconciliationRequiredBool = false;
+                $("#collapseTwo").find('select').each(function () {
+                    if ($(this).val() == null || $(this).val() == "") {
+                        copyReconciliationRequiredBool = true;
+                    }
+                })
+                if (copyReconciliationRequiredBool == false) {
+                    removeConfirmWithParameter("superAdmin", 'reconciliationCopy');
+                } else {
+                    $.alert({
+                        title: i18n['Error'],
+                        content: i18n['Fields cannot be left blank'],
+                        type: 'red',
+                    });
+                    copyReconciliationRequiredBool = false;
+                }
+
+            });
+
+            $('#changeSubsidiary').on('click', function (e) {
+                removeConfirmWithParameter("superAdmin", 'changeSubCode');
+            });
+
+            $('#deleteTable').on('click', function (e) {
+                e.preventDefault();
+                var deleteRequiredBool = false;
+                $("#collapseFour").find('input[name=reportDate_table],select').each(function () {
+                    if ($(this).val() == null || $(this).val() == "") {
+                        deleteRequiredBool = true;
+                    }
+                })
+                if (deleteRequiredBool == false) {
+                    removeConfirmWithParameter("superAdmin", 'deleteTable');
+                } else {
+                    $.alert({
+                        title: i18n['Error'],
+                        content: i18n['Fields cannot be left blank'],
+                        type: 'red',
+                    });
+                    deleteRequiredBool = false;
+                }
+
+            });
+
+            $('.collapseOneSelectOne').on('change', function () {
+                var selectedElementVal = $(this).val();
+                $('.collapseOneSelectTwo').find('option').each(function () {
+                    if ($(this).val() == selectedElementVal) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+            });
+
+            $('.collapseOneSelectTwo').on('change', function () {
+                var selectedElementVal = $(this).val();
+                $('.collapseOneSelectOne').find('option').each(function () {
+                    if ($(this).val() == selectedElementVal) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+            });
+
+            $('.collapseTwoSelectOne').on('change', function () {
+                var selectedElementVal = $(this).val();
+                $('.collapseTwoSelectTwo').find('option').each(function () {
+                    if ($(this).val() == selectedElementVal) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+            });
+
+            $('.collapseTwoSelectTwo').on('change', function () {
+                var selectedElementVal = $(this).val();
+                $('.collapseTwoSelectOne').find('option').each(function () {
+                    if ($(this).val() == selectedElementVal) {
+                        $(this).prop('disabled', true);
+                    }
+                });
+            });

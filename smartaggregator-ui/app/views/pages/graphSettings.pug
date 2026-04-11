@@ -1,0 +1,324 @@
+extends ../layout
+
+block content
+    include ../partials/header
+    style.
+        .center-div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chart-div {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            background-color: white;
+        }
+
+    .center-div.mt-3
+        .button-row
+            button.filter-button.btn.state-show(type="button") #{__('StateChart')}
+                i.fa-solid.fa-eye.ml-2.state-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.state-show-hide-icon.d-none
+            button.filter-button.btn.robot-ocp-show(type="button") #{__('RobotsOccupancyRate')}
+                i.fa-solid.fa-eye.ml-2.robot-ocp-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.robot-ocp-show-hide-icon.d-none
+            button.filter-button.btn.working-hours-show(type="button") #{__('Working Hours Occupancy Rate')}
+                i.fa-solid.fa-eye.ml-2.working-hours-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.working-hours-show-hide-icon.d-none
+            button.filter-button.btn.weekly-density-show(type="button") #{__('WeeklyDensityGraph')}
+                i.fa-solid.fa-eye.ml-2.weekly-density-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.weekly-density-show-hide-icon.d-none
+            button.filter-button.btn.overall-show(type="button") #{__('OverallDailyWorkingHours')}
+                i.fa-solid.fa-eye.ml-2.overall-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.overall-show-hide-icon.d-none
+            button.filter-button.btn.total-time-show(type="button") #{__('Total Time Monthly (Min.)')}
+                i.fa-solid.fa-eye.ml-2.total-time-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.total-time-show-hide-icon.d-none
+            button.filter-button.btn.queue-time-show(type="button") #{__('Queue Total Time (Min.)')}
+                i.fa-solid.fa-eye.ml-2.queue-time-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.queue-time-show-hide-icon.d-none
+            button.filter-button.btn.queue-status-show(type="button") #{__('Queue Status Chart')}
+                i.fa-solid.fa-eye.ml-2.queue-status-show-icon
+                i.fa-solid.fa-eye-slash.ml-2.queue-status-show-hide-icon.d-none
+
+
+
+    .container.mt-4.mb-4(style="width:640px!important")
+        .row#sortable
+            .chart-div.col-md-4.p-2.m-2.state-division#chart-1-div(style="max-width:180px!important",data-order=1)
+                p #{__('StateChart')}
+                p.invisible.m-0 #{__('StateChart')}
+                img(src='/assets/images/graph/pie-chart.png', alt='state-chart', style='width:160px;height:160px;')
+            .chart-div.col-md-4.p-2.m-2.robot-ocp-division#chart-2-div(style="max-width:180px!important",data-order=2)
+                p #{__('RobotsOccupancyRate')}
+                img(src='/assets/images/graph/pie-chart.png', alt='occupancy-chart', style='width:160px;height:160px;')
+            .chart-div.col-md-4.p-2.m-2.working-hours-division#chart-3-div(style="max-width:180px!important",data-order=3)
+                p #{__('Working Hours Occupancy Rate')}
+                img(src='/assets/images/graph/pie-chart.png', alt='working-hours-chart', style='width:160px;height:160px;')
+            .chart-div.col-md-12.p-3.m-2.weekly-density-division#chart-4-div(style="max-width:572px!important",data-order=4)
+                p #{__('WeeklyDensityGraph')}
+                img(src='/assets/images/graph/line-chart.png', alt='weekly-density-chart', style='width:480px;height:179px;')
+            .chart-div.col-md-12.p-3.m-2.overall-daily-division#chart-5-div(style="max-width:572px!important",data-order=5)
+                p #{__('OverallDailyWorkingHours')}
+                img(src='/assets/images/graph/vertical-bar-chart.png', alt='overall-daily-working-chart', style='width:480px;height:179px;')
+            .chart-div.col-md-12.p-3.m-2.total-time-division#chart-6-div(style="max-width:572px!important",data-order=6)
+                p #{__('Total Time Monthly (Min.)')}
+                img(src='/assets/images/graph/bar-chart.png', alt='total-time-monthly-chart', style='width:480px;height:179px;')
+            .chart-div.col-md-12.p-3.m-2.queue-time-division#chart-8-div(style="max-width:572px!important",data-order=7)
+                p #{__('Queue Total Time (Min.)')}
+                img(src='/assets/images/graph/bar-chart.png', alt='queue-total-time-chart', style='width:480px;height:179px;')
+            .chart-div.col-md-12.p-3.m-2.queue-status-division#chart-9-div(style="max-width:572px!important",data-order=8)
+                p #{__('Queue Status Chart')}
+                img(src='/assets/images/graph/donut-chart.png', alt='queue-status-chart', style='width:160px;height:160px;')
+    footer.footer.text-center
+        p.font-12.mb-0.mr-4
+            span
+            | Powered by
+            a(target='_blank', href='https://www.linktera.com/') Linktera
+            span © 2022
+            br
+            span #{'ver.' + version }
+
+
+    script.
+        $(window).on('load', function () {
+            const arrangement = JSON.parse('!{JSON.stringify(arrangement)}')
+            const rpadChartsStatusList = arrangement.rpadChartsStatusList;
+
+            let currentOrder = []
+
+            for (let i = 0; i < 8; i++) {
+                currentOrder.push(arrangement.rpadChartsStatusList[i].location)
+
+            }
+
+            $("#sortable .chart-div").sort(function (a, b) {
+                return $(a).data("position") - $(b).data("position");
+            }).appendTo("#bout");
+            $("#sortable .chart-div").sort(function (a, b) {
+                // İki div'in data-order değerlerini al
+                let aOrder = $(a).data("order");
+                let bOrder = $(b).data("order");
+
+                // currentOrder dizisindeki sıralamaya göre iki div'i karşılaştır
+                return currentOrder.indexOf(aOrder) - currentOrder.indexOf(bOrder);
+            }).appendTo("#sortable");
+        })
+
+        $('.state-show').on('click', function () {
+            $('.state-division').toggleClass('d-none');
+            $('.state-show-icon').toggleClass('d-none');
+            $('.state-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.robot-ocp-show').on('click', function () {
+            $('.robot-ocp-division').toggleClass('d-none');
+            $('.robot-ocp-show-icon').toggleClass('d-none');
+            $('.robot-ocp-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.working-hours-show').on('click', function () {
+            $('.working-hours-division').toggleClass('d-none');
+            $('.working-hours-show-icon').toggleClass('d-none');
+            $('.working-hours-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.weekly-density-show').on('click', function () {
+            $('.weekly-density-division').toggleClass('d-none');
+            $('.weekly-density-show-icon').toggleClass('d-none');
+            $('.weekly-density-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.overall-show').on('click', function () {
+            $('.overall-daily-division').toggleClass('d-none');
+            $('.overall-show-icon').toggleClass('d-none');
+            $('.overall-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.total-time-show').on('click', function () {
+            $('.total-time-division').toggleClass('d-none');
+            $('.total-time-show-icon').toggleClass('d-none');
+            $('.total-time-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.queue-time-show').on('click', function () {
+            $('.queue-time-division').toggleClass('d-none');
+            $('.queue-time-show-icon').toggleClass('d-none');
+            $('.queue-time-show-hide-icon').toggleClass('d-none');
+        });
+
+        $('.queue-status-show').on('click', function () {
+            $('.queue-status-division').toggleClass('d-none');
+            $('.queue-status-show-icon').toggleClass('d-none');
+            $('.queue-status-show-hide-icon').toggleClass('d-none');
+        });
+
+        const userId = JSON.parse('!{JSON.stringify(userId)}')
+        $(document).ready(function () {
+            var initialChartOrder = [];
+            $(".chart-div").each(function () {
+                var dataOrder = parseInt($(this).attr("data-order"));
+                initialChartOrder.push({id: $(this).attr("id"), order: dataOrder});
+            });
+            var debouncedUpdate = _.debounce(function () {
+                saveArrangement(getCurrentChartOrder());
+            }, 100);
+            $("#sortable").sortable({
+                cursor: "move",
+                update: function (event, ui) {
+                    debouncedUpdate()
+                    var newChartOrder = getCurrentChartOrder();
+                    saveArrangement(newChartOrder)
+                }
+            });
+
+            function getCurrentChartOrder() {
+                var currentChartOrder = [];
+                $(".chart-div").each(function () {
+                    var dataOrder = parseInt($(this).attr("data-order"));
+                    currentChartOrder.push(dataOrder);
+                });
+                return currentChartOrder;
+            }
+
+            $("#sortable").disableSelection();
+            $('.state-show, .robot-ocp-show, .working-hours-show, .weekly-density-show, .overall-show, .total-time-show, .queue-time-show, .queue-status-show').on('click', function () {
+                saveArrangement(getCurrentChartOrder());
+            });
+
+            function saveArrangement(newChartOrder) {
+                arragementArray = []
+                let uuid = userId
+                let stateChart = "chart1"
+                let chartStatus = $('.state-division').hasClass('d-none') ? false : true;
+                let stateChartLocation = newChartOrder[0]
+                if (stateChartLocation === undefined) {
+                    stateChartLocation = 1
+                } else {
+                    stateChartLocation = newChartOrder[0]
+                }
+                var chart1 = {
+                    uuid: uuid,
+                    chartName: stateChart,
+                    chartStatus: chartStatus,
+                    location: stateChartLocation
+                }
+                let occupanyRobots = "chart2"
+                let occupanyRobotsStatus = $(".robot-ocp-division").hasClass('d-none') ? false : true;
+                let occupanyRobotsLocation = newChartOrder[1]
+                if (occupanyRobotsLocation === undefined) {
+                    occupanyRobotsLocation = 2
+                } else {
+                    occupanyRobotsLocation = newChartOrder[1]
+                }
+                var chart2 = {
+                    uuid: uuid,
+                    chartName: occupanyRobots,
+                    chartStatus: occupanyRobotsStatus,
+                    location: occupanyRobotsLocation
+                }
+                let workingHoursDivision = "chart3"
+                let workingHoursDivisionStatus = $(".working-hours-division").hasClass('d-none') ? false : true
+                let workingHoursDivisionLocation = newChartOrder[2]
+                if (workingHoursDivisionLocation === undefined) {
+                    workingHoursDivisionLocation = 3
+                } else {
+                    workingHoursDivisionLocation = newChartOrder[2]
+                }
+                var chart3 = {
+                    uuid: uuid,
+                    chartName: workingHoursDivision,
+                    chartStatus: workingHoursDivisionStatus,
+                    location: workingHoursDivisionLocation
+                }
+                let weeklyDensityChart = "chart4"
+                let weeklyDensityChartStatus = $(".weekly-density-division").hasClass('d-none') ? false : true
+                let weeklyDensityChartLocation = newChartOrder[3]
+                if (weeklyDensityChartLocation === undefined) {
+                    weeklyDensityChartLocation = 4
+                } else {
+                    weeklyDensityChartLocation = newChartOrder[3]
+                }
+                var chart4 = {
+                    uuid: uuid,
+                    chartName: weeklyDensityChart,
+                    chartStatus: weeklyDensityChartStatus,
+                    location: weeklyDensityChartLocation
+                }
+                let overallShowChart = "chart5"
+                let overallShowChartStatus = $(".overall-daily-division").hasClass('d-none') ? false : true
+                let overallShowChartLocation = newChartOrder[4]
+                if (overallShowChartLocation === undefined) {
+                    overallShowChartLocation = 5
+                } else {
+                    overallShowChartLocation = newChartOrder[4]
+                }
+                var chart5 = {
+                    uuid: uuid,
+                    chartName: overallShowChart,
+                    chartStatus: overallShowChartStatus,
+                    location: overallShowChartLocation
+                }
+                let totalTimeShowChart = "chart6"
+                let totalTimeShowChartStatus = $(".total-time-division").hasClass('d-none') ? false : true
+                let totalTimeShowChartLocation = newChartOrder[5]
+                if (totalTimeShowChartLocation === undefined) {
+                    totalTimeShowChartLocation = 6
+                } else {
+                    totalTimeShowChartLocation = newChartOrder[5]
+                }
+                var chart6 = {
+                    uuid: uuid,
+                    chartName: totalTimeShowChart,
+                    chartStatus: totalTimeShowChartStatus,
+                    location: totalTimeShowChartLocation
+                }
+                let queueTimeShowChart = "chart8"
+                let queueTimeShowChartStatus = $(".queue-time-division").hasClass('d-none') ? false : true
+                let queueTimeShowChartLocation = newChartOrder[6]
+                if (queueTimeShowChartLocation === undefined) {
+                    queueTimeShowChartLocation = 7
+                } else {
+                    queueTimeShowChartLocation = newChartOrder[6]
+                }
+                var chart8 = {
+                    uuid: uuid,
+                    chartName: queueTimeShowChart,
+                    chartStatus: queueTimeShowChartStatus,
+                    location: queueTimeShowChartLocation
+                }
+                let queueStatusShowChart = "chart9"
+                let queueStatusShowChartStatus = $(".queue-status-division").hasClass('d-none') ? false : true
+                let queueStatusShowChartLocation = newChartOrder[7]
+                if (queueStatusShowChartLocation === undefined) {
+                    queueStatusShowChartLocation = 8
+                } else {
+                    queueStatusShowChartLocation = newChartOrder[7]
+                }
+                var chart9 = {
+                    uuid: uuid,
+                    chartName: queueStatusShowChart,
+                    chartStatus: queueStatusShowChartStatus,
+                    location: queueStatusShowChartLocation
+                }
+                arragementArray.push(chart1, chart2, chart3, chart4, chart5, chart6, chart8, chart9)
+                arragementObject = {chartsStatusList: arragementArray}
+                $.ajax({
+                    url: "/rpad-charts-status-save",
+                    type: 'POST',
+                    data: arragementObject,
+                    dataType: 'json',
+                    success: function (res) {
+                        console.log(`sorting is saved`)
+                    },
+                    error: function (error) {
+                        console.error(`process is failed : ${error}`)
+                    }
+                })
+            }
+
+
+        })
+

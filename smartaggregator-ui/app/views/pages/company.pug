@@ -1,0 +1,128 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+
+        .page-wrapper
+            .container.mt-2
+                form(id='subsidiary', method='POST', enctype="multipart/form-data")
+                    input(type='hidden', name='_csrf', value=_csrf)
+                    input(type='hidden', name='uuid', id='uuid',value=subsidiary.uuid)
+                    input(type='hidden', name='approvalStatus', id='approvalStatus', value=subsidiary.approvalStatus)
+                    input(type='hidden', name='logo', value=subsidiary.logo)
+                    .page-breadcrumb
+                        .row.d-flex.justify-content-end
+                            .col-md-7.col-lg-8
+                                .row.justify-content-end
+                                        //- .col-sm-4.col-lg-3.d-flex.justify-content-end.me-0.users-padding-right
+                                        //-     button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='save', href='/companies')
+                                        //-         i.fas.fa-save
+                                        //-         |  #{__('Save')}
+                                        if subsidiary.uuid
+                                            //- .col-sm-4.col-lg-3.d-flex.justify-content-end
+                                            //-   button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='new')
+                                            //-     i.fas.fa-plus
+                                            //-     |  #{__('New')}
+                                            .col-sm-4.col-lg-3.d-flex.justify-content-end.me-0.users-padding-right
+                                                button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit' name='action' value='update', href='/companies')
+                                                    i.far.fa-edit
+                                                    |  #{__('Update')}
+                                            .col-sm-4.col-lg-3.d-flex.justify-content-end.me-0.users-padding-right
+                                                button#deleteRecord.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit' name='action' value='delete')
+                                                    i.fa.fa-trash-alt
+                                                    | #{__('Delete')}
+                                        else
+                                            .col-sm-4.col-lg-3.d-flex.justify-content-end.me-0.users-padding-right
+                                                button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='save')
+                                                    i.fas.fa-save
+                                                    |  #{__('Save')}
+                    .container-fluid.users-padding-right.users-padding-left.mt-3
+                        .card
+                            .card-body
+                                .row.p-3
+                                    .col-md-5.col-lg-4.text-center
+                                        .form-group
+                                            .kv-avatar
+                                                .file-loading
+                                                    input#logo(type='file', name='file')
+                                            .kv-avatar-hint
+                                                placeholder=__('SelectLogoOnlyPng')
+                                            .kv-avatar-hint
+                                                placeholder=__('FileSize<5000KB')
+                                            .kv-avatar-hint
+                                                placeholder=__('Minimum image ratio must be 4:3')
+                                    .col-md-7.col-lg-8
+                                        .row
+                                            //- .col-md-6.col-lg-2
+                                            //-     .form-group.position-left
+                                            //-         label.col-form-label(style='margin-left:5px;' for='financial') #{__('Finansal')}
+                                            //-         br
+                                            //-         input.form-control(type='checkbox' name='financial' id='financial' checked=!subsidiary.financial || subsidiary.financial === "1"   data-toggle='toggle' data-on=__('Açık') data-off=__('Kapalı') data-style="ios" data-size="small")
+                                            .col-md-6.col-lg-6
+                                                .form-group.position-right
+                                                    label.col-form-label(for='name') #{__('Name')}
+                                                    input.form-control(name='name', id='name', placeholder=__('Name'), value=subsidiary.name, required)
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='formalName') #{__('FormalName')}
+                                                    input.form-control(type='text', name='formalName', id='formalName',autocomplete = "off" , placeholder=__('FormalName'), value=subsidiary.formalName, required)
+                                        .row
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='subsidiaryCode') #{__('Company Code')}
+                                                    input.form-control(type='text', name='subsidiaryCode', id='Company Code', autocomplete = "off" , placeholder=__('Company Code'), value=subsidiary.subsidiaryCode, readonly=!!subsidiary.uuid)
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='mainContactName') #{__('mainContactName')}
+                                                    input.form-control(type='text', name='mainContactName', id='mainContactName',autocomplete = "off" , placeholder=__('mainContactName'), value=subsidiary.mainContactName)
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='mainContactEmail') #{__('mainContactEmail')}
+                                                    input.form-control(type='text', name='mainContactEmail', id='mainContactEmail',autocomplete = "off" , placeholder=__('mainContactEmail'), value=subsidiary.mainContactEmail)
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='mainContactPhone') #{__('mainContactPhone')}
+                                                    input.form-control.text-left.input-phone(type='text', name='mainContactPhone', id='mainContactPhone',autocomplete = "off" , placeholder=__('mainContactPhone'), value=subsidiary.mainContactPhone)
+                                            .col-md-6.col-lg-6
+                                                .form-group
+                                                    label.col-form-label(for='website') #{__('Website')}
+                                                    input.form-control(type='text', name='website', id='website',autocomplete = "off" , placeholder=__('Website'), value=subsidiary.website)
+                                            .col-md-6.col-lg-6
+                                                .form-group.position-left
+                                                    label.col-form-label(style='margin-left:5px;' for='status') #{__('Status')}
+                                                    br
+                                                    input.form-control(type='checkbox' name='status' id='status' checked=!subsidiary.status || subsidiary.status === 1 data-toggle='toggle'  data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+                    //- if subsidiary.history
+                    //-     .container-fluid.users-padding-right.users-padding-left.mt-3
+                    //-         .card
+                    //-             .card-header.bg-transparent.user-big--div
+                    //-                 .row.align-items-baseline
+                    //-                     .com-sm-5.col-md-5.col-lg-4.mb-0
+                    //-                         h5(style="color: #000; font-weight: 600; white-space: nowrap;")
+                    //-                             | #{__('History')}
+
+                    //-             .card-body
+                    //-                 .col-lg-12
+                    //-                     .table-responsive.dragscroll
+                    //-                         table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                    //-                             thead
+                    //-                                 tr
+                    //-                                     th.notexport
+                    //-                                     th #{__('FormalName')}
+                    //-                                     th #{__('subsidiaryCode')}
+                    //-                                     th #{__('Last Updated By')}
+                    //-                                     th #{__('Last Updated Time')}
+                    //-                                     th #{__('ApprovalStatus')}
+                    //-                             tbody
+                    //-                                 each item in subsidiary.history
+                    //-                                     tr
+                    //-                                         td
+                    //-                                         td=item.formalName
+                    //-                                         td=item.subsidiaryCode
+                    //-                                         td=item.lastUpdaterName
+                    //-                                         td=item.lastUpdatedTime
+                    //-                                         td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(item.approvalStatus))=status(item.approvalStatus)
+
+                            script.
+                                var subsidiary = !{JSON.stringify(subsidiary).replace(/<\//g, '<\\/')}

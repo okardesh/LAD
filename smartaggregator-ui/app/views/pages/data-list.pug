@@ -1,0 +1,19 @@
+extends ../layout
+block content
+    #main-wrapper.rpad-layout(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/rpad-sidebar
+        .page-wrapper(style="display:block; margin-bottom:5%")
+            .row(style="padding: 90px 90px 10px 90px;")
+                .col-md-12.bg-white.pb-5
+                    include ../partials/rpad-host-machine-list
+            //- .row(style="padding: 50px 90px 10px 90px;")
+            //-     .col-md-12.bg-white.pb-5
+            //-         include ../partials/rpad-robot-table
+            .row(style="padding: 50px 90px 10px 90px;")
+                .col-md-12.bg-white.pb-5
+                    include ../partials/rpad-job-list
+            .row(style="padding: 50px 90px 10px 90px;")
+                .col-md-12.bg-white.pb-5
+                    include ../partials/rpad-daily-intensity
+    include ../partials/footer

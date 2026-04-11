@@ -1,0 +1,73 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-5.col-lg-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Rule Errors')}
+                         if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                            a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                                .far.fa-file
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Rule Errors')}
+                    .col-md-7.col-lg-8
+                        .row.justify-content-end
+                            .col-xl-5
+                                .row.justify-content-end
+                                    .col-md-6
+                                        button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                            i.fas.fa-download
+                                            |  #{__('Export')}
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+            .container-fluid.p-3
+                .card
+                    .card-body
+                        .table-responsive.dragscroll
+                            table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                thead
+                                    tr
+                                        th(style='width:7px').notexport
+                                        th(data-name='operations', data-searchable='on') #{__('Operation')}
+                                        if user.userType===0
+                                            th(data-name='subsidiaries', data-searchable='on') #{__('Subsidiaries')}
+                                        th(data-name='tableName', data-searchable='on', data-sortable='on') #{__('Table Name')}
+                                        th(data-name='reportDate', data-type="date", data-searchable='on', data-sortable='on') #{__('ReportDate')}
+                                        th(data-name='reportType', data-searchable='on', data-sortable='on') #{__('ReportType')}
+                                        th(data-name='username', data-searchable='on') #{__('UserName')}
+                                        th(data-name='createdTime', data-type="date", data-searchable='on', data-sortable='on') #{__('ErrorTime')}
+                                        th(data-name='count', data-searchable='on', data-sortable='on') #{__('incorrectEntriesCount')}
+                                if ruleErrorsList
+                                    tbody
+                                        each ruleError in ruleErrorsList.content
+                                            tr
+                                                td.text-center
+                                                    a(href='/rule-error/' + ruleError.uuid)
+                                                        i.fas.fa-eye.fa-2x
+                                                td= __('description.uri.' + ruleError.method + ruleError.path)
+                                                if user.userType===0
+                                                    td=ruleError.subsidiaryName
+                                                td=ruleError.tableName ? __('model.' + ruleError.tableName) : ruleError.tableName
+                                                td=ruleError.reportDate
+                                                td=__(ruleError.reportType || '')
+                                                td=ruleError.username
+                                                td=ruleError.createdTime
+                                                td.text-right=ruleError.count
+                        +pagination(ruleErrorsList)
+    script.
+        var userList = !{JSON.stringify(userList).replace(/<\//g, '<\\/')}
+        var operationList = !{JSON.stringify(operationList).replace(/<\//g, '<\\/')}
+        var subsidiaryList = !{JSON.stringify(subsidiaryList).replace(/<\//g, '<\\/')}
+        var tableNameList = !{JSON.stringify(tableNameList).replace(/<\//g, '<\\/')}
+        function openPopupDocuments() {
+            getFilesWindow("RULE_ERRORS");
+        }

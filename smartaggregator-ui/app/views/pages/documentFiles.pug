@@ -1,0 +1,35 @@
+doctype html
+html
+    head
+    body
+     .card
+        .card-header.bg-transparent
+            .row.align-items-baseline
+                .com-sm-5.col-md-5.col-lg-4.mb-0
+                    h5
+                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue" data-toggle='tooltip',data-placement='right', title="Documents")
+
+        .card-body
+          .table-responsive.dragscroll
+              table#documentFilesTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                thead
+                    tr
+                        th(data-toggle='tooltip', title=__('Code')) #{__('Code')}
+                        if locale === 'en'
+                            th(data-name='descriptionEn') #{__('Description')} (EN)
+                        if locale === 'tr'
+                            th(data-name='descriptionTr') #{__('Description')} (TR)
+                        th #{__('Document')}
+                tbody
+                 each document in documents
+                    tr
+                        td=document.code
+                        if locale === "en"
+                         td=document.descriptionEn
+                        if locale === "tr"
+                         td=document.descriptionTr
+                        td.text-center
+                         if document.document
+                            a(href='/document/download/' + document.document+"/"+document.code) Download
+                         else
+                             span -

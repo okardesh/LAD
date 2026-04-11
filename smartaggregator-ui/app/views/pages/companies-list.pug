@@ -1,0 +1,40 @@
+extends ../layout
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+            .container
+                div(style="margin-top:100px;")
+                    .row.m-4
+                        if subsidiaries
+                            each subsidiary in subsidiaries.content
+                                .col-md-3.d-flex.justify-content-center.p-0.m-0.btnCompaniesID
+                                    .card-deck.m-4
+                                        .card.p-4
+                                            if subsidiary !== 'undefined' && subsidiary.img
+                                                img(height=250 src='data:image/jpeg;base64,' + subsidiary.img)
+                                            else
+                                                img(height=250 src='/assets/images/gallery/company.png')
+                                            .card-body.mt-3
+                                            h5.card-title=subsidiary.formalName
+                                            p.card-text=subsidiary.mainContactName
+                                            p.card-text=subsidiary.mainContactEmail
+                                            p.card-text=subsidiary.mainContactPhone
+
+                                span#customerdata(data-customerdata=subsidiaries.content)
+    script.
+            let valueList = [];
+            const customerData = $('#customerdata').data('customerdata');
+            if (customerData && Array.isArray(customerData)) {
+                customerData.forEach(function(element) {
+                    valueList.push({ value : element.uuid})
+                });
+            }
+
+            $(".btnCompaniesID").on('click', function () {
+                let currentItemId = $(this)[0].outerText.split("\n")[0];
+                let productInfo = customerData.filter(el=>el.uuid == currentItemId)[0];
+                $(this).html();
+                $('#getCompaniesID').html(currentItemId)
+                localStorage.setItem('companiesID',currentItemId);
+            });
+            

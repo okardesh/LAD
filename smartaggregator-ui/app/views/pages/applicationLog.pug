@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+      
+    .page-wrapper
+      .page-breadcrumb
+        .row
+          .col-12.align-self-center
+            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Application Log')}
+            .d-flex.align-items-center
+              nav(aria-label='breadcrumb')
+                ol.breadcrumb.m-0.p-0
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/') #{__('Home')}
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/app-logs') #{__('Application Logs')}
+                  li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Application Log')}
+        .row.mt-4.ml-0
+          div#info.text-primary&attributes({'data-html': info})
+      .container-fluid.p-3
+        .card
+          .card-body
+            .row
+              .col-md-6
+                .form-group
+                  label.col-form-label(for='sessionId') #{__('Session')}
+                  input.form-control(type='text', name='sessionId', id='sessionId', placeholder=__('Session'), value=applicationLog.sessionId, readonly)
+            .row
+              .col-md-3
+                .form-group
+                    label.col-form-label(for='type') #{__('Type')}
+                    input.form-control(type='text', name='type', id='type', placeholder=__('Type'), value=applicationLog.type, readonly)
+              .col-md-3
+                  .form-group
+                    label.col-form-label(for='operation') #{__('Operation')}
+                    input.form-control(type='text', name='operation', id='operation', placeholder=__('Operation'), value=applicationLog.operation, readonly)
+            .row
+              .col-md-6
+                  .form-group
+                    label.col-form-label #{__('Detail')}
+                      pre(style=applicationLog.operation==='EXCEPTION' ? "color:red":"")
+                        =applicationLog.detail

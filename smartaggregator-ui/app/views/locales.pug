@@ -1,0 +1,152 @@
+extends ./layout
+
+block content
+  #main-wrapper(data-theme='light' data-layout='vertical' data-navbarbg='skin6' data-sidebartype='full' data-sidebar-position='fixed' data-header-position='fixed' data-boxed-layout='full')
+    .container-fluid.p-3
+      br
+      .row
+        .offset-md-8
+        .col-2
+          button#export.btn.btn-block.btn-primary.font-12(type='button') #{__('Export Files')}
+        .col-2
+          button#saveAndReload.btn.btn-block.btn-danger.font-12(type='button') #{__('Save And Reload')}
+      br
+      .row
+        .col-6
+          .card
+            br
+            .row 
+              .col-md-9
+                p.text-center='Türkçe (' + Object.keys(tr).length + ')'
+              .col-md-3
+                button#addRowForTurkish.btn.btn-block.btn-warning.font-12(type='button') #{__('+ Add')}
+            .card-body
+              .table-responsive.dragscroll
+                table.multi-col-order.table.table-striped.table-bordered.display.no-wrap.turkish(style='width:100%')
+                  thead
+                    tr
+                      th.text-left(data-name='key') #{__('Key')}
+                      th.text-left(data-name='value') #{__('Value')}
+                  tbody 
+                    each trval, trkey in tr 
+                      tr 
+                        td.text-left
+                          if trkey in en
+                            if trkey.match(/[çÇıİğĞöÖüÜşŞ]/g) && trkey.match(/[çÇıİğĞöÖüÜşŞ]/g).length > 0
+                              input.form-control.bg-danger.text-light(type='text', value=trkey)
+                            else
+                              input.form-control(type='text', value=trkey)
+                          else 
+                            input.form-control.bg-danger.text-light(type='text', value=trkey)
+                        td.text-left
+                          if trkey == trval
+                            input.form-control.bg-danger.text-light(type='text', value=trval)
+                          else
+                            input.form-control(type='text', value=trval)
+        .col-6
+          .card
+            br
+            .row 
+              .col-md-9
+                p.text-center='English (' + Object.keys(en).length + ')'
+              .col-md-3
+                button#addRowForEnglish.btn.btn-block.btn-warning.font-12(type='button') #{__('+ Add')}
+            .card-body
+              .table-responsive.dragscroll
+                table.multi-col-order.table.table-striped.table-bordered.display.no-wrap.english(style='width:100%')
+                  thead
+                    tr
+                      th(data-name='key') #{__('Key')}
+                      th(data-name='value') #{__('Value')}
+                  tbody 
+                    each enval, enkey in en
+                      tr 
+                        td.text-left
+                          if enkey in tr
+                            if enkey.match(/[çÇıİğĞöÖüÜşŞ]/g) && enkey.match(/[çÇıİğĞöÖüÜşŞ]/g).length > 0
+                              input.form-control.bg-danger.text-light(type='text', value=enkey)
+                            else
+                              input.form-control(type='text', value=enkey)
+                          else 
+                            input.form-control.bg-danger.text-light(type='text', value=enkey)
+                        td.text-left 
+                          if enval.match(/[çÇıİğĞöÖüÜşŞ]/g) && enval.match(/[çÇıİğĞöÖüÜşŞ]/g).length > 0
+                            input.form-control.bg-danger.text-light(type='text', value=enval)
+                          else
+                            input.form-control(type='text', value=enval)
+  script.
+    function organizeJson() {
+      let enjson = {};
+      let trjson = {};
+      $('table.english tbody tr').each(function() {
+        let key = $(this).find("td:eq(0) input").val().trim();
+        let value = $(this).find("td:eq(1) input").val().trim();
+        if (key && value)
+          enjson[key] = value;
+      });
+      $('table.turkish tbody tr').each(function() {
+        let key = $(this).find("td:eq(0) input").val().trim();
+        let value = $(this).find("td:eq(1) input").val().trim();
+        if (key && value)
+          trjson[key] = value;
+      });
+      return {en: enjson, tr: trjson};
+    };
+    function exportJson() {
+      let locales = organizeJson();
+      downloadJson(locales.en, 'en');
+      downloadJson(locales.tr, 'tr');
+    };
+    function downloadJson(exportObj, exportName) {
+      var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+      var downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href",     dataStr);
+      downloadAnchorNode.setAttribute("download", exportName + ".json");
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    };
+    function saveAndReload() {
+      let secretKey = prompt("Please enter secret key:", '');
+      if (secretKey == null || secretKey == "") {
+        
+      } else {
+        let locales = organizeJson();
+        locales['secretKey'] = secretKey;
+        $.ajax({
+          type: 'POST',
+          url: '/locales',
+          contentType: "application/json",
+          dataType: 'json',
+          data: JSON.stringify(locales),
+          success: function(data) {
+            if (200 == data.status) {
+              alert('I Hope You Fixed the Language Files and Click this Button!!!!');
+              location.reload();
+            } else if (401 == data.status) {
+              alert('401: Unauthorized operation.');
+            } else if (500 == data.status) {
+              alert('500: ' + data.error);
+            } else {
+              alert('5xx: Unknown error.');
+            }
+          }
+        });
+      }
+    };
+    $('#export').on('click', function (e) {
+      e.preventDefault();
+      exportJson();
+    });
+    $('#saveAndReload').on('click', function (e) {
+      e.preventDefault();
+      saveAndReload();
+    });
+    $('#addRowForEnglish').on('click', function (e) {
+      e.preventDefault();
+      $('table.english tbody tr:first').before("<tr><td><input class='form-control' type='text'/></td><td><input class='form-control' type='text'/></td></tr>");
+    });
+    $('#addRowForTurkish').on('click', function (e) {
+      e.preventDefault();
+      $('table.turkish tbody tr:first').before("<tr><td><input class='form-control' type='text'/></td><td><input class='form-control' type='text'/></td></tr>");
+    });

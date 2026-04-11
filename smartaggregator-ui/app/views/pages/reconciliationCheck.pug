@@ -1,0 +1,124 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='reconciliationCheck', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid', value=reconciliationCheck.uuid)
+                input(type='hidden', name='approvalStatus', id='approvalStatus' value=reconciliationCheck.approvalStatus)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Reconciliation Check')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/reconciliation-checks') #{__('Reconciliation Checks')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Reconciliation Check')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if reconciliationCheck.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    if(reconciliationCheck.approvalStatus === 'N' || reconciliationCheck.approvalStatus === 'R')
+                                        .col-sm-4.col-lg-3
+                                            button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                                i.far.fa-edit
+                                                |  #{__('Update')}
+                                    if((user.rolePermissionAll.includes('/v1/reconciliation-checks/{uuid}/sendForApproval_POST') || user.rolePermissionAll.includes('/v1/reconciliation-checks/{uuid}/approve_POST')) && (uuid !== 'new'))
+                                        .col-sm-4.col-lg-3
+                                            button.form-control.myBtn.btn-rounded.btn.waves-effect.waves-light.btn-success.font-10(title='Popup')&attributes({'data-value': reconciliationCheck.uuid} , {'data-approval': reconciliationCheck.approvalStatus} , {'data-auth': user} , {'data-message': reconciliationCheck.approvalMessage} , {'data-controller': 'reconciliation-checks'})
+                                                i.fas.fa-check-square
+                                                |
+                                                | #{__('Approval Processes')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-8
+                                    .form-group
+                                        label.col-form-label(for='subject') #{__('Subject')}
+                                        select.form-control.custom-select(name='subject', id='subject')
+                                            option(value='Cross Checks', selected= reconciliationCheck.subject === 'Cross Checks') #{__('crossChecks')}
+                                            option(value='Balance Sheet Reconciliation Checks', selected= reconciliationCheck.subject === 'Balance Sheet Reconciliation Checks') #{__('balanceSheetReconciliationChecks')}
+                                .col-md-3
+                                    .form-group
+                                        label.col-form-label(for='type') #{__('Type')}
+                                        select.form-control.custom-select(name='type', id='type')
+                                            option(value='C', selected= reconciliationCheck.type === 'C') #{__('Cutter')}
+                                            option(value='I', selected= reconciliationCheck.type === 'I') #{__('Indicator')}
+                                .col-md-1
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox'  name='status' id='status' checked=!reconciliationCheck.status || reconciliationCheck.status === 1, data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+                                .col-md-12
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label(for='subsidiaries') #{__('Subsidiaries')}
+                                            button.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12.ml-auto.selectAll(type='button')
+                                                i.far.fa-check-square
+                                                |  #{__('Select All')}
+                                        select.js-multiple-select.js-states.form-control(multiple='multiple', name='subsidiaries', id='subsidiaries')
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid, selected=reconciliationCheck.subsidiaries.includes(subsidiary.uuid))= subsidiary.formalName
+                                .col-md-12
+                                    .form-group
+                                        label.col-form-label #{__('Query')}
+                                        textarea.sql-editor= reconciliationCheck.query
+                                .col-md-12
+                                    .form-group
+                                        label.col-form-label(for='message') #{__('Message')}
+                                        input.form-control(type='text', name='message', id='message', autocomplete="off", placeholder=__('Message'), value=reconciliationCheck.message)
+
+            if reconciliationCheck.history
+                .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                            | #{__('Data History')}
+
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th #{__('Type')}
+                                            th #{__('Message')}
+                                            th #{__('Last Updated By')}
+                                            th #{__('Last Updated Time')}
+                                        tbody
+                                            each item in reconciliationCheck.history
+                                                tr
+                                                    td
+                                                    td=reconciliationCheckType(item.type)
+                                                    td=item.message
+                                                    td=item.lastUpdaterName
+                                                    td=item.lastUpdatedTime
+
+                                    script.
+                                        $('#deleteRecord').on('click', function (e) {
+                                            e.preventDefault();
+                                            removeConfirm("reconciliationCheck");
+                                        });

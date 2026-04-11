@@ -1,0 +1,112 @@
+.container.data-groups.active    
+    .row 
+        .col-sm-12
+            .row.align-items-center.mt-3
+                .col-sm-6.d-flex.justify-content-start
+                    h1(style="color:black; margin-top:10px") #{__('JobsDataTable')}
+                .col-sm-6.d-flex.justify-content-end
+                    button.exportToExcel.button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(type='button', name='export', value='xlsx')
+                        i.fas.fa-download
+                        |  #{__('Export')}
+        //- BURASI SADECE EXPORT İŞLEMİNDE TABLO BAŞLIKLARINI GÖSTERMEK İÇİN YAZDILDI, ÖNEMSİZ OLDUGUNU DÜŞÜNÜP SİLME                                
+        .col-12.d-none
+            .card
+                .card-body
+                    .table-responsive.dragscroll
+                        table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style="margin: -20px", data-export-title="mustafa")
+                            thead
+                                tr
+                                    th.col-2(style="width:200px!important;", data-name='releaseName')  #{__('Release Name')}
+                                    th.col-2(data-name='dataDate')  #{__('Data Date')}
+                                    th.col-2(data-name='startTime')  #{__('Start Time')}
+                                    th.col-2(data-name='endTime')  #{__('End Time')}
+                                    th(data-sortas="numeric", data-name='totalJobTime').col-2  #{__('Total Job Time')}
+                                        i.fas.fa-sort.ml-1
+                                    th.col-2(data-name='state')  #{__('State')}
+                                    th.col-2(data-name='jobPriority')  #{__('Job Priority')}
+                                    th.col-2(data-name='sourceType')  #{__('Source Type')}
+                                    th.col-2(data-name='hostMachineName')  #{__('Host Machine Name')}
+                            if jobs
+                                tbody
+                                    each item in jobs
+                                        tr
+                                            td(style="background-color: white; min-width:750px!important;")=item.releaseName != null ? item.releaseName : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.dataDate != null ? item.dataDate : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.startTime != null ? item.startTime : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.endTime != null ? item.endTime : 'N/A'
+                                            td#sortedHeader.text-center(style="background-color: white; min-width:100px!important;")=item.totalJobTime != null ? item.totalJobTime : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.state != null ? item.state : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.jobPriority != null ? item.jobPriority : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.sourceType != null ? item.sourceType : 'N/A'
+                                            td.text-center(style="background-color: white; min-width:100px!important;")=item.hostMachineName != null ? item.hostMachineName : ''
+        .col-12
+            .card
+                .card-body
+                    .table-responsive
+                        table.multi-col-order.table.table-striped.table-bordered.display.no-wrap#job-list(style="margin: -20px")
+                            thead
+                                tr
+                                    th.col-2.sortIcon(style="width:200px!important;", data-name='releaseName')  #{__('Release Name')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='dataDate')  #{__('Data Date')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='startTime')  #{__('Start Time')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='endTime')  #{__('End Time')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.sortIcon(data-sortas="numeric", data-name='totalJobTime').col-2  #{__('Total Job Time')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='state')  #{__('State')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='jobPriority')  #{__('Job Priority')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='sourceType')  #{__('Source Type')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                                    th.col-2.sortIcon(data-name='hostMachineName')  #{__('Host Machine Name')}
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-top: 0.4em solid rgb(0, 0, 0);')
+                                        .sortArrow(style='margin: 0.1em; display: inline-block; width: 0px; height: 0px; border-left: 0.4em solid transparent; border-right: 0.4em solid transparent; border-bottom: 0.4em solid rgb(0, 0, 0);')
+
+                            if jobs
+                                tbody
+                                    each item in jobs
+                                        tr
+                                            td(style="background-color: white; padding-left:3px!important; min-width:750px!important;")=item.releaseName != null ? item.releaseName : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.dataDate != null ? item.dataDate : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.startTime != null ? item.startTime : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.endTime != null ? item.endTime : 'N/A'
+                                            td#sortedHeader.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.totalJobTime != null ? item.totalJobTime : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.state != null ? item.state : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.jobPriority != null ? item.jobPriority : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.sourceType != null ? item.sourceType : 'N/A'
+                                            td.text-center(style="background-color: white; padding-left:3px!important; min-width:100px!important;")=item.hostMachineName != null ? item.hostMachineName : ''
+                    +pagination(item)
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js' integrity='sha512-qzgd5cYSZcosqpzpn7zF2ZId8f/8CHmFKZ8j7mU4OUXTNRd5g+ZHBPsgKEwoqxCtdQvExE5LprwwPAgoicguNg==' crossorigin='anonymous' referrerpolicy='no-referrer')
+    script.
+        function openPopupDocuments() {
+            getFilesWindow("ITEM");
+        }
+
+        $("#job-list").fancyTable({
+            searchable: true,
+            pagination: true,
+            perPage:10,
+            globalSearch: false,
+            sortable: true,
+            inputPlaceholder: "#{__('Search')}",
+        });

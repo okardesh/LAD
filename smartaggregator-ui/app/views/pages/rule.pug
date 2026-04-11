@@ -1,0 +1,300 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='rule', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid', value=rule.uuid)
+                input(type='hidden', name='approvalStatus', id='approvalStatus', value=rule.approvalStatus)
+                input(type='hidden', name='conditions', id='conditions')
+                input(type='hidden', name='expressionConditions', id='expressionConditions')
+                input(type='hidden', name='queryConditions', id='queryConditions')
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Rule')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/rules') #{__('Rules')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Rule')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if rule.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                              |  #{__('New')}
+                                    if(rule.approvalStatus === 'N' || rule.approvalStatus === 'R')
+                                        .col-sm-4.col-lg-3
+                                           button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                               i.far.fa-edit
+                                               |  #{__('Update')}
+                                    if((user.rolePermissionAll.includes('/v1/rules/{uuid}/sendForApproval_POST') || user.rolePermissionAll.includes('/v1/rules/{uuid}/approve_POST')) && (uuid !== 'new'))
+                                        .col-sm-4.col-lg-3
+                                            button.form-control.myBtn.btn-rounded.btn.waves-effect.waves-light.btn-success.font-10(title='Popup')&attributes({'data-value': rule.uuid} , {'data-approval': rule.approvalStatus} , {'data-auth': user} , {'data-message': rule.approvalMessage} , {'data-controller': 'rules'})
+                                                i.fas.fa-check-square
+                                                |
+                                                | #{__('Approval Processes')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-6
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label(for='subsidiaries') #{__('Subsidiaries')}
+                                            button.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12.ml-auto.selectAll(type='button')
+                                                i.far.fa-check-square
+                                                |  #{__('Select All')}
+                                        select.js-multiple-select.js-states.form-control(multiple='multiple', name='subsidiaries', id='subsidiaries')
+                                            if subsidiaries
+                                                each subsidiary in subsidiaries
+                                                    option(value=subsidiary.uuid, selected=rule.subsidiaries.includes(subsidiary.uuid))= subsidiary.formalName
+                                .col-md-6
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label(for='rule-operations') #{__('Operations')}
+                                            button.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12.ml-auto.selectAll(type='button')
+                                                i.far.fa-check-square
+                                                |  #{__('Select All')}
+                                        select.js-multiple-select.js-states.form-control(multiple='multiple', name='operations', id='rule-operations')
+                                            if operations
+                                                each operation in operations
+                                                    option(value=operation.uuid, selected=rule.operations.includes(operation.uuid))= __('description.uri.' + operation.method + operation.path)
+                            .row
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='name') #{__('Name')}
+                                        input.form-control(type='text', name='name', id='name',autocomplete = "off" , placeholder=__('Name'), value=rule.name)
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='description') #{__('Description')}
+                                        input.form-control(type='text', name='description', id='description',autocomplete = "off" , placeholder=__('Description'), value=rule.description)
+                            .row
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(data-toggle='tooltip', data-placement='right', title=__('description.RULE_START_DATE') for='startDate') #{__('StartDate')}
+                                        input.form-control.datepicker(name='startDate', id='startDate',autocomplete = "off" , placeholder=__('StartDate'), value=rule.startDate)
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(data-toggle='tooltip', data-placement='right', title=__('description.RULE_END_DATE') for='endDate') #{__('EndDate')}
+                                        input.form-control.datepicker(name='endDate', id='endDate',autocomplete = "off" , placeholder=__('EndDate'), value=rule.endDate)
+                                .col-md-2
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox' name='status' id='status' checked=!rule.status || rule.status === 1 data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+
+                                .col-md-2
+                                    .form-group
+                                        label.col-form-label(for='runForOrganization') #{__('RunForOrganization')}
+                                        br
+                                        input(type='checkbox' name='runForOrganization' id='runForOrganization' checked=rule.runForOrganization === 1 data-toggle='toggle' data-on=__('Yes') data-off=__('No') data-style="ios" data-size="small")
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                      i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue" data-toggle='tooltip',data-placement='right', title=__('description.BASICRULECONDITIONS')) 
+                                      | #{__('Basic Conditions')}
+                                .col-sm-7.col-md-7.col-lg-8
+                                    .row.justify-content-end
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                                i.fas.fa-download
+                                                |  #{__('Export')}
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button#ruleConditionAddNewRow.form-control.btn-rounded.btn.waves-effect.waves-light.btn-secondary.font-12(type='button')
+                                                i.fas.fa-plus-circle
+                                                |  #{__('Add')}
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#table-conditions.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th(style= "width: 30%") #{__('Key')}
+                                            th(style= "width: 15%") #{__('Operator')}
+                                            th(style= "width: 35%") #{__('Value')}
+                                            th(style= "width: 10%") #{__('Status')}
+                                            th.notexport(style= "width: 5%") #{__('Action')}
+                                    if rule.conditions
+                                        tbody
+                                            each condition in rule.conditions
+                                                tr
+                                                    td
+                                                    td
+                                                        select.js-multiple-select.js-states.form-control(name = 'key::')
+                                                            if operations
+                                                                - var cols = []
+                                                                each operation in operations
+                                                                    if rule.operations.includes(operation.uuid) && operation.table && operation.table.columns
+                                                                        each column in operation.table.columns
+                                                                            if !cols.includes(column.name)
+                                                                                - cols.push(column.name)
+                                                                                option(value=column.name, selected=column.name===condition.key)= column.name
+                                                    td
+                                                        select.form-control(name = 'operator::')
+                                                            option(value='==', selected=condition.operator==='==')&attributes({'data-type': 'text'})= "=="
+                                                            option(value='!=', selected=condition.operator==='!=')&attributes({'data-type': 'text'})= "!="
+                                                            option(value='>', selected=condition.operator==='>')&attributes({'data-type': 'text'})= ">"
+                                                            option(value='>=', selected=condition.operator==='>=')&attributes({'data-type': 'text'})= ">="
+                                                            option(value='<', selected=condition.operator==='<')&attributes({'data-type': 'text'})= "<"
+                                                            option(value='<=', selected=condition.operator==='<=')&attributes({'data-type': 'text'})= "<="
+                                                            option(value='minLength', selected=condition.operator==='minLength')&attributes({'data-type': 'number'})= "minLength"
+                                                            option(value='maxLength', selected=condition.operator==='maxLength')&attributes({'data-type': 'number'})= "maxLength"
+                                                            option(value='isNumeric', selected=condition.operator==='isNumeric')&attributes({'data-type': 'bool'})= "isNumeric"
+                                                            option(value='isAlpha', selected=condition.operator==='isAlpha')&attributes({'data-type': 'bool'})= "isAlpha"
+                                                            option(value='isAlphaNumeric', selected=condition.operator==='isAlphaNumeric')&attributes({'data-type': 'bool'})= "isAlphaNumeric"
+                                                            option(value='isDate', selected=condition.operator==='isDate')&attributes({'data-type': 'bool'})= "isDate"
+                                                            option(value='isNotNull', selected=condition.operator==='isNotNull')&attributes({'data-type': 'bool'})= "isNotNull"
+                                                            option(value='isUnique', selected=condition.operator==='isUnique')&attributes({'data-type': 'bool'})= "isUnique"
+                                                            option(value='lookup', selected=condition.operator==='lookup')&attributes({'data-type': 'text'})= "lookup"
+                                                            option(value='matches', selected=condition.operator==='matches')&attributes({'data-type': 'text'})= "matches"
+                                                            option(value='in', selected=condition.operator==='in')&attributes({'data-type': 'text'})= "in"
+                                                            option(value='notIn', selected=condition.operator==='notIn')&attributes({'data-type': 'text'})= "notIn"
+                                                    td
+                                                        if ['==', '!=', '>', '>=', '<', '<=', 'lookup', 'matches', 'in', 'notIn'].includes(condition.operator)
+                                                            input.form-control(type='text', name='value::', value=condition.value)
+                                                        else if ['minLength', 'maxLength'].includes(condition.operator)
+                                                            input.form-control(type='number', name='value::', value=condition.value)
+                                                    td
+                                                        select.form-control(name = 'status::')
+                                                            option(value='1', selected= condition.status === 1) #{__('Active')}
+                                                            option(value='2', selected= condition.status === 2) #{__('Passive')}
+                                                    td
+                                                        button.btn.btn-sm.btn-outline-danger.ruleConditionDeleteRow(type='button')
+                                                            i.fas.fa-trash-alt
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                      i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue" data-toggle='tooltip',data-placement='right', title=__('description.EXPRESSIONRULECONDITIONS')) 
+                                      | #{__('Expression Conditions')}
+                                .col-sm-7.col-md-7.col-lg-8
+                                    .row.justify-content-end
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                                i.fas.fa-download
+                                                |  #{__('Export')}
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button#ruleExpressionConditionAddNewRow.form-control.btn-rounded.btn.waves-effect.waves-light.btn-secondary.font-12(type='button')
+                                                i.fas.fa-plus-circle
+                                                |  #{__('Add')}
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#table-expressionConditions.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th #{__('Expression')}
+                                            th(style="width: 10%;") #{__('Status')}
+                                            th.notexport(style="width: 5%;") #{__('Action')}
+                                    if rule.expressionConditions
+                                        tbody
+                                            each expressionCondition in rule.expressionConditions
+                                                tr
+                                                    td
+                                                    td
+                                                        input.form-control(type='text', name='expression::', value=expressionCondition.expression)
+                                                    td
+                                                        select.form-control(name = 'status::')
+                                                            option(value='1', selected= expressionCondition.status === 1) #{__('Active')}
+                                                            option(value='2', selected= expressionCondition.status === 2) #{__('Passive')}
+                                                            option(value='9', selected= expressionCondition.status === 9) #{__('Deleted')}
+                                                    td
+                                                        button.btn.btn-sm.btn-outline-danger.ruleConditionDeleteRow(type='button')
+                                                            i.fas.fa-trash-alt
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                      i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue" data-toggle='tooltip',data-placement='right', title=__('description.QUERYRULECONDITIONS')) 
+                                      | #{__('Query Conditions')}
+                                .col-sm-7.col-md-7.col-lg-8
+                                    .row.justify-content-end
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                                i.fas.fa-download
+                                                |  #{__('Export')}
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button#ruleQueryConditionAddNewRow.form-control.btn-rounded.btn.waves-effect.waves-light.btn-secondary.font-12(type='button')
+                                                i.fas.fa-plus-circle
+                                                |  #{__('Add')}
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#table-queryConditions.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th #{__('Query')}
+                                            th(style="width: 10%;") #{__('Status')}
+                                            th.notexport(style="width: 5%;") #{__('Action')}
+                                    if rule.queryConditions
+                                        tbody
+                                            each queryConditions in rule.queryConditions
+                                                tr
+                                                    td
+                                                    td
+                                                        textarea.sql-editor= queryConditions.query
+                                                    td
+                                                        select.form-control(name = 'status::')
+                                                            option(value='1', selected= queryConditions.status === 1) #{__('Active')}
+                                                            option(value='2', selected= queryConditions.status === 2) #{__('Passive')}
+                                                            option(value='9', selected= queryConditions.status === 9) #{__('Deleted')}
+                                                    td
+                                                        button.btn.btn-sm.btn-outline-danger.ruleConditionDeleteRow(type='button')
+                                                            i.fas.fa-trash-alt
+                if rule.history
+                  .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                                .row.align-items-baseline
+                                    .com-sm-5.col-md-5.col-lg-4.mb-0
+                                        h5
+                                            i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                                | #{__('Data History')}
+                        .card-body
+                           .table-responsive.dragscroll
+                                table#ruleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                         th.notexport
+                                         th #{__('Name')}
+                                         th #{__('Description')}
+                                         th #{__('Last Updated By')}
+                                         th #{__('Last Updated Time')}
+                                         th #{__('Approval Status')}
+                                    tbody
+                                     each item in rule.history
+                                      tr
+                                        td
+                                        td=item.name
+                                        td=item.description
+                                        td=item.lastUpdaterName
+                                        td=item.lastUpdatedTime
+                                        td.text-center(style='font-weight:bold ; color: ' + getApprovalStatusColor(item.approvalStatus))=status(item.approvalStatus)
+        script.
+            var operations = !{JSON.stringify(operations).replace(/<\//g, '<\\/')}
+            $('#deleteRecord').on('click', function (e) {
+                e.preventDefault();
+                removeConfirm("rule");
+            });
+                                                                                   

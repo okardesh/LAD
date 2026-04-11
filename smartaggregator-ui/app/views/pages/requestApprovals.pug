@@ -1,0 +1,88 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-6.col-lg-5.col-xl-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Data Entry Confirmation Requests')}
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Data Entry Confirmation Requests')}
+
+
+                    .col-md-6.col-lg-7.col-xl-8
+                        .row.justify-content-end
+                            .col-sm-6.col-md-4.col-lg-4
+                                .row.justify-content-end
+                                    button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                        i.fas.fa-download
+                                        |  #{__('Export')}
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+
+            .container-fluid.p-3
+                .card
+                    .card-header.bg-transparent
+                        .row.align-items-baseline
+                            .com-sm-5.col-md-5.col-lg-4.mb-0
+                            .col-sm-7.col-md-7.col-lg-8
+                    .card-body
+                        .table-responsive.dragscroll
+                            table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                thead
+                                    tr
+                                        th(data-name='approvalStatus', data-searchable='on', data-sortable='on' , data-object='approval').status #{__('Approval Status')}
+                                        if user.userType === 0
+                                            th(data-name='subsidiaries', data-searchable='on') #{__('Subsidiary')}
+                                        th(data-name='reportDate',data-type="date",data-searchable='on', data-sortable='on') #{__('ReportDate')}
+                                        th(data-name='reportType', data-searchable='on', data-sortable='on') #{__('ReportType')}
+                                        th(data-name='lastUpdatedTime',data-type="date",data-searchable='on', data-sortable='on') #{__('Last Updated Time')}
+                                        th(data-name='description') #{__('Description')}
+                                        th(data-name='description') #{__('Processes History')}
+                                        th.notexport #{__('Action')}
+                                if approvals.content
+                                    tbody&attributes({'data-item': 'approval'})
+                                        if user.rolePermissionAll
+                                            each approval in approvals.content
+                                                tr
+                                                    td(style='font-weight:bold; text-align:center; color:  ' + getStatusColor(approval.approvalStatus))= status(approval.approvalStatus)
+                                                    if user.userType === 0
+                                                        td
+                                                            if subsidiaries
+                                                                each subsidiary in subsidiaries
+                                                                    if subsidiary.uuid === approval.subsidiary
+                                                                        = subsidiary.formalName
+                                                    td= approval.reportDate
+                                                    td= __(approval.reportType)
+                                                    td=approval.lastUpdatedTime
+                                                    td
+                                                        if approval.description
+                                                            a.descript-detail(href='javascript:void(0)')&attributes({'data-content': approval.description})
+                                                                i.fa.fa-paperclip
+                                                                |  #{__('Detail')}
+                                                    td
+                                                        a(href='/request-approvals/' + approval.uuid)
+                                                            i.fas.fa-history.fa-2x
+                                                            |  #{__('History')}
+                                                    //- let checker = user.userType === 1 && approval.approvalStatus === 'N' && user.subsidiary === approval.subsidiary && user.rolePermissionAll.includes('/v1/approval/{uuid}/check_PUT')
+                                                    - let entrant = user.userType === 1 && approval.approvalStatus === 'N' && user.subsidiary === approval.subsidiary && user.rolePermissionAll.includes('/v1/approval/{uuid}/inspect_PUT')
+                                                    - let inspector = user.userType === 1 && approval.approvalStatus === 'I' && user.subsidiary === approval.subsidiary && user.uuid !== approval.creator && (user.rolePermissionAll.includes('/v1/approval/{uuid}/reject_PUT') || user.rolePermissionAll.includes('/v1/approval/{uuid}/waiting_PUT'))
+                                                    - let approver = user.userType === 0 && ['W', 'A'].includes(approval.approvalStatus) && (user.rolePermissionAll.includes('/v1/approval/{uuid}/reject_PUT') || user.rolePermissionAll.includes('/v1/approval/{uuid}/approve_PUT'))
+                                                    - let canceler = ((user.userType === 1 && ['N', 'W', 'I'].includes(approval.approvalStatus)) || (user.userType === 0 && ['W', 'A'].includes(approval.approvalStatus))) && user.rolePermissionAll.includes('/v1/approval/{uuid}/cancel_PUT')
+                                                    td.text-center&attributes({'data-value': approval.uuid},{'data-entrant': entrant ? 'true' : 'false'} , {'data-inspector': inspector ? 'true' : 'false'} , {'data-canceler': canceler ? 'true' : 'false'} , {'data-approver': approver ? 'true' : 'false'} , /*{'data-checker': checker ? 'true' : 'false'}*/ , {'data-auth': user} , {'data-processes': 'approvalProcesses'} , {'data-object':approval} , {'data-required': 'true'})
+                                                        if entrant || approver || inspector || canceler
+                                                            .btn-group.dropup
+                                                                button.btn-request.btn-rounded.btn.btn-sm.btn-primary(type='popup')
+                                                                    i.fas.fa-check-square
+                                                                    |  #{__('Approval Processes')}
+                        +pagination(approvals)
+        script.
+            var subsidiaryList = !{JSON.stringify(subsidiaryList).replace(/<\//g, '<\\/')}

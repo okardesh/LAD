@@ -1,0 +1,71 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+
+    .page-wrapper
+      .page-breadcrumb
+        .row
+          .col-7.align-self-center
+            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Api Log')}
+            .d-flex.align-items-center
+              nav(aria-label='breadcrumb')
+                ol.breadcrumb.m-0.p-0
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/') #{__('Home')}
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/api-logs') #{__('Api Logs')}
+                  li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Api Log')}
+        .row.mt-4.ml-0
+          div#info.text-primary&attributes({'data-html': info})
+      .container-fluid.p-3
+        .card
+          .card-body
+            .row
+              .col-md-6
+                .form-group
+                  label.col-form-label(for='sessionId') #{__('Session')}
+                  input.form-control(type='text', name='sessionId', id='sessionId', placeholder=__('Session'), value=apiLog.sessionId, readonly)
+            .row
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestMethod') #{__('RequestMethod')}
+                  input.form-control(type='text', name='requestMethod', id='requestMethod', placeholder=__('RequestMethod'), value=apiLog.requestMethod, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestPath') #{__('RequestPath')}
+                  input.form-control(type='text', name='requestPath', id='requestPath', placeholder=__('RequestPath'), value=apiLog.requestPath, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestTime') #{__('RequestTime')}
+                  input.form-control(name='requestTime', id='requestTime', placeholder=__('RequestTime'), value=apiLog.requestTime, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='username') #{__('UserName')}
+                  input.form-control(name='username', id='username', placeholder=__('UserName'), value=apiLog.username, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='permissionControl') #{__('PermissionControl')}
+                  input.form-control(type='text', name='permissionControl', id='permissionControl', placeholder=__('PermissionControl'), value=apiLog.permissionControl, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='responseStatus') #{__('ResponseStatus')}
+                  input.form-control(type='text', name='responseStatus', id='responseStatus', placeholder=__('ResponseStatus'), value=apiLog.responseStatus, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='responseTime') #{__('ResponseTime')}
+                  input.form-control(type='text', name='responseTime', id='responseTime', placeholder=__('RemotePort'), value=apiLog.responseTime + "ms", readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='RemoteIp') #{__('RemoteIp')}
+                  input.form-control(type='text', name='remoteIp', id='remoteIp', placeholder=__('RemoteIp'), value=apiLog.remoteIp, readonly)
+
+        if(apiLog.responseException != null)
+          .card
+            .card-body
+               label.col-form-label #{__('ResponseException')}
+                 pre.text-danger
+                   =apiLog.responseException
+

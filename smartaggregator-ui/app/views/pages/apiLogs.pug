@@ -1,0 +1,76 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-5.col-lg-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Api Logs')}
+                         if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                            a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                                .far.fa-file
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Api Logs')}
+                    .col-md-7.col-lg-8
+                        .row.justify-content-end
+                            .col-xl-5
+                                .row.justify-content-end
+                                    .col-md-6
+                                        button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                            i.fas.fa-download
+                                            |  #{__('Export')}
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+            .container-fluid.p-3
+                .row
+                    .col-12
+                        .card
+                            .card-body
+                                .table-responsive.dragscroll
+                                    table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                        thead
+                                            tr
+                                                th(style='width:7px').notexport
+                                                th(data-name='requestMethod', data-searchable='on', data-sortable='on') #{__('RequestMethod')}
+                                                th(data-name='requestPath', data-searchable='on', data-sortable='on') #{__('RequestPath')}
+                                                th(data-name='requestTime',data-type="date", data-searchable='on', data-sortable='on') #{__('RequestTime')}
+                                                th(data-name='remoteIp', data-searchable='on', data-sortable='on') #{__('RemoteIp')}
+                                                th(data-name='username', data-searchable='on') #{__('UserName')}
+                                                th.permissionControl #{__('PermissionControl')}
+                                                th(data-name='responseStatus', data-searchable='on', data-sortable='on') #{__('ResponseStatus')}
+                                                th(data-name='responseTime', data-searchable='on', data-sortable='on') #{__('ResponseTime(Ms)')}
+                                                th(data-name='responseException') #{__('ResponseException')}
+                                        if apiLogs
+                                            tbody
+                                                each apiLog in apiLogs.content
+                                                    tr
+                                                        td.text-center
+                                                            a(href='/api-logs/' + apiLog.uuid)
+                                                                i.fas.fa-eye.fa-2x
+                                                        td=apiLog.requestMethod
+                                                        td=apiLog.requestPath
+                                                        td=apiLog.requestTime
+                                                        td=apiLog.remoteIp
+                                                        td=apiLog.username || 'anonymous'
+                                                        td(style='color: '+ getCircleColor(apiLog.permissionControl)).text-center
+                                                            i.fas.fa-circle.fa-x
+                                                        td=apiLog.responseStatus
+                                                        td=apiLog.responseTime
+                                                        td(style='color: ' + getCheckResponseExceptionColor(apiLog.responseException)).text-center
+                                                            i.fas.fa-circle.fa-x
+                                +pagination(apiLogs)
+
+
+    script.
+        var userList = !{JSON.stringify(userList).replace(/<\//g, '<\\/')}
+        function openPopupDocuments() {
+            getFilesWindow("API_LOGS");
+        }

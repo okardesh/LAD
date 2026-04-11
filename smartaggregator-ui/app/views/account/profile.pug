@@ -1,0 +1,221 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    .page-wrapper(style="display:block")
+      .container.p-3.mt-5
+        .row.mb-3
+        form(id='user', method='POST' , enctype="multipart/form-data")
+          input(type='hidden', name='_csrf', value=_csrf)
+          input(type='hidden', name='uuid', id='uuid' value=__user.uuid)
+          input(type='hidden', name='photo', value=__user.photo)
+          input(type='hidden', name='subsidiary', value=__user.subsidiary)
+          input(type='hidden', name='userType', value=__user.userType)
+          .row 
+            .col-xl-6.col-md-12
+              div.dashboard-big--div--second1
+                ul.second-area.non-overflow.dashboard-big--div-second
+                  li.profile-font.form-text #{__('Profile Information')}
+                div.chart-small--div.non-overflow
+                  .alt-section
+                    .form-body
+                      .form-group.p-4
+                        .row.border-bottom-1.mb-3
+                          .col-md-5.text-center
+                            .kv-avatar
+                              .file-loading
+                                input#photo(type='file', name='file')
+                          .col-md-7.pt-75
+                            .kv-avatar-hint(style="font-weight: 400;")
+                              placeholder=__('SelectOnlyPng')
+                            .kv-avatar-hint(style="font-weight: 400;")
+                              placeholder=__('FileSize<5000KB')
+                        .row.mt-3
+                          .col-md-3
+                            label.profile-font.form-text(for='username') #{__('UserName')} :
+                          .col-md-9
+                            input.form-control(type='text', name='username', id='username', placeholder=__('UserName'), value=__user.username, readonly)
+                        .row.mt-3
+                          .col-md-3
+                            label.profile-font.form-text(for='username') #{__('name')} :
+                          .col-md-9
+                            input.form-control(type='text', name='name', id='name', placeholder=__('name'), value=__user.name)
+                        .row.mt-3
+                          .col-md-3
+                            label.profile-font.form-text(for='username') #{__('Surname')} :
+                          .col-md-9
+                            input.form-control(type='text', name='surname', id='surname', placeholder=__('Surname'), value=__user.surname)
+                        .row.mt-3
+                          .col-md-3
+                            label.profile-font.form-text(for='username') #{__('Email')} :
+                          .col-md-9
+                            input.form-control(type='text', name='email', id='email', placeholder=__('Email'), value=__user.email)
+                        .row.mt-3
+                          .col-md-3
+                            label.profile-font.form-text(for='username') #{__('Roles')} :
+                          .col-md-9
+                            select.js-multiple-select.js-states.form-control(name='roles', id='Roles', disabled)
+                              if roles
+                                each role in roles
+                                  option(value=role.uuid, selected=__user.roles.includes(role.uuid))= role.code
+                        .row.mt-3
+                          .col-12 
+                            button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px",type='submit', name='action', value='Update')
+                              i.far.fa-edit
+                              |  #{__('Update')}
+            .col-xl-6.col-md-12
+              div.dashboard-big--div--second1
+                ul.second-area.non-overflow.dashboard-big--div-second
+                  li.profile-font.form-text #{__('UpdatePassword')}
+                div.chart-small--div.non-overflow
+                  .alt-section
+                    .form-body
+                      .form-group.p-4
+                        .row.mt-3
+                          .col-md-4
+                            label.profile-font.form-text(for='username') #{__('CurrentPassword')} :
+                          .col-md-8
+                            input.form-control(type='password', name='currentPassword', id='currentPassword', placeholder=__('CurrentPassword'))
+                        .row.mt-3
+                          .col-md-4
+                            label.profile-font.form-text(for='username') #{__('password')} :
+                          .col-md-8
+                            input.form-control(type='password', name='password', id='password', placeholder=__('password'))
+                        .row.mt-3
+                          .col-md-4
+                            label.profile-font.form-text(for='username') #{__('RepeatPassword')} :
+                          .col-md-8 
+                            input.form-control(type='password', name='repeatPassword', id='repeatPassword', placeholder=__('RepeatPassword'))
+                        .row.mt-3 
+                          .col-12 
+                            button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px",type='submit', name='action', value='changePassword')
+                              i.far.fa-edit
+                              |  #{__('ChangePassword')}
+
+        //-   .row
+        //-     .col-md-5.col-lg-4.align-self-center
+        //-       h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Profile')}
+        //-       .d-flex.align-items-center
+        //-         nav(aria-label='breadcrumb')
+        //-           ol.breadcrumb.m-0.p-0
+        //-             li.breadcrumb-item
+        //-               a.text-muted(href='/') #{__('Home')}
+        //-             li.breadcrumb-item
+        //-               a.text-muted(href='/users') #{__('Users')}
+        //-             li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Profile')}
+
+        //-   .row.mt-4.ml-0
+        //-     div#info.text-primary&attributes({'data-html': info})
+        //- .container-fluid.p-3
+        //-     form(id='user', method='POST' , enctype="multipart/form-data")
+        //-       input(type='hidden', name='_csrf', value=_csrf)
+        //-       input(type='hidden', name='uuid', id='uuid' value=__user.uuid)
+        //-       input(type='hidden', name='photo', value=__user.photo)
+        //-       input(type='hidden', name='subsidiary', value=__user.subsidiary)
+        //-       input(type='hidden', name='userType', value=__user.userType)
+
+        //-       .row
+        //-         .col-md-6
+        //-           .card
+        //-             .card-title
+        //-               .col-md-6.pl-3
+        //-                 h4.pt-3
+        //-                   i.icon-key.font-14.pr-1
+        //-                   | #{__('Profile')}
+        //-             .card-body
+        //-                  .form-body
+        //-                     .form-group.p-2
+        //-                        .row.border-bottom-1
+        //-                          .col-md-11.text-center
+        //-                               .kv-avatar
+        //-                                 .file-loading
+        //-                                     input#photo(type='file', name='file')
+        //-                               .kv-avatar-hint
+        //-                                     placeholder=__('SelectOnlyPng')
+        //-                               .kv-avatar-hint
+        //-                                     placeholder=__('FileSize<5000KB')
+        //-                     .form-group.p-2
+        //-                       .row
+        //-                         label.col-md-3(for='username') #{__('Username')}
+        //-                         .col-md-9
+        //-                           .row
+        //-                             .col-md-11
+        //-                               input.form-control(type='text', name='username', id='username', placeholder=__('Username'), value=__user.username, readonly)
+        //-                     .form-group.p-2
+        //-                       .row
+        //-                         label.col-md-3(for='name') #{__('Name')}
+        //-                         .col-md-9
+        //-                           .row
+        //-                             .col-md-11
+        //-                               input.form-control(type='text', name='name', id='name', placeholder=__('Name'), value=__user.name)
+        //-                     .form-group.p-2
+        //-                       .row
+        //-                         label.col-md-3(for='surname') #{__('Surname')}
+        //-                         .col-md-9
+        //-                           .row
+        //-                             .col-md-11
+        //-                               input.form-control(type='text', name='surname', id='surname', placeholder=__('Surname'), value=__user.surname)
+        //-                     .form-group.p-2
+        //-                       .row
+        //-                         label.col-md-3(for='email') #{__('Email')}
+        //-                         .col-md-9
+        //-                           .row
+        //-                             .col-md-11
+        //-                               input.form-control(type='text', name='email', id='email', placeholder=__('Email'), value=__user.email)
+        //-                     .form-group.p-2
+        //-                       .row
+        //-                         label.col-md-3(for='roles') #{__('Roles')}
+        //-                         .col-md-9
+        //-                           .row
+        //-                             .col-md-11
+        //-                               select.js-multiple-select.js-states.form-control(multiple='multiple', name='roles', id='roles', disabled)
+        //-                                 if roles
+        //-                                   each role in roles
+        //-                                     option(value=role.uuid, selected=__user.roles.includes(role.uuid))= role.code
+
+
+        //-             .form-actions.mb-3
+        //-                    .text-center
+        //-                     button.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='Update')
+        //-                       i.far.fa-edit
+        //-                         |  #{__('Update')}
+        //-         .col-md-6
+        //-           .card
+        //-             .card-title
+        //-               .col-md-6.pl-3
+        //-                 h4.pt-3
+        //-                   i.icon-key.font-14.pr-1
+        //-                   | #{__('UpdatePassword')}
+
+        //-               .card-body
+        //-                 .form-body
+        //-                   .form-group.p-2
+        //-                     .row
+        //-                       label.col-md-3(for='currentPassword') #{__('CurrentPassword')}
+        //-                       .col-md-9
+        //-                         .row
+        //-                           .col-md-11
+        //-                             input.form-control(type='password', name='currentPassword', id='currentPassword', placeholder=__('CurrentPassword'))
+        //-                   .form-group.p-2
+        //-                     .row
+        //-                       label.col-md-3(for='password') #{__('Password')}
+        //-                       .col-md-9
+        //-                         .row
+        //-                           .col-md-11
+        //-                             input.form-control(type='password', name='password', id='password', placeholder=__('Password'))
+        //-                   .form-group.p-2
+        //-                     .row
+        //-                       label.col-md-3(for='repeatPassword') #{__('RepeatPassword')}
+        //-                       .col-md-9
+        //-                         .row
+        //-                           .col-md-11
+        //-                             input.form-control(type='password', name='repeatPassword', id='repeatPassword', placeholder=__('RepeatPassword'))
+        //-                 .form-actions.mb-2
+        //-                   .text-center
+        //-                     button.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='changePassword')
+        //-                       i.far.fa-edit
+        //-                         |  #{__('ChangePassword')}
+    script.
+        var user = !{JSON.stringify(__user).replace(/<\//g, '<\\/')}
+

@@ -1,0 +1,72 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-6.col-lg-5.col-xl-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Trend Analyzes')}
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Trend Analyzes')}
+                    .col-md-6.col-lg-7.col-xl-8
+                        form(id='trendAnalyzes', method='POST')
+                            input(type='hidden', name='_csrf', value=_csrf)
+                            .row.justify-content-end
+                                .col-sm-6.col-md-12.col-lg-6
+                                    .row.justify-content-end
+                                        .col-6
+                                            button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                                i.fas.fa-plus
+                                                |  #{__('New')}
+                                        //.col-6
+                                            //button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                                //i.fas.fa-download
+                                                //|  #{__('Export')}
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+            .container-fluid.p-3
+                .row
+                    .col-12
+                        .card
+                            .card-body
+                                .table-responsive.dragscroll
+                                    table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                        thead
+                                            tr
+                                                th.notexport
+                                                th(data-name='name', data-searchable='on', data-sortable='on') #{__('Name')}
+                                                th(data-name='tableName', data-searchable='on', data-sortable='on') #{__('Table Name')}
+                                                th #{__('Query')}
+                                                th(data-name='description', data-searchable='on', data-sortable='on') #{__('Description')}
+                                                th(style= "width: 5%") #{__('Action')}
+                                        if trendAnalyzes
+                                            tbody
+                                                each trendAnalysis in trendAnalyzes.content
+                                                    tr&attributes({'data-value': trendAnalysis.uuid, 'data-params': trendAnalysis.params, 'data-query': uCanTrust(trendAnalysis.query)})
+                                                        td.text-center
+                                                            a(href='/trend-analysis/' + trendAnalysis.uuid)
+                                                                i.fas.fa-eye.fa-2x
+                                                        td= trendAnalysis.name
+                                                        td= trendAnalysis.tableName ? __('model.' + trendAnalysis.tableName) : trendAnalysis.tableName
+                                                        td
+                                                            if trendAnalysis.query
+                                                                a.descript-detail(href='javascript:void(0)')&attributes({'data-content': uCanTrust(trendAnalysis.query), 'data-class': 'xl', 'data-contenttype': 'sql'})
+                                                                    i.fa.fa-paperclip
+                                                                    |  #{__('Detail')}
+                                                        td= trendAnalysis.description
+                                                        td
+                                                            button.btn.btn-outline-success.font-12.ml-auto.scripter(type='button')
+                                                                i.fas.fa-chart-pie
+                                                                |  #{__('Run')}
+                                +pagination(trendAnalyzes)
+        script.
+            var subsidiaries = !{JSON.stringify(subsidiaries).replace(/<\//g, '<\\/')}
+            var tableNameList = !{JSON.stringify(tableNameList).replace(/<\//g, '<\\/')}

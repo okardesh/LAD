@@ -1,0 +1,402 @@
+div.active#rpad-chart1
+
+script.
+    const { Pie } = G2Plot;
+    const rpadStateChart = JSON.parse('!{JSON.stringify(rpadStateChart)}');
+    const data6 = [];
+    rpadStateChart.sort((a, b) => a.state - b.state).forEach(element => {
+        data6.push({
+            state : `${element.state} sayısı = ${element.count}`,
+            count : element.count,
+            content: {
+                count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                state: element.state, 
+                }
+        })
+    });
+    
+    const piePlot = new Pie('rpad-chart1', {
+        appendPadding: 70,
+        data: data6,
+        angleField: 'count',
+        colorField: 'state',
+        radius: 1,
+        height: 545,
+        innerRadius: 0.5,
+        label: {
+            type: 'inner',
+            autoRotate: false,
+            offset: '-50%',
+            content: '',
+            style: {
+                textAlign: 'center',
+                fontSize: 12,
+                fill: 'black',
+                fontWeight: 600
+            },
+        },
+        legend: {
+            layout: 'vertical',
+            position: 'bottom'
+        },
+        color: ['#FF4D4F', '#6395F9', '#62DAAB'],
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' },{ type: 'element-highlight' }, { type: 'hover-cursor' }],
+        statistic: {
+                title: false,
+                content: {
+                style: {
+                    whiteSpace: 'pre-wrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                },
+                content: '',
+            },
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem.content != null || insideItem.content != undefined){
+                        return `<div class="tooltip-div">
+                                <h5 class="tooltip-header">TOPLAM ${insideItem.content.state} Sayısı : </h5><h5 class="tooltip-content">${insideItem.content.count}</h5>
+                            </div>`;
+                    }
+                }
+            }
+        },
+    });
+
+    piePlot.render();
+
+    $('input[name="endTimeStateChart"]').on('change', function(){
+        let selectedDateStartDate = $(startTimeStateChart).val();
+        let selectedDateEndDate = $(endTimeStateChart).val();
+        if(selectedDateStartDate === 'Start Date' || selectedDateStartDate === 'Başlangıç Tarihi'){
+            alert('please enter start date first')
+        }else if(selectedDateEndDate < selectedDateStartDate){
+            alert('start date must be greater than end date')
+        }else{
+            $('input[name="selectedDateStartDate"]').attr('value', selectedDateStartDate)
+            $('input[name="selectedDateEndDate"]').attr('value', selectedDateEndDate)
+
+
+            filterStateChart = {startTime:selectedDateStartDate, endTime : selectedDateEndDate};
+
+            $.ajax({
+                url: "/rpadStateChart-filter",
+                type: 'POST',
+                data: filterStateChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newData6 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newData6.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newData6);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+        }
+    })
+
+    $('input[name="month-to-date2"]').on('click', function(){
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth(), 1);
+        var lastDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth() + 1, 0);
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        
+        $('input[name="startTimeStateChart"]').attr('value', fullFirstDay)
+        $('input[name="endTimeStateChart"]').attr('value', fullLastDay)
+
+
+        filterStateChart = {startTime:fullFirstDay, endTime : fullLastDay};
+        $.ajax({
+                url: "/rpadStateChart-filter",
+                type: 'POST',
+                data: filterStateChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newData6 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newData6.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newData6);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });
+
+    $('select[name="states"]').on('change', function(){
+        let newStateChartFilter = $('select[name="states"]').val();
+        filterRpadStateChart2 = {ReleaseName : newStateChartFilter};
+            $.ajax({
+                url: "/rpadStateChart2-filter",
+                type: 'POST',
+                data: filterRpadStateChart2,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newStateChart = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newStateChart.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newStateChart);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });
+
+
+    $('input[name="last-working-date2"]').on('click', function(){
+        var lastWorkingDate = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+        
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        for(let i=0; i < 7 ; i++){
+            lastWorkingDate = new Date(lastDataDate - 1000 * 60 * 60 * 24 * i);
+            if(lastWorkingDate.getUTCDay() > 0 && lastWorkingDate.getUTCDay() < 6){
+                break;
+            }
+        }
+
+        var lastWorkingDateToday = new Date(lastWorkingDate);
+
+        var allLastWorkingDateTodayDay = 
+            ('0' + lastWorkingDateToday.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWorkingDateToday.getMonth()+1)).slice(-2) + '/' + 
+            lastWorkingDateToday.getFullYear();
+
+
+        $('input[name="startTimeStateChart"]').attr('value', allLastWorkingDateTodayDay)
+        $('input[name="endTimeStateChart"]').attr('value', allLastWorkingDateTodayDay)
+
+
+
+        filterStateChart = {startTime:allLastWorkingDateTodayDay, endTime : allLastWorkingDateTodayDay};
+        $.ajax({
+                url: "/rpadStateChart-filter",
+                type: 'POST',
+                data: filterStateChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newData6 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newData6.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newData6);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });
+
+    $('input[name="year-to-date2"]').on('click', function(){
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(new Date().getFullYear(), 0, 1);
+        
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        
+        $('input[name="startTimeStateChart"]').attr('value', fullFirstDay)
+        $('input[name="endTimeStateChart"]').attr('value', fullLastDay)
+
+
+        filterStateChart = {startTime:fullFirstDay, endTime : fullLastDay};
+        $.ajax({
+                url: "/rpadStateChart-filter",
+                type: 'POST',
+                data: filterStateChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newData6 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newData6.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newData6);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });
+
+
+    $('input[name="last-week2"]').on('click', function(){
+        var lastWeekEnd = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+        
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        for(let i=0; i < 7 ; i++){
+            lastWeekEnd = new Date(lastDataDate - 1000 * 60 * 60 * 24 * i);
+            if(lastWeekEnd.getUTCDay() == 0){
+                break;
+            }
+        }
+
+        let lastWeekStart = new Date(lastWeekEnd - 1000 * 60 * 60 * 24 * 6);
+
+        var lastWeekEndFormat = new Date(lastWeekEnd);
+        lastWeekEndFormat =
+            ('0' + lastWeekEndFormat.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWeekEndFormat.getMonth()+1)).slice(-2) + '/' + 
+            lastWeekEndFormat.getFullYear();
+
+
+        var lastWeekStartFormat = new Date(lastWeekStart);
+
+        lastWeekStartFormat =
+             ('0' + lastWeekStartFormat.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWeekStartFormat.getMonth()+1)).slice(-2) + '/' + 
+            lastWeekStartFormat.getFullYear();
+
+
+
+
+        $('input[name="startTimeStateChart"]').attr('value', lastWeekStartFormat)
+        $('input[name="endTimeStateChart"]').attr('value', lastWeekEndFormat)
+
+
+
+        filterStateChart = {startTime:lastWeekStartFormat, endTime : lastWeekEndFormat};
+        $.ajax({
+                url: "/rpadStateChart-filter",
+                type: 'POST',
+                data: filterStateChart,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newData6 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart1').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newData6.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newData6);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart1').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });

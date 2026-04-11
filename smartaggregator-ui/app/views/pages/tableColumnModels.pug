@@ -1,0 +1,47 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-6.col-lg-5.col-xl-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Table Column Model')}
+                         if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                            a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                                .far.fa-file
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Table Column Models')}
+                .row.mt-4.ml-0
+                    div#info.text-primary&attributes({'data-html': info})
+            .container-fluid.p-3
+                .row
+                    .col-12
+                        .card
+                            .card-body
+                                .table-responsive.dragscroll
+                                    table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                        thead
+                                            tr
+                                                th.notexport
+                                                th(data-name='name', data-toggle='tooltip', data-placement='right', title='Table Name') #{__('Table Name')}
+                                        if tables
+                                            tbody
+                                                each table in tables.content
+                                                    tr
+                                                        td.text-center
+                                                            a(href='/table-column-model/' + table.uuid)
+                                                                i.fas.fa-eye.fa-2x
+                                                        td=__('model.' + table.name) + " - " + table.name
+                                +pagination(tables)
+                            script.
+                                function openPopupDocuments() {
+                                    getFilesWindow("TABLE_COLUMN_MODELS");
+                                }

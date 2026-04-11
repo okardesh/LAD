@@ -1,0 +1,90 @@
+include ./showDropdown
+.row.mt-5.ml-0.position-absolute.w-100.justify-content-end
+  if messages.errors
+    .alert.alert-danger.alert-dismissible.bg-danger.text-white.border-0.fade.show
+      button.close(type='button', data-dismiss='alert', aria-label='Close')
+        span(aria-hidden='true') x
+      for error in messages.errors
+        div!= message(__(`${error.msg}`), error.params, error.isNew)
+  if messages.info
+    .alert.alert-info.alert-dismissible.bg-info.text-white.border-0.fade.show
+      button.close(type='button', data-dismiss='alert', aria-label='Close')
+        span(aria-hidden='true') x
+      for info in messages.info
+        div= message(__(info.msg), info.params, info.isNew)
+  if messages.warnings
+    .alert.alert-warning.alert-dismissible.bg-warning.text-white.border-0.fade.show
+      button.close(type='button', data-dismiss='alert', aria-label='Close')
+        span(aria-hidden='true') x
+      for warning in messages.warnings
+        div!= message(__(warning.msg), warning.params, warning.isNew)
+  if messages.success
+    .alert.alert-success.alert-dismissible.bg-success.text-white.border-0.fade.show
+      for success in messages.success
+        div= message(__(success.msg), success.params, success.isNew)
+  if messages.modal
+    - let m = messages.modal[0];
+    if m.type === 'deadline'
+      div.d-none.reasons
+        + showDropdown('DEADLINE_REASONS', 'reason', 'reason', false, false)
+    script.
+      function apiConfirmDialog() {
+        let model = !{JSON.stringify(m)};
+        $.confirm({
+          title: '',
+          content: '<form method="POST">' +
+                  '<div class="form-group">' +
+                  '<label for="description"><strong>' + !{JSON.stringify(message(__(m.msg), m.params))} + '</strong></label>' +
+                  '<input type="text" id="description" name="description" placeholder="' + i18n['Description'] + '" class="form-control"/>' +
+                  '</div>' +
+                  '</form>',
+          columnClass: 'medium',
+          type: 'orange',
+          buttons: {
+            cancel: {
+              text: i18n['Cancel']
+            },
+            submit: {
+              text: i18n['Submit'],
+              btnClass: 'btn-blue',
+              action: function () {
+                this.buttons.submit.disable();
+                        reason = this.$content.find("#reason");
+                if (reason.get(0) && !reason.val()) {
+                    $.alert(i18n["Reason is required"] || "Reason is required");
+                    this.buttons.submit.enable();
+                } else {
+                  $(this.$content.find('form')).submit();
+                }
+                return false;
+              }
+            }
+          },
+          onContentReady: function () {
+            const jc = this;
+            jc.$content.find('form').on('submit', function (e) {
+              e.preventDefault();
+              if (model.type !== 'deadline') {
+                $('<input>').attr({type: 'hidden', name: 'checkId', value: model.params[1]}).hide().appendTo(this);
+                $('<input>').attr({type: 'hidden', name: 'statusCode', value: model.statusCode}).hide().appendTo(this);
+              }
+              $('<input>').attr({type: 'hidden', name: 'uuid', value: model.uuid}).hide().appendTo(this);
+              $('<input>').attr({type: 'hidden', name: 'action', value: model.type}).hide().appendTo(this);
+              this.submit();
+            });
+          },
+          onOpenBefore: function () {
+            var jc = this,
+                    select = $('.reasons').find('select#reason');
+            if (select.get(0) && select.get(0).options.length > 0 && model.type === 'deadline') {
+              jc.$content.find('#description').before(select);
+              select.select2({
+                placeholder: i18n["Please Choose"],
+                theme: "bootstrap",
+                width: "100%",
+                dropdownParent: $(jc.$jconfirmBoxContainer)
+              });
+            }
+          }
+        });
+      }

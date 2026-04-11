@@ -1,0 +1,147 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='dropdown', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid', value=dropdown.uuid)
+                input(type='hidden', name='items', id='items')
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Dropdown')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/dropdowns') #{__('Dropdowns')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Dropdown')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if dropdown.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                       button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                           i.far.fa-edit
+                                           |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='key') #{__('Key')}
+                                        input.form-control(type='text', name='key', id='key',autocomplete = "off" , placeholder=__('Key'), value=dropdown.key)
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='descriptionTr') #{__('DescriptionTr')}
+                                        input.form-control(type='text', name='descriptionTr', id='descriptionTr',autocomplete = "off" , placeholder=__('DescriptionTr'), value=dropdown.descriptionTr)
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='descriptionEn') #{__('DescriptionEn')}
+                                        input.form-control(type='text', name='descriptionEn', id='descriptionEn',autocomplete = "off" , placeholder=__('DescriptionEn'), value=dropdown.descriptionEn)
+                            .row
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='status') #{__('Status')}
+                                        br
+                                        input(type='checkbox'  name='status' id='runForOrganization' checked=!dropdown.status || dropdown.status === 1 data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue" data-toggle='tooltip',data-placement='right', title=__('description.DROPDOWNITEMS'))
+                                        | #{__('Dropdown Items')}
+                                .col-sm-7.col-md-7.col-lg-8
+                                    .row.justify-content-end
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                                                i.fas.fa-download
+                                                |  #{__('Export')}
+                                        .col-6.col-sm-4.col-lg-3.float-right.mb-0
+                                            button#dropdownsAddNewRow.form-control.btn-rounded.btn.waves-effect.waves-light.btn-secondary.font-12(type='button')
+                                                i.fas.fa-plus-circle
+                                                |  #{__('Add')}
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#dropdown-items.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th(style= "width: 25%") #{__('Value')}
+                                            th(style= "width: 25%") #{__('Description Tr')}
+                                            th(style= "width: 25%") #{__('Description En')}
+                                            th(style= "width: 10%") #{__('Status')}
+                                            th.notexport(style="width: 5%;") #{__('Action')}
+                                    if dropdown.items
+                                        tbody
+                                            each item in dropdown.items
+                                                tr
+                                                    td
+                                                    td
+                                                        input.form-control(type='text', name='value::', id='value',autocomplete = "off" , placeholder=__('Value'), value=item.value)
+                                                    td
+                                                        input.form-control(type='text', name='descriptionTr::', id='descriptionTr',autocomplete = "off" , placeholder=__('DescriptionTr'), value=item.descriptionTr)
+                                                    td
+                                                        input.form-control(type='text', name='descriptionEn::', id='descriptionEn',autocomplete = "off" , placeholder=__('DescriptionEn'), value=item.descriptionEn)
+                                                    td
+                                                        select.form-control(name = 'status::')
+                                                            option(value='1', selected= item.status === 1) #{__('Active')}
+                                                            option(value='2', selected= item.status === 2) #{__('Passive')}
+                                                    td
+                                                        button.btn.btn-sm.btn-outline-danger.ruleConditionDeleteRow(type='button')
+                                                            i.fas.fa-trash-alt
+            //
+                if dropdown.history
+                    .container-fluid.p-3
+                        .card
+                            .card-header.bg-transparent
+                                .row.align-items-baseline
+                                    .com-sm-5.col-md-5.col-lg-4.mb-0
+                                        h5
+                                            i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                                | #{__('Data History')}
+
+                            .card-body
+                                .table-responsive.dragscroll
+                                    table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                        thead
+                                            tr
+                                                th.notexport
+                                                th #{__('Key')}
+                                                th #{__('Last Updated By')}
+                                                th #{__('Last Updated Time')}
+                                        tbody
+                                            each item in dropdown.history
+                                            tr
+                                                td
+                                                td=item.key
+                                                td=item.lastUpdaterName
+                                                td=item.lastUpdatedTime
+            script.
+                $('#deleteRecord').on('click', function (e) {
+                    e.preventDefault();
+                    removeConfirm("dropdown");
+                });

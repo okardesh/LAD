@@ -1,0 +1,114 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='parameter', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid' value=parameter.uuid)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Parameter')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/parameters') #{__('Parameters')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Parameter')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if parameter.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                if ['DASHBOARD_CHECK','EXCLUDE_RECONCILIATION_DAILY','EXCLUDE_RECONCILIATION_MONTHLY','INCLUDE_SINGLETON','SUPER_ADMIN_USERS','email'].includes(parameter.key)
+                                    .col-md-2
+                                        .form-group
+                                            label.col-form-label(for='key') #{__('Key')}
+                                            input.form-control(type='text', name='key', id='key',autocomplete = "off" , placeholder=__('Key'), value=parameter.key,readonly)
+                                    .col-md-2
+                                        .form-group
+                                            label.col-form-label(for='status') #{__('Status')}
+                                            select.form-control.custom-select(name='status', id='status',readonly)
+                                                option(value='1', selected= parameter.status === 1,disabled) #{__('Active')}
+                                                option(value='2', selected= parameter.status === 2,disabled) #{__('Passive')}
+                                else
+                                    .col-md-2
+                                        .form-group
+                                            label.col-form-label(for='key') #{__('Key')}
+                                            input.form-control(type='text', name='key', id='key',autocomplete = "off" , placeholder=__('Key'), value=parameter.key)
+                                    .col-md-2
+                                        .form-group
+                                            label.col-form-label(for='status') #{__('Status')}
+                                            select.form-control.custom-select(name='status', id='status')
+                                                option(value='1', selected= parameter.status === 1) #{__('Active')}
+                                                option(value='2', selected= parameter.status === 2) #{__('Passive')}
+                                .col-md-2
+                                    .form-group
+                                        label.col-form-label(for='value') #{__('Value')}
+                                        input.form-control(type='text', name='value', id='value',autocomplete = "off" , placeholder=__('Value'), value=parameter.value)
+                                .col-md-6
+                                    .form-group
+                                        label.col-form-label(for='description') #{__('Description')}
+                                        input.form-control(type='text', name='description', id='description',autocomplete = "off" , placeholder=__('Description'),row=3, tabindex=2, value=parameter.description)
+
+            if parameter.history
+                .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                            | #{__('Data History')}
+
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th #{__('Key')}
+                                            th #{__('Value')}
+                                            th #{__('Last Updated By')}
+                                            th #{__('Last Updated Time')}
+                                        tbody
+                                            each item in parameter.history
+                                                  tr
+                                                    td
+                                                    td=item.key
+                                                    td=item.value
+                                                    td=item.lastUpdaterName
+                                                    td=item.lastUpdatedTime
+
+            script.
+                $('#deleteRecord').on('click', function (e) {
+                    e.preventDefault();
+                    removeConfirm("parameter");
+                });

@@ -1,0 +1,227 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+
+    .page-wrapper
+      .container.mt-2
+        form(id='user', method='POST')
+          input(type='hidden', name='_csrf', value=_csrf)
+          input(type='hidden', name='uuid', id='uuid' value=__user.uuid)
+          .page-breadcrumb.users-padding-right
+            .row.d-flex.justify-content-end
+              .col-md-7.col-lg-8
+                .row.justify-content-end
+                  if __user.uuid
+                    //- .col-sm-4.col-lg-3.d-flex.justify-content-end
+                    //-   button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='new')
+                    //-     i.fas.fa-plus
+                    //-     |  #{__('New')}
+                    .col-sm-4.col-lg-3.d-flex.justify-content-end
+                      button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit' name='action' value='update')
+                        i.far.fa-edit
+                        |  #{__('Update')}
+                    .col-sm-4.col-lg-3.d-flex.justify-content-end
+                      button#deleteRecord.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit' name='action' value='delete')
+                          i.fa.fa-trash-alt
+                          | #{__('Delete')}
+                  else
+                    .col-sm-4.col-lg-3.d-flex.justify-content-end
+                        button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='submit', name='action', value='save')
+                          i.fas.fa-save
+                          |  #{__('Save')}
+          .container-fluid.users-padding-right.pt-3
+              .card
+                .card-body
+                    .row
+                      .col-md-12
+                        div.user-big--div
+                          ul.second-area.non-overflow
+                            li.active #{__('Users')}
+                    .row.user-padding2
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='name') #{__('Name')}
+                          input.form-control(type='text', name='name', id='name', placeholder=__('Name'), value=__user.name, required)
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='surname') #{__('Surname')}
+                          input.form-control(type='text', name='surname', id='surname', placeholder=__('Surname'), value=__user.surname, required)
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='officePhone') #{__('Office Phone')}
+                          input.form-control.text-left.input-office-phone(type='text',title='Telefon numarası + ile başlamalıdır' , name='officePhone', id='officePhone',autocomplete = "off" , maxlength="19" , placeholder=__('+90(555)-000-0000') , value=__user.officePhone)
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='email') #{__('Email')}
+                          input.form-control(type='text', name='email', id='email', placeholder=__('example@email.com'), value=__user.email, required)
+                      if __user.uuid
+                        .col-md-4
+                          .form-group
+                            label.col-form-label(for='username') #{__('Username')}
+                            input.form-control(type='text', name='username', id='username', placeholder=__('Username'), value=__user.username)
+                      else
+                        .col-md-4
+                          .form-group
+                            label.col-form-label(for='username') #{__('Username')}
+                            input.form-control(type='text', name='username', id='username', placeholder=__('Username'), value=__user.username, required)
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='password') #{__('password')}
+                          input.form-control(type='password', name='password', id='password', placeholder=__('Password'))                      
+                    .row.user-padding2(id='userTypeRow')
+                      .col-md-4(style="display:none;")
+                        .row
+                          .col-md-12
+                            .form-group
+                              label.col-form-label() #{__('UserType')}
+                            .form-group
+                              input(type='hidden', name='userTypeHidden', id='userTypeHidden', value=__user.userType)
+                              fieldset.radio
+                                label(for='userType0')
+                                  input(type='radio', name='userType', id='userType0', value='0' checked=__user.userType==0 ? true :false)
+                                  |  #{__('Organization')}
+                              fieldset.radio
+                                label(for='userType1')
+                                if(!user.subsidiary)
+                                    input(type='radio', name='userType', id='userType1', value='1', checked=useridiary!=null ? true :false)
+                                    |  #{__('Companies')}
+                                else
+                                    input(type='radio', name='userType', id='userType1', value='1', checked)
+                                    |  #{__('Companies')}
+                      .col-md-4
+                        .row(id='subsidiaryList')
+                          .col-md-12
+                            .form-group
+                                label.col-form-label(for='subsidiary') #{__('Company')}
+                                if user.roles.includes('SUB_ADMIN')
+                                  select.form-control(name='subsidiary', id='subsidiary')
+                                    if subsidiaries
+                                      each subsidiary in subsidiaries
+                                        if subsidiary.uuid == user.subsidiary
+                                          option(value=subsidiary.uuid, selected= __user.subsidiary == subsidiary.uuid)= subsidiary.formalName
+                                if user.roles.includes('ADMIN')
+                                  select.form-control(name='subsidiary', id='subsidiary')
+                                    if subsidiaries
+                                      each subsidiary in subsidiaries
+                                        option(value=subsidiary.uuid, selected= __user.subsidiary == subsidiary.uuid)= subsidiary.formalName
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='roles') #{__('Role')}
+                          select.form-control(name='roles', id='roles')
+                            if roles
+                              each role in roles
+                                option(value=role.uuid, selected=__user.roles.includes(role.uuid))= role.code
+                      .col-md-4
+                        .form-group
+                          label.col-form-label(for='status') #{__('Status')}
+                            br
+                            input(type='checkbox'  name='status' id='status' checked=!__user.status || __user.status === 1, data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+                      //- .col-md-4
+                      //-   .row(id='userRoleFeature')
+                      //-     .col-md-6
+                      //-         .form-group
+                      //-           label.col-form-label() #{__('User Feature')}
+                      //-           .form-group
+                      //-             fieldset.radio
+                      //-               label(for='userFeature0')
+                      //-                 input(type='radio', name='userFeature', id='userFeature0', value='0')
+                      //-                 |  #{__('None')}
+                      //-             fieldset.radio
+                      //-               label(for='userFeature1')
+                      //-                 input(type='radio', name='userFeature', id='userFeature1', value='1', checked=__user.userFeature == 1 ? true : false)
+                      //-                 |  #{__('Entrant')}
+                      //-             fieldset.radio
+                      //-               label(for='userFeature2')
+                      //-                 input(type='radio', name='userFeature', id='userFeature2', value='2' checked=__user.userFeature == 2 ? true : false)
+                      //-                 |  #{__('Approver')}
+                      
+                      - let loginUser = user;
+                      script.
+                        let subsidiaries = !{JSON.stringify(subsidiaries).replace('/<\//g', '<\\/')};
+                        // Kullanıcı organizasyon değilse sadece kendi iştirakına kayıt ekleyebilir.
+                        const currentUser = !{JSON.stringify(loginUser)};
+                        if (currentUser.subsidiary!=null){
+                          $("#userType1").prop("checked");
+                          $("#userTypeHidden").val(1);
+                          $("#subsidiary").val(currentUser.subsidiary);
+                        }else{
+                          $("#userType0").prop("checked");
+                          $("#userTypeHidden").val(1);
+                        }
+
+                        $('#deleteRecord').on('click', function (e) {
+                          e.preventDefault();
+                          removeConfirm("user");
+                        });
+                        
+                        $(document).ready(function() {
+                          var selectedOption =$( "#roles option:selected" ).text();
+                          if (selectedOption === 'ADMIN') {
+                            $('#subsidiary').attr("disabled","true");
+                            $('#subsidiary').find('option').remove();
+                            $("#userType0").prop("checked", true);
+                          }else{
+                            $('#subsidiary').removeAttr("disabled");
+                            $('#subsidiary').find('option').remove();
+                            $("#userType1").prop("checked", true);
+                            if (currentUser.subsidiary!=null){
+                                for (let i=0; i<subsidiaries.length; i++) {
+                                  if(currentUser.subsidiary == subsidiaries[i].uuid){
+                                  $('<option/>')
+                                    .val(subsidiaries[i].uuid)
+                                    .text(subsidiaries[i].formalName)
+                                    .appendTo('#subsidiary');
+                                  }
+                                }///option(disabled) #{__('Please Choose')}
+                            }else{
+                              for (let i=0; i<subsidiaries.length; i++) {
+                                $('<option/>')
+                                  .val(subsidiaries[i].uuid)
+                                  .text(subsidiaries[i].formalName)
+                                  .appendTo('#subsidiary');
+                              }
+                            }
+                          }
+                        });
+
+                        $('#roles').on('change', function() {
+                          var selectedOption =$( "#roles option:selected" ).text();
+                          if (selectedOption === 'ADMIN') {
+                            $('#subsidiary').attr("disabled","true");
+                            $('#subsidiary').find('option').remove();
+                            $("#userType0").prop("checked", true);
+                          }else{
+                            $('#subsidiary').removeAttr("disabled");
+                            $('#subsidiary').find('option').remove();
+                            $("#userType1").prop("checked", true);
+                            if (currentUser.subsidiary!=null){
+                                for (let i=0; i<subsidiaries.length; i++) {
+                                  if(currentUser.subsidiary == subsidiaries[i].uuid){
+                                  $('<option/>')
+                                    .val(subsidiaries[i].uuid)
+                                    .text(subsidiaries[i].formalName)
+                                    .appendTo('#subsidiary');
+                                  }
+                               }
+                            }else{
+                              $('<option/>')
+                                .val("1onur111-1111-1111-1111-1mustafa1111")
+                                .text("#{__('Please Choose')}")
+                                .attr("disabled", true)
+                                .attr("selected", true)
+                                .appendTo('#subsidiary');
+                              for (let i=0; i<subsidiaries.length; i++) {
+                                $('<option/>')
+                                  .val(subsidiaries[i].uuid)
+                                  .text(subsidiaries[i].formalName)
+                                  .appendTo('#subsidiary');
+                              }
+                            }
+                          }
+                        });
+
+                        //- $('#updateUser').on('click', function (e) {
+                        //-   window.location.href = '/rpa-dashboard';
+                        //- });

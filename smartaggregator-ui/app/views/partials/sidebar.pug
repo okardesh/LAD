@@ -1,0 +1,1023 @@
+//if user
+//    aside.left-sidebar(data-sidebarbg='skin6')
+//        // Sidebar scroll
+//        .scroll-sidebar(data-sidebarbg='skin6')
+//            // Sidebar navigation
+//            nav.sidebar-nav
+//                ul#sidebarnav
+//                    li.sidebar-item
+//                        a.sidebar-link.sidebar-link(href='/dashboard', aria-expanded='false')
+//                            i.feather-icon(data-feather='home')
+//                            span.hide-menu #{__('Dashboard')}
+//                    if (['subsidiary', 'acct-placed-collateral', 'asset-item', 'collateral', 'customers', 'degree', 'fx-futures', 'netting-agreement', 'liability-item', 'off-balance-sheet', 'option', 'payment-schedule', 'repo', 'security', 'swap', 'asset-acc', 'liability-acc', 'off-balance-sheet-acc', 'net-exposure', 'fmu'].some(e => user.sideMenuPermission.includes(e)) || (user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('APPLICATION')}
+//                    if user.sideMenuPermission.includes('subsidiary')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/companies', aria-expanded='false')
+//                                i.feather-icon(data-feather='globe')
+//                                span.hide-menu #{__('Subsidiaries')}
+//                    if locale === 'tr'
+//                        if user.sideMenuPermission.includes('asset-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Asset Accounts')}
+//                        if user.sideMenuPermission.includes('off-balance-sheet')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Off Balance Sheet Items')}
+//                        if user.sideMenuPermission.includes('asset-item')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Asset Items')}
+//                        if user.sideMenuPermission.includes('fmu')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Financial Management')}
+//                        if user.sideMenuPermission.includes('degree')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ratings')}
+//                        if user.sideMenuPermission.includes('fx-futures')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Fx Futures')}
+//                        if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Intragroup Transactions')}
+//                        if user.sideMenuPermission.includes('key-risk-indicator')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Key Risk Indicators')}
+//                        if user.sideMenuPermission.includes('currency-table')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Currency Table')}
+//                        if user.sideMenuPermission.includes('ciu-fund-component')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ciu Fund Components')}
+//                        if user.sideMenuPermission.includes('ciu-fund-info')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ciu Fund Infos')}
+//                        if user.sideMenuPermission.includes('security')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Securities')}
+//                        if user.sideMenuPermission.includes('customers')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Customers')}
+//                        if user.sideMenuPermission.includes('off-balance-sheet-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Off Balance Sheet Accounts')}
+//                        if user.sideMenuPermission.includes('net-exposure')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Net Exposures')}
+//                        if user.sideMenuPermission.includes('netting-agreement')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Netting Agreements')}
+//                        if user.sideMenuPermission.includes('option')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Options')}
+//                        if user.sideMenuPermission.includes('payment-schedule')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Payment Schedules')}
+//                        if user.sideMenuPermission.includes('liability-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Liability Accounts')}
+//                        if user.sideMenuPermission.includes('repo')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Repos')}
+//                        if user.sideMenuPermission.includes('swap')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Swaps')}
+//                        if user.sideMenuPermission.includes('collateral')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Collaterals')}
+//                        if user.sideMenuPermission.includes('acct-placed-collateral')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Acct Placed Collaterals')}
+//                        if user.sideMenuPermission.includes('liability-item')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Liability Items')}
+//                    if locale === 'en'
+//                        if user.sideMenuPermission.includes('asset-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Asset Accounts')}
+//                        if user.sideMenuPermission.includes('asset-item')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Asset Items')}
+//                        if user.sideMenuPermission.includes('acct-placed-collateral')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Acct Placed Collaterals')}
+//                        if user.sideMenuPermission.includes('ciu-fund-component')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ciu Fund Components')}
+//                        if user.sideMenuPermission.includes('ciu-fund-info')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ciu Fund Infos')}
+//                        if user.sideMenuPermission.includes('collateral')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Collaterals')}
+//                        if user.sideMenuPermission.includes('currency-table')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Currency Table')}
+//                        if user.sideMenuPermission.includes('customers')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Customers')}
+//                        if user.sideMenuPermission.includes('fmu')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Financial Management')}
+//                        if user.sideMenuPermission.includes('fx-futures')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Fx Futures')}
+//                        if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Intragroup Transactions')}
+//                        if user.sideMenuPermission.includes('liability-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Liability Accounts')}
+//                        if user.sideMenuPermission.includes('liability-item')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Liability Items')}
+//                        if user.sideMenuPermission.includes('net-exposure')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Net Exposures')}
+//                        if user.sideMenuPermission.includes('netting-agreement')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Netting Agreements')}
+//                        if user.sideMenuPermission.includes('off-balance-sheet-acc')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Off Balance Sheet Accounts')}
+//                        if user.sideMenuPermission.includes('off-balance-sheet')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Off Balance Sheet Items')}
+//                        if user.sideMenuPermission.includes('option')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Options')}
+//                        if user.sideMenuPermission.includes('payment-schedule')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Payment Schedules')}
+//                        if user.sideMenuPermission.includes('degree')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Ratings')}
+//                        if user.sideMenuPermission.includes('repo')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Repos')}
+//                        if user.sideMenuPermission.includes('swap')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Swaps')}
+//                        if user.sideMenuPermission.includes('security')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Securities')}
+//                        if user.sideMenuPermission.includes('key-risk-indicator')
+//                            li.sidebar-item
+//                                a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+//                                    i.feather-icon(data-feather='file-text')
+//                                    span.hide-menu #{__('Key Risk Indicators')}
+//                    if (['rules', 'rule-errors', 'reconciliation-checks', 'reconciliation-check-errors', 'deadline', 'dropdowns'].some(e => user.sideMenuPermission.includes(e)))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('DEFINITION')}
+//                    if user.sideMenuPermission.includes('rules')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/rules', aria-expanded='false')
+//                                i.feather-icon(data-feather='cpu')
+//                                span.hide-menu #{__('Rules')}
+//                    if user.sideMenuPermission.includes('rule-errors')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/rule-errors', aria-expanded='false')
+//                                i.feather-icon(data-feather='terminal')
+//                                span.hide-menu #{__('RuleErrors')}
+//                    if user.sideMenuPermission.includes('reconciliation-checks')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/reconciliation-checks', aria-expanded='false')
+//                                i.feather-icon(data-feather='cast')
+//                                span.hide-menu #{__('Reconciliation Checks')}
+//                    if user.sideMenuPermission.includes('reconciliation-check-errors')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/reconciliation-check-errors', aria-expanded='false')
+//                                i.feather-icon(data-feather='terminal')
+//                                span.hide-menu #{__('Reconciliation Check Errors')}
+//                    if user.sideMenuPermission.includes('deadline')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/deadlines', aria-expanded='false')
+//                                i.feather-icon(data-feather='airplay')
+//                                span.hide-menu #{__('Deadlines')}
+//                    if user.sideMenuPermission.includes('trend-analysis')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/trend-analyzes', aria-expanded='false')
+//                                i.feather-icon(data-feather='pie-chart')
+//                                span.hide-menu #{__('Trend Analyzes')}
+//                    //if user.sideMenuPermission.includes('messages')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/messages', aria-expanded='false')
+//                                i.feather-icon(data-feather='message-square')
+//                                span.hide-menu #{__('Messages')}
+//                    if user.sideMenuPermission.includes('dropdowns')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/dropdowns', aria-expanded='false')
+//                                i.feather-icon(data-feather='map-pin')
+//                                span.hide-menu #{__('Dropdowns')}
+//                    if ((user.rolePermissionAll.includes('/v1/documents_GET')))
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/documents', aria-expanded='false')
+//                                i.feather-icon(data-feather='file-text')
+//                                span.hide-menu #{__('Documents')}
+//                    if (['users', 'roles'].some(e => user.sideMenuPermission.includes(e)))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('AUTHORIZATION')}
+//                    if user.sideMenuPermission.includes('users')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/users', aria-expanded='false')
+//                                i.feather-icon(data-feather='users')
+//                                span.hide-menu #{__('Users')}
+//                    if user.sideMenuPermission.includes('roles')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/roles', aria-expanded='false')
+//                                i.feather-icon(data-feather='shield')
+//                                span.hide-menu #{__('Roles')}
+//                    if (['operations', 'parameters', 'organization', 'subsidiary-management', 'table-column-model'].some(e => user.sideMenuPermission.includes(e)))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('SYSTEM')}
+//                    if user.sideMenuPermission.includes('organization')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/organization', aria-expanded='false')
+//                                i.feather-icon(data-feather='monitor')
+//                                span.hide-menu #{__('Organization')}
+//                    if user.sideMenuPermission.includes('parameters')
+//                        li.sidebar-item
+//                            a.sidebar-link.sidebar-link(href='/parameters', aria-expanded='false')
+//                                i.feather-icon(data-feather='settings')
+//                                span.hide-menu #{__('Parameters')}
+//                    if user.sideMenuPermission.includes('subsidiary-management')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/subsidiary-managements', aria-expanded='false')
+//                                i.feather-icon(data-feather='tag')
+//                                span.hide-menu #{__('Subsidiary Tables')}
+//                    if user.sideMenuPermission.includes('table-column-model')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/table-column-models', aria-expanded='false')
+//                                i.feather-icon(data-feather='pen-tool')
+//                                span.hide-menu #{__('TableColumnModels')}
+//                    if user.sideMenuPermission.includes('operations')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/operations', aria-expanded='false')
+//                                i.feather-icon(data-feather='disc')
+//                                span.hide-menu #{__('Operations')}
+//                    if (['notifications'].some(e => user.sideMenuPermission.includes(e)))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('NOTIFICATION')}
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/notifications', aria-expanded='false')
+//                                i.feather-icon(data-feather='mail')
+//                                span.hide-menu #{__('Notifications')}
+//                    if (['announcement'].some(e => user.sideMenuPermission.includes(e)))
+//                        //li.list-divider
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('ANNOUNCEMENT')}
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/announcements', aria-expanded='false')
+//                                i.feather-icon(data-feather='disc')
+//                                span.hide-menu #{__('Announcements')}
+//                    if (['logs', 'api-logs'].some(e => user.sideMenuPermission.includes(e)))
+//                        li.nav-small-cap.mb-0.px-3
+//                            span.hide-menu #{__('LOG')}
+//                    if user.sideMenuPermission.includes('logs')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/app-logs', aria-expanded='false')
+//                                i.feather-icon(data-feather='sliders')
+//                                span.hide-menu #{__('Application Logs')}
+//                    if user.sideMenuPermission.includes('api-logs')
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/api-logs', aria-expanded='false')
+//                                i.feather-icon(data-feather='globe')
+//                                span.hide-menu #{__('Api Logs')}
+//                        li.sidebar-item
+//                            a.sidebar-link(href='/error-logs', aria-expanded='false')
+//                                i.feather-icon(data-feather='terminal')
+//                                span.hide-menu #{__('Error Logs')}
+//                    li.nav-small-cap.mb-0.px-3
+//                        span.hide-menu #{__('EXTRA')}
+//                    li.sidebar-item
+//                        a.sidebar-link.sidebar-link(href='/data-models', aria-expanded='false')
+//                            i.feather-icon(data-feather='layout')
+//                            span.hide-menu #{__('Data Model')}
+//                    li.sidebar-item
+//                        a.sidebar-link.sidebar-link(href='/api-docs', aria-expanded='false', target='_blank')
+//                            i.feather-icon(data-feather='smile')
+//                            span.hide-menu #{__('Rest API')}
+//                    li.sidebar-item
+//                        a.sidebar-link.sidebar-link(href='/logout', aria-expanded='false')
+//                            i.feather-icon(data-feather='log-out')
+//                            span.hide-menu #{__('Logout')}
+//                    li.nav-small-cap.mb-0.px-3
+//                        span.hide-menu #{__('')}
+//                //- p.text-right.font-12.text-muted.mb-0.mr-4 #{'ver.' + version }
+//                include ../partials/footer
+if user
+    aside.left-sidebar(data-sidebarbg='skin6')
+        // Sidebar scroll
+        .scroll-sidebar(data-sidebarbg='skin6')
+            .sidebar-container#sidebarId
+                ui.mainMenu
+                    li#dashboard.item-header
+                        a.item-btn(href='#dashboard')
+                            span.hide-menu #{__('Dashboard')}
+                            i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                        .subMenu
+                            a.sidebar-link.sidebar-link(href='/rpa-dashboard', aria-expanded='false')
+                                i.feather-icon(data-feather='home')
+                                span.hide-menu #{__('Dashboard')}
+                    if (['asset-acc', 'liability-acc', 'off-balance-sheet-acc'].some(e => user.sideMenuPermission.includes(e)) && (user.userType === 1))
+                        li#balancesheets.item-header
+                            a.item-btn(href='#balancesheets')
+                                span.hide-menu #{__('BALANCE SHEETS')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if locale === 'tr'
+                                    if user.sideMenuPermission.includes('asset-acc')
+                                        a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Accounts')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet-acc')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Accounts')}
+                                    if user.sideMenuPermission.includes('liability-acc')
+                                        a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Accounts')}
+                                if locale === 'en'
+                                    if user.sideMenuPermission.includes('asset-acc')
+                                        a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Accounts')}
+                                    if user.sideMenuPermission.includes('liability-acc')
+                                        a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Accounts')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet-acc')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Accounts')}
+                    if (['acct-placed-collateral', 'asset-item', 'collateral', 'customers', 'degree', 'fx-futures', 'netting-agreement', 'liability-item', 'off-balance-sheet', 'option', 'payment-schedule', 'repo', 'security', 'swap', 'net-exposure', 'fmu', 'intragroup-transaction' ].some(e => user.sideMenuPermission.includes(e)) && (user.userType === 1))
+                        li#data.item-header
+                            a.item-btn(href='#data')
+                                span.hide-menu #{__('DATA')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if locale === 'en'
+                                    if user.sideMenuPermission.includes('asset-item')
+                                        a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Items')}
+                                    if user.sideMenuPermission.includes('acct-placed-collateral')
+                                        a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Acct Placed Collaterals')}
+                                    if user.sideMenuPermission.includes('ciu-fund-component')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Components')}
+                                    if user.sideMenuPermission.includes('ciu-fund-info')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Infos')}
+                                    if user.sideMenuPermission.includes('collateral')
+                                        a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Collaterals')}
+                                    if user.sideMenuPermission.includes('currency-table')
+                                        a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Currency Table')}
+                                    if user.sideMenuPermission.includes('customers')
+                                        a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Customers')}
+                                    if user.sideMenuPermission.includes('fmu')
+                                        a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Financial Management')}
+                                    if user.sideMenuPermission.includes('fx-futures')
+                                        a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Fx Futures')}
+                                    if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+                                        a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Intragroup Transactions')}
+                                    if user.sideMenuPermission.includes('liability-item')
+                                        a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Items')}
+                                    if user.sideMenuPermission.includes('net-exposure')
+                                        a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Net Exposures')}
+                                    if user.sideMenuPermission.includes('netting-agreement')
+                                        a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Netting Agreements')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Items')}
+                                    if user.sideMenuPermission.includes('option')
+                                        a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Options')}
+                                    if user.sideMenuPermission.includes('payment-schedule')
+                                        a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Payment Schedules')}
+                                    if user.sideMenuPermission.includes('degree')
+                                        a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ratings')}
+                                    if user.sideMenuPermission.includes('repo')
+                                        a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Repos')}
+                                    if user.sideMenuPermission.includes('swap')
+                                        a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Swaps')}
+                                    if user.sideMenuPermission.includes('security')
+                                        a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Securities')}
+                                    if user.sideMenuPermission.includes('key-risk-indicator')
+                                        a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Key Risk Indicators')}
+                                if locale === 'tr'
+                                    if user.sideMenuPermission.includes('asset-item')
+                                        a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Items')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Items')}
+                                    if user.sideMenuPermission.includes('fmu')
+                                        a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Financial Management')}
+                                    if user.sideMenuPermission.includes('degree')
+                                        a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ratings')}
+                                    if user.sideMenuPermission.includes('fx-futures')
+                                        a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Fx Futures')}
+                                    if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+                                        a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Intragroup Transactions')}
+                                    if user.sideMenuPermission.includes('key-risk-indicator')
+                                        a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Key Risk Indicators')}
+                                    if user.sideMenuPermission.includes('currency-table')
+                                        a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Currency Table')}
+                                    if user.sideMenuPermission.includes('ciu-fund-component')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Components')}
+                                    if user.sideMenuPermission.includes('ciu-fund-info')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Infos')}
+                                    if user.sideMenuPermission.includes('security')
+                                        a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Securities')}
+                                    if user.sideMenuPermission.includes('customers')
+                                        a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Customers')}
+                                    if user.sideMenuPermission.includes('net-exposure')
+                                        a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Net Exposures')}
+                                    if user.sideMenuPermission.includes('netting-agreement')
+                                        a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Netting Agreements')}
+                                    if user.sideMenuPermission.includes('option')
+                                        a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Options')}
+                                    if user.sideMenuPermission.includes('payment-schedule')
+                                        a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Payment Schedules')}
+                                    if user.sideMenuPermission.includes('repo')
+                                        a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Repos')}
+                                    if user.sideMenuPermission.includes('swap')
+                                        a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Swaps')}
+                                    if user.sideMenuPermission.includes('collateral')
+                                        a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Collaterals')}
+                                    if user.sideMenuPermission.includes('acct-placed-collateral')
+                                        a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Acct Placed Collaterals')}
+                                    if user.sideMenuPermission.includes('liability-item')
+                                        a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Items')}
+                    if (['subsidiary', 'acct-placed-collateral', 'asset-item', 'collateral', 'customers', 'degree', 'fx-futures', 'netting-agreement', 'liability-item', 'off-balance-sheet', 'option', 'payment-schedule', 'repo', 'security', 'swap', 'asset-acc', 'liability-acc', 'off-balance-sheet-acc', 'net-exposure', 'fmu'].some(e => user.sideMenuPermission.includes(e)) && user.userType === 0)
+                        if user.sideMenuPermission.includes('subsidiary')
+                            li#subsidiaries.item-header
+                                a.item-btn(href='#subsidiaries')
+                                    span.hide-menu #{__('SUBSIDIARIES')}
+                                    i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')   
+                                .subMenu
+                                    a.sidebar-link.sidebar-link(href='/companies', aria-expanded='false')
+                                            i.feather-icon(data-feather='globe')
+                                            span.hide-menu #{__('Subsidiaries')} 
+
+                        li#application.item-header
+                            a.item-btn(href='#balancesheets')
+                                span.hide-menu #{__('BALANCE SHEETS')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                //- if user.sideMenuPermission.includes('subsidiary')
+                                //-     a.sidebar-link.sidebar-link(href='/companies', aria-expanded='false')
+                                //-         i.feather-icon(data-feather='globe')
+                                //-         span.hide-menu #{__('Subsidiaries')}
+                                if locale === 'tr'
+                                    if user.sideMenuPermission.includes('asset-acc')
+                                        a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Accounts')}
+                                    
+                                    if user.sideMenuPermission.includes('off-balance-sheet-acc')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Accounts')}
+                                    
+                                    if user.sideMenuPermission.includes('liability-acc')
+                                        a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Accounts')}
+                                   
+                                if locale === 'en'
+                                    if user.sideMenuPermission.includes('asset-acc')
+                                        a.sidebar-link.sidebar-link(href='/asset-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Accounts')}
+                                    
+                                    if user.sideMenuPermission.includes('liability-acc')
+                                        a.sidebar-link.sidebar-link(href='/liability-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Accounts')}
+                                    
+                                    if user.sideMenuPermission.includes('off-balance-sheet-acc')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheet-accs', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Accounts')}
+                                
+
+                    if (['subsidiary', 'acct-placed-collateral', 'asset-item', 'collateral', 'customers', 'degree', 'fx-futures', 'netting-agreement', 'liability-item', 'off-balance-sheet', 'option', 'payment-schedule', 'repo', 'security', 'swap', 'asset-acc', 'liability-acc', 'off-balance-sheet-acc', 'net-exposure', 'fmu'].some(e => user.sideMenuPermission.includes(e)) && user.userType === 0)
+                        li#data.item-header
+                            a.item-btn(href='#data')
+                                span.hide-menu #{__('DATA')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if locale === 'en'
+                                    if user.sideMenuPermission.includes('asset-item')
+                                        a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Items')}
+                                    if user.sideMenuPermission.includes('acct-placed-collateral')
+                                        a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Acct Placed Collaterals')}
+                                    if user.sideMenuPermission.includes('ciu-fund-component')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Components')}
+                                    if user.sideMenuPermission.includes('ciu-fund-info')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Infos')}
+                                    if user.sideMenuPermission.includes('collateral')
+                                        a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Collaterals')}
+                                    if user.sideMenuPermission.includes('currency-table')
+                                        a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Currency Table')}
+                                    if user.sideMenuPermission.includes('customers')
+                                        a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Customers')}
+                                    if user.sideMenuPermission.includes('fmu')
+                                        a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Financial Management')}
+                                    if user.sideMenuPermission.includes('fx-futures')
+                                        a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Fx Futures')}
+                                    if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+                                        a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Intragroup Transactions')}
+                                    if user.sideMenuPermission.includes('liability-item')
+                                        a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Items')}
+                                    if user.sideMenuPermission.includes('net-exposure')
+                                        a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Net Exposures')}
+                                    if user.sideMenuPermission.includes('netting-agreement')
+                                        a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Netting Agreements')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Items')}
+                                    if user.sideMenuPermission.includes('option')
+                                        a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Options')}
+                                    if user.sideMenuPermission.includes('payment-schedule')
+                                        a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Payment Schedules')}
+                                    if user.sideMenuPermission.includes('degree')
+                                        a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ratings')}
+                                    if user.sideMenuPermission.includes('repo')
+                                        a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Repos')}
+                                    if user.sideMenuPermission.includes('swap')
+                                        a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Swaps')}
+                                    if user.sideMenuPermission.includes('security')
+                                        a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Securities')}
+                                    if user.sideMenuPermission.includes('key-risk-indicator')
+                                        a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Key Risk Indicators')}
+                                if locale === 'tr'
+                                    if user.sideMenuPermission.includes('asset-item')
+                                        a.sidebar-link.sidebar-link(href='/asset-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Asset Items')}
+                                    if user.sideMenuPermission.includes('off-balance-sheet')
+                                        a.sidebar-link.sidebar-link(href='/off-balance-sheets', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Off Balance Sheet Items')}
+                                    if user.sideMenuPermission.includes('fmu')
+                                        a.sidebar-link.sidebar-link(href='/fmu', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Financial Management')}
+                                    if user.sideMenuPermission.includes('degree')
+                                        a.sidebar-link.sidebar-link(href='/degrees', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ratings')}
+                                    if user.sideMenuPermission.includes('fx-futures')
+                                        a.sidebar-link.sidebar-link(href='/fx-futures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Fx Futures')}
+                                    if user.userType === 0 && user.sideMenuPermission.includes('intragroup-transaction')
+                                        a.sidebar-link.sidebar-link(href='/intragroup-transactions', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Intragroup Transactions')}
+                                    if user.sideMenuPermission.includes('key-risk-indicator')
+                                        a.sidebar-link.sidebar-link(href='/key-risk-indicators', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Key Risk Indicators')}
+                                    if user.sideMenuPermission.includes('currency-table')
+                                        a.sidebar-link.sidebar-link(href='/currency-tables', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Currency Table')}
+                                    if user.sideMenuPermission.includes('ciu-fund-component')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-components', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Components')}
+                                    if user.sideMenuPermission.includes('ciu-fund-info')
+                                        a.sidebar-link.sidebar-link(href='/ciu-fund-infos', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Ciu Fund Infos')}
+                                    if user.sideMenuPermission.includes('security')
+                                        a.sidebar-link.sidebar-link(href='/securities', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Securities')}
+                                    if user.sideMenuPermission.includes('customers')
+                                        a.sidebar-link.sidebar-link(href='/customers', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Customers')}
+                                    if user.sideMenuPermission.includes('net-exposure')
+                                        a.sidebar-link.sidebar-link(href='/net-exposures', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Net Exposures')}
+                                    if user.sideMenuPermission.includes('netting-agreement')
+                                        a.sidebar-link.sidebar-link(href='/netting-agreements', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Netting Agreements')}
+                                    if user.sideMenuPermission.includes('option')
+                                        a.sidebar-link.sidebar-link(href='/options', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Options')}
+                                    if user.sideMenuPermission.includes('payment-schedule')
+                                        a.sidebar-link.sidebar-link(href='/payment-schedules', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Payment Schedules')}
+                                    if user.sideMenuPermission.includes('repo')
+                                    a.sidebar-link.sidebar-link(href='/repos', aria-expanded='false')
+                                        i.feather-icon(data-feather='file-text')
+                                        span.hide-menu #{__('Repos')}
+                                    if user.sideMenuPermission.includes('swap')
+                                        a.sidebar-link.sidebar-link(href='/swaps', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Swaps')}
+                                    if user.sideMenuPermission.includes('collateral')
+                                        a.sidebar-link.sidebar-link(href='/collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Collaterals')}
+                                    if user.sideMenuPermission.includes('acct-placed-collateral')
+                                        a.sidebar-link.sidebar-link(href='/acct-placed-collaterals', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Acct Placed Collaterals')}
+                                    if user.sideMenuPermission.includes('liability-item')
+                                        a.sidebar-link.sidebar-link(href='/liability-items', aria-expanded='false')
+                                            i.feather-icon(data-feather='file-text')
+                                            span.hide-menu #{__('Liability Items')}
+
+                    if (['rules', 'rule-errors', 'reconciliation-checks', 'reconciliation-check-errors', 'deadline', 'dropdowns'].some(e => user.sideMenuPermission.includes(e)))
+                        li#definition.item-header
+                            a.item-btn(href='#application')
+                                span.hide-menu #{__('DEFINITION')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if user.sideMenuPermission.includes('rules')
+                                    a.sidebar-link.sidebar-link(href='/rules', aria-expanded='false')
+                                        i.feather-icon(data-feather='cpu')
+                                        span.hide-menu #{__('Rules')}
+                                if user.sideMenuPermission.includes('rule-errors')
+                                    a.sidebar-link.sidebar-link(href='/rule-errors', aria-expanded='false')
+                                        i.feather-icon(data-feather='terminal')
+                                        span.hide-menu #{__('RuleErrors')}
+                                if user.sideMenuPermission.includes('reconciliation-checks')
+                                    a.sidebar-link.sidebar-link(href='/reconciliation-checks', aria-expanded='false')
+                                        i.feather-icon(data-feather='cast')
+                                        span.hide-menu #{__('Reconciliation Checks')}
+                                if user.sideMenuPermission.includes('reconciliation-check-errors')
+                                    a.sidebar-link.sidebar-link(href='/reconciliation-check-errors', aria-expanded='false')
+                                        i.feather-icon(data-feather='terminal')
+                                        span.hide-menu #{__('Reconciliation Check Errors')}
+                                if user.sideMenuPermission.includes('deadline')
+                                    a.sidebar-link.sidebar-link(href='/deadlines', aria-expanded='false')
+                                        i.feather-icon(data-feather='airplay')
+                                        span.hide-menu #{__('Deadlines')}
+                                if user.sideMenuPermission.includes('trend-analysis')
+                                    a.sidebar-link.sidebar-link(href='/trend-analyzes', aria-expanded='false')
+                                        i.feather-icon(data-feather='pie-chart')
+                                        span.hide-menu #{__('Trend Analyzes')}
+                                //if user.sideMenuPermission.includes('messages')
+                                    a.sidebar-link.sidebar-link(href='/messages', aria-expanded='false')
+                                        i.feather-icon(data-feather='message-square')
+                                        span.hide-menu #{__('Messages')}
+                                if user.sideMenuPermission.includes('dropdowns')
+                                    a.sidebar-link.sidebar-link(href='/dropdowns', aria-expanded='false')
+                                        i.feather-icon(data-feather='map-pin')
+                                        span.hide-menu #{__('Dropdowns')}
+                                if ((user.rolePermissionAll.includes('/v1/documents_GET')))
+                                    a.sidebar-link.sidebar-link(href='/documents', aria-expanded='false')
+                                        i.feather-icon(data-feather='file-text')
+                                        span.hide-menu #{__('Documents')}
+                    if (['users', 'roles'].some(e => user.sideMenuPermission.includes(e)))
+                        li#authorization.item-header
+                            a.item-btn(href='#authorization')
+                                span.hide-menu #{__('AUTHORIZATION')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if user.sideMenuPermission.includes('users')
+                                    a.sidebar-link.sidebar-link(href='/users', aria-expanded='false')
+                                        i.feather-icon(data-feather='users')
+                                        span.hide-menu #{__('Users')}
+                                if user.sideMenuPermission.includes('roles')
+                                    a.sidebar-link.sidebar-link(href='/roles', aria-expanded='false')
+                                        i.feather-icon(data-feather='shield')
+                                        span.hide-menu #{__('Roles')}
+                    if (['operations', 'parameters', 'organization', 'subsidiary-management', 'table-column-model'].some(e => user.sideMenuPermission.includes(e)) || user.isSuperAdmin)
+                        li#system.item-header
+                            a.item-btn(href='#authorization')
+                                span.hide-menu #{__('SYSTEM')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if user.sideMenuPermission.includes('organization')
+                                    a.sidebar-link(href='/organization', aria-expanded='false')
+                                        i.feather-icon(data-feather='monitor')
+                                        span.hide-menu #{__('Organization')}
+                                if user.sideMenuPermission.includes('parameters')
+                                    a.sidebar-link.sidebar-link(href='/parameters', aria-expanded='false')
+                                        i.feather-icon(data-feather='settings')
+                                        span.hide-menu #{__('Parameters')}
+                                if user.sideMenuPermission.includes('subsidiary-management')
+                                    a.sidebar-link(href='/subsidiary-tables', aria-expanded='false')
+                                        i.feather-icon(data-feather='tag')
+                                        span.hide-menu #{__('Subsidiary Tables')}
+                                if user.sideMenuPermission.includes('table-column-model')
+                                    a.sidebar-link(href='/table-column-models', aria-expanded='false')
+                                        i.feather-icon(data-feather='pen-tool')
+                                        span.hide-menu #{__('TableColumnModels')}
+                                if user.sideMenuPermission.includes('operations')
+                                    a.sidebar-link(href='/operations', aria-expanded='false')
+                                        i.feather-icon(data-feather='disc')
+                                        span.hide-menu #{__('Operations')}
+                                if user.superAdmin
+                                    a.sidebar-link.sidebar-link(href='/super-admin', aria-expanded='false')
+                                        i.feather-icon(data-feather='layout')
+                                        span.hide-menu #{__('Super Admin')}
+                    if (['notifications'].some(e => user.sideMenuPermission.includes(e)))
+                        li#notifications.item-header
+                            a.item-btn(href='#notifications')
+                                span.hide-menu #{__('NOTIFICATION')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                a.sidebar-link(href='/notifications', aria-expanded='false')
+                                    i.feather-icon(data-feather='mail')
+                                    span.hide-menu #{__('Notifications')}
+                    if (['announcement'].some(e => user.sideMenuPermission.includes(e)))
+                        if user.userType === 0
+                            li#announcement.item-header
+                                a.item-btn(href='#announcement')
+                                    span.hide-menu #{__('ANNOUNCEMENT')}
+                                    i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                                .subMenu
+                                    a.sidebar-link(href='/announcements', aria-expanded='false')
+                                        i.feather-icon(data-feather='disc')
+                                        span.hide-menu #{__('Announcements')}
+                    if (['logs', 'api-logs'].some(e => user.sideMenuPermission.includes(e)))
+                        li#logs.item-header
+                            a.item-btn(href='#logs')
+                                span.hide-menu #{__('LOG')}
+                                i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                            .subMenu
+                                if user.sideMenuPermission.includes('logs')
+                                    a.sidebar-link(href='/app-logs', aria-expanded='false')
+                                        i.feather-icon(data-feather='sliders')
+                                        span.hide-menu #{__('Application Logs')}
+                                if user.sideMenuPermission.includes('api-logs')
+                                    a.sidebar-link(href='/api-logs', aria-expanded='false')
+                                        i.feather-icon(data-feather='globe')
+                                        span.hide-menu #{__('Api Logs')}
+                                    a.sidebar-link(href='/error-logs', aria-expanded='false')
+                                        i.feather-icon(data-feather='terminal')
+                                        span.hide-menu #{__('Error Logs')}
+                    li#extra.item-header
+                        a.item-btn(href='#extra')
+                            span.hide-menu #{__('EXTRA')}
+                            i.hide-menu.button--i.float-right(type="button", data-feather='chevron-down')
+                        .subMenu
+                            a.sidebar-link.sidebar-link(href='/data-models', aria-expanded='false')
+                                i.feather-icon(data-feather='layout')
+                                span.hide-menu #{__('Data Model')}
+                            a.sidebar-link.sidebar-link(href='/api-docs', aria-expanded='false', target='_blank')
+                                i.feather-icon(data-feather='smile')
+                                span.hide-menu #{__('Rest API')}
+                include ../partials/footer
+
+    script.
+        $(document).ready(function() {
+            if($('.mainMenu a[href^="/' + location.pathname.split("/")[1] + '"]').parents('.subMenu').length > 0){
+                $('.mainMenu a[href="/' + location.pathname.split("/")[1] + '"]').addClass('current-pages');
+                $('.mainMenu a[href="/' + location.pathname.split("/")[1] + '"]').parents('.item-header').addClass('selectedmenu');
+                var li_id = $('.subMenu a[href^="/' + location.pathname.split("/")[1] + '"]').parents('li').attr('id');
+                if(document.location.href.indexOf("#") != -1) {
+                    var url = document.location.href;
+                    document.location = url;
+                }else{
+                    var url = document.location.href+"#"+li_id;
+                    document.location = url;
+                }
+            }
+            else{
+                $('a[href^="/' + location.pathname.split("/")[1] + '"]').addClass('main-current-page');
+            }
+
+            $( ".item-header" ).on('click', function(e){
+                 if($(".selectedmenu").length >=1){
+                     for(let i =0 ; i<$(".selectedmenu").length; i++){
+                         if(e.currentTarget.id.toString() != $(".selectedmenu")[i].id.toString()){
+                             $(".selectedmenu").removeClass("selectedmenu");
+                         }
+                     }
+                 }
+                $(this).toggleClass('selectedmenu');
+                setTimeout(function(){
+                    var elmnt = document.getElementById("sidebarId");
+                    elmnt.scrollIntoView();
+                }, 0)
+               
+            });
+
+
+        });            

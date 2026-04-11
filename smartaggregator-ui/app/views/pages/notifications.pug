@@ -1,0 +1,94 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+      
+    .page-wrapper
+      .page-breadcrumb
+        .row
+          .col-md-6.col-lg-5.col-xl-4.align-self-center
+            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Notifications')}
+             if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
+                  .far.fa-file
+            .d-flex.align-items-center
+              nav(aria-label='breadcrumb')
+                ol.breadcrumb.m-0.p-0
+                  li.breadcrumb-item
+                    a.text-muted.active-link(href='/') #{__('Home')}
+                  li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Notifications')}
+          .col-md-6.col-lg-7.col-xl-8
+            form(id='notifications', method='POST')
+              input(type='hidden', name='_csrf', value=_csrf)
+              .row.justify-content-end
+                .col-sm-6.col-md-12.col-lg-6
+                  .row.justify-content-end
+                    .col-6
+                      button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                        i.fas.fa-plus
+                        |  #{__('New')}
+                    .col-6
+                      button.exportToExcel.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='button', name='export', value='xlsx')
+                        i.fas.fa-download
+                        |  #{__('Export')}
+        .row.mt-4.ml-0
+          div#info.text-primary&attributes({'data-html': info})
+      .container-fluid.p-3
+        .row
+          .col-12
+            .card
+              .card-body
+                .table-responsive.dragscroll
+                  table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                    thead
+                      tr
+                        th.notexport
+                        th.status(data-name='status', data-searchable='on', data-sortable='on') #{__('Status')}
+                        th(data-name='code', data-searchable='on', data-sortable='on') #{__('Code')}
+                        th(data-name='subject', data-searchable='on', data-sortable='on') #{__('Subject')}
+                        th(data-name='operations', data-searchable='on') #{__('Operation')}
+                        th(data-name='to', data-searchable='on') #{__('TO')}
+                        th(data-name='cc', data-searchable='on') #{__('CC')}
+                        th(data-name='bcc', data-searchable='on') #{__('BCC')}
+
+                    if notifications
+                      tbody
+                        each n in notifications.content
+                          tr
+                            td.text-center
+                              a(href='/notification/' + n.uuid)
+                                i.fas.fa-eye.fa-2x
+                            td(style='font-weight:bold; text-align:center; color:  ' +  getStatusColor(n.status))=status(n.status)
+                            td=n.code
+                            td=n.subject
+                            td
+                              if operations
+                                each operation in operations
+                                  = n.operation === operation.uuid ? __('description.uri.' + operation.method + operation.path) : ''
+                            td
+                              if roles
+                                each role in roles
+                                  if n.to && n.to.includes(role.uuid) 
+                                    div= role.code
+                              
+                            td
+                              if roles
+                                each role in roles
+                                  if n.cc && n.cc.includes(role.uuid)
+                                    div= role.code
+
+                            td
+                              if roles
+                                each role in roles
+                                  if n.bcc && n.bcc.includes(role.uuid)
+                                    div= role.code
+
+                +pagination(notifications)
+              script.
+                var operationList = !{JSON.stringify(operationList).replace(/<\//g, '<\\/')}
+                var roleList = !{JSON.stringify(roleList).replace(/<\//g, '<\\/')}
+                function openPopupDocuments() {
+                  getFilesWindow("NOTIFICATIONS");
+                }

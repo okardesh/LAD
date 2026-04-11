@@ -1,0 +1,56 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+
+    .page-wrapper
+      .container.mt-2
+        .page-breadcrumb
+          .row.d-flex.justify-content-end
+            .col-md-6.col-lg-7.col-xl-8
+              .row.justify-content-end
+                .col-sm-6.col-md-12.col-lg-6
+                  .row.justify-content-end
+                    .col-sm-6.col-lg-6.d-flex.justify-content-end.me-0.users-padding-right
+                      button.exportToExcel.button.btn-rounded.btn.waves-effect.waves-light.submit-btn.font-12(style="width:200px", type='button', name='export', value='xlsx')
+                        i.fas.fa-download
+                        |  #{__('Export')}
+      .container.p-5
+        .row
+          .col-12
+                div.user-big--div
+                  ul.second-area.non-overflow
+                    li.active #{__('Error Logs')}
+          .col-12
+            .card
+              .card-body
+                .table-responsive.dragscroll
+                  table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%;margin-right:20px')
+                    thead
+                      tr
+                        th(data-name='view').notexport
+                        th(data-name='requestMethod', data-searchable='on', data-sortable='on') #{__('RequestMethod')}
+                        th(data-name='requestPath', data-searchable='on', data-sortable='on') #{__('RequestMethod')} #{__('RequestPath')}
+                        th(data-name='requestTime',data-type="date" data-searchable='on', data-sortable='on') #{__('RequestTime')}
+                        th(data-name='username', data-searchable='on') #{__('UserName')}
+                        th(data-name='responseException', data-searchable='on', data-sortable='on') #{__('ResponseException')}
+                    if errorLogs
+                      tbody
+                        each apiLog in errorLogs.content
+                          tr
+                            td.text-center
+                              a(href='/error-logs/' + apiLog.uuid)
+                                i.fas.fa-eye.fa-1x
+                            td=apiLog.requestMethod
+                            td=apiLog.requestPath
+                            td=apiLog.requestTime
+                            td=apiLog.username
+                            td=responseException(apiLog.responseException)
+                +pagination(errorLogs)
+              script.
+                var userList = !{JSON.stringify(userList).replace(/<\//g, '<\\/')}
+                function openPopupDocuments() {
+                  getFilesWindow("ERROR_LOGS");
+                }
+                

@@ -1,0 +1,57 @@
+extends ../layout
+
+block content
+  #main-wrapper.rpad-layout(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/rpad-sidebar
+
+    .page-wrapper
+      .container.p-5
+        .row
+          .col-12
+            .card
+              .card-body
+                .table-responsive.dragscroll
+                  table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%;margin-right:20px')
+                    thead
+                      tr
+                        th(data-name='dataDate', data-searchable='on', data-sortable='on' data-type="date") #{__('Data Date')}
+                        th(data-name='queueName', data-searchable='on', data-sortable='on') #{__('Queue Name')}
+                        th(data-name='robotName', data-searchable='on', data-sortable='on') #{__('Robot Name')}
+                        th(data-name='robotUsername', data-searchable='on', data-sortable='on') #{__('Robot Username')}
+                        th(data-name='robotMachineName', data-searchable='on', data-sortable='on') #{__('Robot Machine Name')}
+                        th(data-name='queueStatus', data-searchable='on', data-sortable='on') #{__('Queue Status')}
+                        th(data-name='startProcessing', data-searchable='on', data-sortable='on' data-type="date") #{__('Start Processing')}
+                        th(data-name='endProcessing', data-searchable='on', data-sortable='on' data-type="date") #{__('End Processing')}
+                        th(data-name='processingExceptionType', data-searchable='on', data-sortable='on') #{__('Processing Exception Type')}
+                        th(data-name='creationTime', data-searchable='on', data-sortable='on' data-type="date") #{__('Creation Time')}
+                        th(data-name='priority', data-searchable='on', data-sortable='on') #{__('Priority')}
+                        th(data-name='retryNumber', data-searchable='on', data-sortable='on') #{__('Retry Number')}
+                        th(data-name='processingExceptionReason', data-searchable='on', data-sortable='on') #{__('Processing Exception Reason')}
+                        th(data-name='folder', data-searchable='on', data-sortable='on') #{__('Folder')}
+                        th(data-name='queueId', data-searchable='on', data-sortable='on') #{__('Queue ID')}
+                    if queue
+                      tbody
+                        each que in queue.content
+                          tr
+                            td.text-center=que.dataDate
+                            td=que.queueName
+                            td=que.robotName
+                            td=que.robotUsername
+                            td=que.robotMachineName
+                            td.text-center=que.queueStatus
+                            td.text-center=que.startProcessing
+                            td.text-center=que.endProcessing
+                            td.text-center=que.processingExceptionType
+                            td.text-center=que.creationTime
+                            td.text-center=que.priority
+                            td.text-center=que.retryNumber
+                            td.text-center=que.processingExceptionReason
+                            td.text-center=que.folder
+                            td.text-center=que.queueId
+            +pagination(queue)
+              script.
+                function openPopupDocuments() {
+                    getFilesWindow("QUEUE");}
+
+  include ../partials/footer

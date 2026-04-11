@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            .page-breadcrumb
+                .row
+                    .col-md-6.col-lg-5.col-xl-4.align-self-center
+                        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Data Entry Confirmation Request')}
+                        .d-flex.align-items-center
+                            nav(aria-label='breadcrumb')
+                                ol.breadcrumb.m-0.p-0
+                                    li.breadcrumb-item
+                                        a.text-muted.active-link(href='/') #{__('Home')}
+                                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Data Entry Confirmation Request')}
+                        .col-md-7.col-lg-8
+                if approval.history
+                    .container-fluid.p-3
+                        .card
+                            .card-header.bg-transparent
+                                .row.align-items-baseline
+                                    .com-sm-5.col-md-5.col-lg-4.mb-0
+                                div#info.text-primary&attributes({'data-html': info})
+                            .card-body
+                                .col-lg-12
+                                    .table-responsive.dragscroll
+                                        table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                            thead
+                                                tr
+                                                    th #{__('ReportDate')}
+                                                    th #{__('ReportType')}
+                                                    th #{__('Last Updated By')}
+                                                    th #{__('Last Updated Time')}
+                                                    th #{__('ApprovalStatus')}
+                                            tbody
+                                                each item in approval.history
+                                                    tr
+                                                        td=item.reportDate
+                                                        td #{__(item.reportType)}
+                                                        td=item.lastUpdaterName
+                                                        td=item.lastUpdatedTime
+                                                        td.text-center(style='font-weight:bold ; color: ' + getStatusColor(item.approvalStatus))=status(item.approvalStatus)

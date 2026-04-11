@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  #main-wrapper.rpad-layout(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/rpad-sidebar
+
+    .page-wrapper
+      .container.p-5
+        .row
+          .col-12
+            .card
+              .card-body
+                .table-responsive.dragscroll
+                  table.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%;margin-right:20px')
+                    thead
+                      tr
+                        th(data-name='releaseName', data-searchable='on', data-sortable='on') #{__('Release Name')}
+                        th(data-name='dataDate', data-searchable='on', data-sortable='on' data-type="date") #{__('Data Date')}
+                        th(data-name='startTime', data-searchable='on', data-sortable='on' data-type="date") #{__('Start Time')}
+                        th(data-name='endTime', data-searchable='on', data-sortable='on' data-type="date") #{__('End Time')}
+                        th(data-name='totalJobTime', data-searchable='on', data-sortable='on') #{__('Total Job Time')}
+                        th(data-name='state', data-searchable='on', data-sortable='on') #{__('State')}
+                        th(data-name='jobPriority', data-searchable='on', data-sortable='on') #{__('Job Priority')}
+                        th(data-name='sourceType', data-searchable='on', data-sortable='on') #{__('Source Type')}
+                        th(data-name='hostMachineName', data-searchable='on', data-sortable='on') #{__('Host Machine Name')}
+                    if jobs
+                      tbody
+                        each job in jobs.content
+                          tr
+                            td=job.releaseName
+                            td.text-center=job.dataDate
+                            td.text-center=job.startTime
+                            td.text-center=job.endTime
+                            td.text-center=job.totalJobTime
+                            td.text-center=job.state
+                            td.text-center=job.jobPriority
+                            td.text-center=job.sourceType
+                            td.text-center=job.hostMachineName
+            +pagination(jobs)
+              script.
+                function openPopupDocuments() {
+                    getFilesWindow("JOBS");}
+
+  include ../partials/footer

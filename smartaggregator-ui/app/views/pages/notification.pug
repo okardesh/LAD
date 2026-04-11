@@ -1,0 +1,141 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+    include ../partials/sidebar
+      
+    .page-wrapper
+      form(id='notification', method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        input(type='hidden', name='uuid', id='uuid' value= notification.uuid)
+        .page-breadcrumb
+          .row
+            .col-md-5.col-lg-4.align-self-center
+              h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Notifications')}
+              .d-flex.align-items-center
+                nav(aria-label='breadcrumb')
+                  ol.breadcrumb.m-0.p-0
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/') #{__('Home')}
+                    li.breadcrumb-item
+                      a.text-muted.active-link(href='/notifications') #{__('Notifications')}
+                    li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Notifications')}
+            .col-md-7.col-lg-8
+              .row.justify-content-end
+                if notification.uuid
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                      i.fas.fa-plus
+                      |  #{__('New')}
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                      i.far.fa-edit
+                      |  #{__('Update')}
+                  .col-sm-4.col-lg-3
+                    button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                      i.fa.fa-trash-alt
+                      |  #{__('Delete')}
+                else
+                  .col-sm-4.col-lg-3
+                    button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                      i.fas.fa-save
+                      |  #{__('Save')}
+          .row.mt-4.ml-0
+            div#info.text-primary&attributes({'data-html': info})
+        .container-fluid.p-3
+            .card
+              .card-body
+
+                .row
+                  .col-md-3
+                    .form-group
+                      label.col-form-label(for='code') #{__('Code')}
+                      input.form-control(type='text', name='code', id='code', placeholder=__('Code'), value=notification.code)
+                  .col-md-3
+                    .form-group
+                      label.col-form-label(for='subject') #{__('Subject')}
+                      input.form-control(type='text', name='subject', id='subject', placeholder=__('Subject'), value=notification.subject)
+                  .col-md-3
+                    .form-group
+                      label.col-form-label(for='status') #{__('Status')}
+                      br
+                      input(type='checkbox' name='status' id='status' checked=typeof notification.status === "undefined" ||  notification.status === 1 data-toggle='toggle' data-on=__('Active') data-off=__('Passive') data-style="ios" data-size="small")
+
+                .row
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='operation') #{__('Operation')}
+                      select.js-multiple-select.js-states.form-control(name='operation', id='operation')
+                        if operations
+                          each operation in operations
+                            option(value=operation.uuid, selected=(notification.operation === operation.uuid))= __('description.uri.' + operation.method + operation.path)
+
+                .row
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='summernote') #{__('Body')}
+                      textarea.form-control(type='textarea', rows=10, wrap=true, name='body', id='summernote', placeholder=__('Body'))
+                         =notification.body
+
+                .row
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='to') #{__('TO')}
+                      select.js-multiple-select.js-states.form-control(multiple='multiple', name='to', id='to')
+                        if roles
+                          each role in roles
+                            option(value=role.uuid, selected=notification.to ? notification.to.includes(role.uuid) : false)= role.code
+                
+                .row  
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='cc') #{__('CC')}
+                      select.js-multiple-select.js-states.form-control(multiple='multiple', name='cc', id='cc')
+                        if roles
+                          each role in roles
+                            option(value=role.uuid, selected=notification.cc ? notification.cc.includes(role.uuid) : false)= role.code
+                .row
+                  .col-md-6
+                    .form-group
+                      label.col-form-label(for='bcc') #{__('BCC')}
+                      select.js-multiple-select.js-states.form-control(multiple='multiple', name='bcc', id='bcc')
+                        if roles
+                          each role in roles
+                            option(value=role.uuid, selected=notification.bcc ? notification.bcc.includes(role.uuid) : false)= role.code
+
+      if notification.history
+          .container-fluid.p-3
+            .card
+              .card-header.bg-transparent
+                .row.align-items-baseline
+                  .com-sm-5.col-md-5.col-lg-4.mb-0
+                    h5
+                      i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                        | #{__('Data History')}
+
+              .card-body
+                .table-responsive.dragscroll
+                  table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                    thead
+                      tr
+                        th.notexport
+                        th #{__('Code')}
+                        th #{__('Subject')}
+                        th #{__('Last Updated By')}
+                        th #{__('Last Updated Time')}
+                      tbody
+                        each item in notification.history
+                          tr
+                            td
+                            td=item.code
+                            td=item.subject
+                            td=item.lastUpdaterName
+                            td=item.lastUpdatedTime
+
+
+                script.
+                  $('#deleteRecord').on('click', function (e) {
+                    e.preventDefault();
+                    removeConfirm("notification");
+                  });

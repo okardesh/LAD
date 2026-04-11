@@ -1,0 +1,38 @@
+extends ../layout
+
+block content
+  #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+    include ../partials/header
+
+    .page-wrapper
+      .container
+        h4.page-title.text-truncate.text-dark.font-weight-medium.mb-3.pt-3 #{__('Error Log')}
+        .card.p-3
+          .card-body
+            .row
+              .col-md-6
+                .form-group
+                  label.col-form-label(for='sessionId') #{__('Session')}
+                  input.form-control(type='text', name='sessionId', id='sessionId', placeholder=__('Session'), value=errorLogs.sessionId, readonly)
+            .row
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestMethod') #{__('RequestMethod')}
+                  input.form-control(type='text', name='requestMethod', id='requestMethod', placeholder=__('RequestMethod'), value=errorLogs.requestMethod, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestPath') #{__('RequestPath')}
+                  input.form-control(type='text', name='requestPath', id='requestPath', placeholder=__('RequestPath'), value=errorLogs.requestPath, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='requestTime') #{__('RequestTime')}
+                  input.form-control(type='text', name='requestTime', id='requestTime', placeholder=__('RequestTime'), value=errorLogs.requestTime, readonly)
+              .col-md-3
+                .form-group
+                  label.col-form-label(for='username') #{__('UserName')}
+                  input.form-control(type='text', name='username', id='username', placeholder=__('UserName'), value=errorLogs.username, readonly)
+        .card.p-3
+          .card-body
+              label.col-form-label #{__('ResponseException')}
+                pre.text-danger
+                  =errorLogs.responseException

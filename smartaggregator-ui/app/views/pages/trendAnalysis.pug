@@ -1,0 +1,138 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='trendAnalysis', method='POST')
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid', value=trendAnalysis.uuid)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Trend Analysis')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/trend-analyzes') #{__('Trend Analyzes')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Trend Analysis')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if trendAnalysis.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-primary.font-12(type='submit', name='action', value='new')
+                                            i.fas.fa-plus
+                                            |  #{__('New')}
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning.font-12(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    .col-sm-4.col-lg-3
+                                        button#deleteRecord.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger.font-12(type='submit', name='action', value='delete')
+                                            i.fa.fa-trash-alt
+                                            |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success.font-12(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='name') #{__('Name')}
+                                        input.form-control(type='text', name='name', id='name', autocomplete = "off" , placeholder=__('Name'), value=trendAnalysis.name)
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='graphName') #{__('Graph Name')}
+                                        input.form-control(type='text', name='graphName', id='graphName', autocomplete = "off" , placeholder=__('Graph Name'), value=trendAnalysis.graphName)
+                                .col-md-4
+                                    .form-group
+                                        label.col-form-label(for='tableName') #{__('Table Name')}
+                                        select.js-multiple-select.js-states.form-control(name='tableName', id='tableName')
+                                            each t in tables
+                                                option(value=t, selected=t === trendAnalysis.tableName)= __('model.' + t) + " - " + t
+                            .row
+                                .col-md-12
+                                    .form-group
+                                        .d-flex.justify-content-between
+                                            label.col-form-label #{__('Query')}
+                                            //if trendAnalysis.uuid
+                                                button.btn.btn-outline-success.font-12.ml-auto(type='button')
+                                                    i.fas.fa-chart-pie
+                                                    |  #{__('Run')}
+                                        textarea.sql-editor= trendAnalysis.query
+                            .row
+                                .col-md-12
+                                    .form-group
+                                        label.col-form-label(for='description') #{__('Description')}
+                                        input.form-control(type='text', name='description', id='description', autocomplete = "off" , placeholder=__('Description'), value=trendAnalysis.description)
+                    if trendAnalysis.uuid && trendAnalysis.params && trendAnalysis.params.length > 0
+                        .card
+                            .card-body
+                                .table-responsive.dragscroll
+                                    table#query-params.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                        thead
+                                            tr
+                                                th.text-center #{__('Key')}
+                                                th.text-center #{__('Value')}
+                                        tbody
+                                            each param in trendAnalysis.params
+                                                tr
+                                                    td.param-key.font-14.font-weight-bold.font-italic= param.key
+                                                    td.param-value
+                                                        if param.key === 'subsidiaryCode'
+                                                            select.js-multiple-select.js-states.form-control
+                                                                if subsidiaries
+                                                                    option
+                                                                    each subsidiary in subsidiaries
+                                                                        option(value=subsidiary.subsidiaryCode, selected=subsidiary.subsidiaryCode===param.value)= subsidiary.subsidiaryCode + " - " + subsidiary.formalName
+                                                        else if param.key === 'reportType'
+                                                            select.js-multiple-select.js-states.form-control
+                                                                option
+                                                                each reportType in ['Daily', 'Monthly']
+                                                                    option(value=reportType, selected=reportType===param.value) #{__(reportType)}
+                                                        else
+                                                            input.form-control(type='text', value=param.value)
+        script.
+            $('#deleteRecord').on('click', function (e) {
+                e.preventDefault();
+                removeConfirm("trendAnalysis");
+            });
+
+            /*if trendAnalysis.history
+                .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                            | #{__('Data History')}
+
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#ruleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th
+                                            th #{__('Query')}
+                                            th #{__('Last Updated By')}
+                                            th #{__('Last Updated Time')}
+                                    tbody
+                                     each item in trendAnalysis.history
+                                        tr
+                                            td
+                                            td
+                                              .sql-editor(contenteditable='true')= trendAnalysis.query
+                                            td=item.lastUpdaterName
+                                            td=item.lastUpdatedTime*/

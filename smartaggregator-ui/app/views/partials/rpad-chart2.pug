@@ -1,0 +1,453 @@
+div.active#rpad-chart2
+
+script.
+    const robotsOccupancyRateChart = JSON.parse('!{JSON.stringify(robotsOccupancyRateChart)}');
+    const chartROD = [];
+    let category3;
+        robotsOccupancyRateChart.forEach(function(element) {
+        Object.keys(element).forEach(function(key) {
+            if(key === 'fullTime' || key === 'freeTime'){
+                chartROD.push({
+                    type : `${key} = ${element[key]}`,
+                    value : element[key],
+                });
+            }
+        });
+        });
+
+    const piePlot2 = new Pie('rpad-chart2', {
+        appendPadding: 50,
+        data : chartROD,
+        angleField: 'value',
+        colorField: 'type',
+        radius: 1,
+        height: 555,
+        innerRadius: 0.5,
+        label: {
+            type: 'inner',
+            offset: '-50%',
+            content: '',
+            style: {
+                textAlign: 'center',
+                fontSize: 12,
+                fill: 'black',
+                fontWeight: 600
+                },
+        },
+        legend: {
+            layout: 'vertical',
+            position: 'bottom'
+        },
+        tooltip: {
+            customContent: (title, data) => {
+                let insideItem;
+                if(data[0] != null || data[0] != undefined){
+                    insideItem = data[0].data;
+                    if(insideItem != null || insideItem != undefined){
+                        return `<div class="tooltip-div">
+                                    <h5 class="tooltip-header">${insideItem.type}</h5><h5 class="tooltip-content">Hours : ${insideItem.value}</h5>
+                                </div>`;    
+                    }
+                }
+            }
+        },
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' }],
+        statistic: {
+            title: false,
+            content: {
+            style: {
+                whiteSpace: 'pre-wrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+            },
+            content: '',
+            },
+        },
+        });
+
+        piePlot2.render();
+
+    $('input[name="endTime2"]').on('change', function(){
+        let selectedDate4 = $(startTime2).val();
+        let selectedDate5 = $(endTime2).val();
+        if(selectedDate4 === 'Start Date' || selectedDate4 === 'Başlangıç Tarihi'){
+            alert('please enter start date first')
+        }else if(selectedDate5 < selectedDate4){
+            alert('start date must be greater than end date')
+        }else{
+            var MonthDate = new Date();
+            var firstDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth(), 1);
+            var lastDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth() + 1, 0);
+
+            var newfirstYear = firstDay.getFullYear();
+            var newfirstMonth = firstDay.getMonth()+1;
+            var newfirstDay = firstDay.getDate();
+
+            var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+
+            var newLastYear = lastDay.getFullYear();
+            var newLastMonth = lastDay.getMonth()+1;
+            var newLastDay = lastDay.getDate();
+
+            var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+            $('input[name="startTime2"]').attr('value', fullFirstDay)
+            $('input[name="endTime2"]').attr('value', fullLastDay)
+            
+            if(selectedDate4 === 'Tarih Seçiniz'){
+                alert('Please enter start time first.');
+                selectedDate5 = $(endTime2).val('');
+            }else{
+                category3 = $(startTime2).val();
+                    let newDay2 = category3.slice(0, 2);
+                    let newMonth2 = category3.slice(3, 5);
+                    let newYear2 = category3.slice(6, 10);
+
+                    let newCategory3 = new Date(newYear2 + '-' + newMonth2 + '-' + newDay2);
+
+
+                    var newToday2 = new Date(newCategory3);
+                    var newStartTime2 = new Date(newCategory3);
+                    var newEndTime2 = new Date(newCategory3);
+                    newEndTime2.setDate(newToday2.getDate() + 7);
+
+                    var newStartTimeYear2 = newStartTime2.getFullYear();
+                    var newStartTimeMonth2 = newStartTime2.getMonth()+1;
+                    var newStartTimeDay2 = newStartTime2.getDate();
+
+                    var lastStartTime2 = newStartTimeDay2 + '/' + newStartTimeMonth2 + '/' + newStartTimeYear2;
+
+                    var newEndTimeYear2 = newEndTime2.getFullYear();
+                    var newEndTimeMonth2 = newEndTime2.getMonth()+1;
+                    var newEndTimeDay2 = newEndTime2.getDate();
+
+                    var lastEndTime2 = newEndTimeDay2 + '/' + newEndTimeMonth2 + '/' + newEndTimeYear2;
+
+                    $('input[name="startTime2"]').attr('value', lastStartTime2)
+                    $('input[name="endTime2"]').attr('value', lastEndTime2)
+
+
+                    filterRobotsOccupancyRateChart = {startTime:selectedDate4, endTime : selectedDate5};
+                $.ajax({
+                    url: "/robotsOccupancyRateChart-filter",
+                    type: 'POST',
+                    data: filterRobotsOccupancyRateChart,
+                    dataType: 'json', // added data type
+                    success: function(res) {
+                        let RORC = [];
+                        if(res.rpadJobsList.length > 0) {
+                            $('#rpad-chart2').removeClass('visibility-none')
+                            res.rpadJobsList.forEach(function(element) {
+                            Object.keys(element).forEach(function(key) {
+                                if(key === 'fullTime' || key === 'freeTime'){
+                                    RORC.push({
+                                        type : key,
+                                        value : element[key],
+                                    });
+                                }
+                            });
+                            });
+                            piePlot2.changeData(RORC);
+                            piePlot2.render();
+                        }else{
+                            $('#rpad-chart2').addClass('visibility-none')
+                        }
+                        
+                    },
+                    error: function(err){
+                        console.log('error')
+                    }
+                });
+            }
+        }
+        
+    });
+
+
+    $('input[name="month-to-date"]').on('click', function(){
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth(), 1);
+        var lastDay = new Date(MonthDate.getFullYear(), MonthDate.getMonth() + 1, 0);
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        
+        $('input[name="startTime2"]').attr('value', fullFirstDay)
+        $('input[name="endTime2"]').attr('value', fullLastDay)
+
+
+        filterRobotsOccupancyRateChart = {startTime:fullFirstDay, endTime : fullLastDay};
+        $.ajax({
+            url: "/robotsOccupancyRateChart-filter",
+            type: 'POST',
+            data: filterRobotsOccupancyRateChart,
+            dataType: 'json', // added data type
+            success: function(res) {
+                let RORC = [];
+                if(res.rpadJobsList.length > 0) {
+                    $('#rpad-chart2').removeClass('visibility-none')
+                    res.rpadJobsList.forEach(function(element) {
+                    Object.keys(element).forEach(function(key) {
+                        if(key === 'fullTime' || key === 'freeTime'){
+                            RORC.push({
+                                type : key,
+                                value : element[key],
+                            });
+                        }
+                    });
+                    });
+                    piePlot2.changeData(RORC);
+                    piePlot2.render();
+                }else{
+                    $('#rpad-chart2').addClass('visibility-none')
+                }
+                
+            },
+            error: function(err){
+                console.log('error')
+            }
+        });
+    });
+
+    $('select[name="states2"]').on('change', function(){
+        let newStateChartFilter2 = $('select[name="states2"]').val();
+        filterRobotsOccupancyRateChart2 = {ReleaseName : newStateChartFilter2};
+            $.ajax({
+                url: "/robotsOccupancyRateChart2-filter",
+                type: 'POST',
+                data: filterRobotsOccupancyRateChart2,
+                dataType: 'json', // added data type
+                success: function(res) {
+                    let newStateChart2 = [];
+                    if(res.rpadJobsList.length > 0) {
+                        $('#rpad-chart2').removeClass('visibility-none')
+                            res.rpadJobsList.sort((a, b) => a.state - b.state).forEach(element => {
+                                newStateChart2.push({
+                                    state : `${element.state} sayısı = ${element.count}`,
+                                    count : element.count,
+                                    content: {
+                                        count: element.count !=null ? currencyFormat2.format(element.count) : 0,
+                                        state: element.state, 
+                                        }
+                            })
+                        });
+                        piePlot.changeData(newStateChart);
+                        piePlot.render();
+                    }else{
+                        $('#rpad-chart2').addClass('visibility-none')
+                    }
+                    
+                },
+                error: function(err){
+                    console.log('error')
+                }
+            });
+    });
+
+    $('input[name="last-working-date"]').on('click', function(){
+        var lastWorkingDate = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+        
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        for(let i=0; i < 7 ; i++){
+            lastWorkingDate = new Date(lastDataDate - 1000 * 60 * 60 * 24 * i);
+            if(lastWorkingDate.getUTCDay() > 0 && lastWorkingDate.getUTCDay() < 6){
+                break;
+            }
+        }
+
+        var lastWorkingDateToday = new Date(lastWorkingDate);
+
+        var allLastWorkingDateTodayDay = 
+            ('0' + lastWorkingDateToday.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWorkingDateToday.getMonth()+1)).slice(-2) + '/' + 
+            lastWorkingDateToday.getFullYear();
+
+
+        $('input[name="startTime2"]').attr('value', allLastWorkingDateTodayDay)
+        $('input[name="endTime2"]').attr('value', allLastWorkingDateTodayDay)
+
+
+
+        filterRobotsOccupancyRateChart = {startTime:allLastWorkingDateTodayDay, endTime : allLastWorkingDateTodayDay};
+        $.ajax({
+            url: "/robotsOccupancyRateChart-filter",
+            type: 'POST',
+            data: filterRobotsOccupancyRateChart,
+            dataType: 'json', // added data type
+            success: function(res) {
+                let RORC = [];
+                if(res.rpadJobsList.length > 0) {
+                    $('#rpad-chart2').removeClass('visibility-none')
+                    res.rpadJobsList.forEach(function(element) {
+                    Object.keys(element).forEach(function(key) {
+                        if(key === 'fullTime' || key === 'freeTime'){
+                            RORC.push({
+                                type : key,
+                                value : element[key],
+                            });
+                        }
+                    });
+                    });
+                    piePlot2.changeData(RORC);
+                    piePlot2.render();
+                }else{
+                    $('#rpad-chart2').addClass('visibility-none')
+                }
+                
+            },
+            error: function(err){
+                console.log('error')
+            }
+        });
+    });
+
+
+    $('input[name="year-to-date"]').on('click', function(){
+        
+        var MonthDate = new Date();
+        var firstDay = new Date(new Date().getFullYear(), 0, 1);
+        
+
+        var newfirstYear = firstDay.getFullYear();
+        var newfirstMonth = firstDay.getMonth()+1;
+        var newfirstDay = firstDay.getDate();
+
+        var fullFirstDay = ('0' + newfirstDay).slice(-2) + '/' + ( '0' + newfirstMonth).slice(-2) + '/' + newfirstYear;
+
+
+        var newLastYear = MonthDate.getFullYear();
+        var newLastMonth = MonthDate.getMonth()+1;
+        var newLastDay = MonthDate.getDate();
+
+        var fullLastDay = ('0' + newLastDay).slice(-2) + '/' + ( '0' + newLastMonth).slice(-2) + '/' + newLastYear;
+
+        
+        $('input[name="startTime2"]').attr('value', fullFirstDay)
+        $('input[name="endTime2"]').attr('value', fullLastDay)
+
+
+        filterRobotsOccupancyRateChart = {startTime:fullFirstDay, endTime : fullLastDay};
+        $.ajax({
+            url: "/robotsOccupancyRateChart-filter",
+            type: 'POST',
+            data: filterRobotsOccupancyRateChart,
+            dataType: 'json', // added data type
+            success: function(res) {
+                let RORC = [];
+                if(res.rpadJobsList.length > 0) {
+                    $('#rpad-chart2').removeClass('visibility-none')
+                    res.rpadJobsList.forEach(function(element) {
+                    Object.keys(element).forEach(function(key) {
+                        if(key === 'fullTime' || key === 'freeTime'){
+                            RORC.push({
+                                type : key,
+                                value : element[key],
+                            });
+                        }
+                    });
+                    });
+                    piePlot2.changeData(RORC);
+                    piePlot2.render();
+                }else{
+                    $('#rpad-chart2').addClass('visibility-none')
+                }
+                
+            },
+            error: function(err){
+                console.log('error')
+            }
+        });
+    });
+
+
+
+    $('input[name="last-week"]').on('click', function(){
+        var lastWeekEnd = new Date();
+        var lastDataDate = $('input[name="workDate"]').val();
+        
+        let newlastDataDay = lastDataDate.slice(0, 2);
+        let newlastDataMonth = lastDataDate.slice(3, 5);
+        let newlastDataYear = lastDataDate.slice(6, 10);
+        lastDataDate = new Date(newlastDataYear + '-' + newlastDataMonth + '-' + newlastDataDay);
+
+        for(let i=0; i < 7 ; i++){
+            lastWeekEnd = new Date(lastDataDate - 1000 * 60 * 60 * 24 * i);
+            if(lastWeekEnd.getUTCDay() == 0){
+                break;
+            }
+        }
+
+        let lastWeekStart = new Date(lastWeekEnd - 1000 * 60 * 60 * 24 * 6);
+
+        var lastWeekEndFormat = new Date(lastWeekEnd);
+        lastWeekEndFormat =
+            ('0' + lastWeekEndFormat.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWeekEndFormat.getMonth()+1)).slice(-2) + '/' + 
+            lastWeekEndFormat.getFullYear();
+
+
+        var lastWeekStartFormat = new Date(lastWeekStart);
+
+        lastWeekStartFormat =
+             ('0' + lastWeekStartFormat.getDate()).slice(-2) + '/' + 
+            ('0' + (lastWeekStartFormat.getMonth()+1)).slice(-2) + '/' + 
+            lastWeekStartFormat.getFullYear();
+
+
+
+
+        $('input[name="startTime2"]').attr('value', lastWeekStartFormat)
+        $('input[name="endTime2"]').attr('value', lastWeekEndFormat)
+
+
+
+        filterRobotsOccupancyRateChart = {startTime:lastWeekStartFormat, endTime : lastWeekEndFormat};
+        $.ajax({
+            url: "/robotsOccupancyRateChart-filter",
+            type: 'POST',
+            data: filterRobotsOccupancyRateChart,
+            dataType: 'json', // added data type
+            success: function(res) {
+                let RORC = [];
+                if(res.rpadJobsList.length > 0) {
+                    $('#rpad-chart2').removeClass('visibility-none')
+                    res.rpadJobsList.forEach(function(element) {
+                    Object.keys(element).forEach(function(key) {
+                        if(key === 'fullTime' || key === 'freeTime'){
+                            RORC.push({
+                                type : key,
+                                value : element[key],
+                            });
+                        }
+                    });
+                    });
+                    piePlot2.changeData(RORC);
+                    piePlot2.render();
+                }else{
+                    $('#rpad-chart2').addClass('visibility-none')
+                }
+                
+            },
+            error: function(err){
+                console.log('error')
+            }
+        });
+    });

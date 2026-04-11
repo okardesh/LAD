@@ -1,0 +1,80 @@
+mixin pagination(items)
+    if items && items.content && items.content.length > 0
+        .row.dataTables_wrapper.container-fluid.dt-bootstrap4.no-footer
+            .col-sm-12.col-md-6
+                .dataTables_length(id="DataTables_Table_0_length")
+                    label
+                    | #{__("Show")} 
+                    select.form-control.form-control-sm.table-length-select(name='DataTables_Table_0_length', aria-controls='DataTables_Table_0')
+                        option(value='15', selected= query != null && query.limit != null && query.limit == 15) 15
+                        option(value='25', selected= query != null && query.limit != null && query.limit == 25) 25
+                        option(value='50', selected= query != null && query.limit != null && query.limit == 50) 50
+                        option(value='100', selected= query != null && query.limit != null && query.limit == 100) 100
+                        option(value='250', selected= query != null && query.limit != null && query.limit == 250) 250
+                        option(value='500', selected= query != null && query.limit != null && query.limit == 500) 500
+                        option(value='1000', selected= query != null && query.limit != null && query.limit == 1000) 1000
+                    |  #{__("Entries")}
+            .col-sm-12.col-md-6
+        .row.dataTables_wrapper.container-fluid.dt-bootstrap4.no-footer
+            .col-sm-12.col-md-5
+                .dataTables_info(id="DataTables_Table_0_info", role = "status", aria-live="polite")
+                    =__("Showing %s to %s of %s entries",items.totalElements,(items.pageable.offset+1),(items.numberOfElements+items.pageable.offset))
+
+            .col-sm-12.col-md-7
+                .dataTables_paginate.paging_simple_numbers.custom-pagination(id="DataTables_Table_0_paginate")
+                    ul.pagination
+
+                        if items.number !== 0
+                            li.paginate_button.page-item.previous
+                                a.page-link(href="javascript:;", data-page=items.number===1 ? 1 : items.number) #{__("Previous")}
+
+                        if items.number+1 < 5
+                            - var n = 0;
+                            while n < ((items.totalPages<5) ? items.totalPages: 5)
+                                - var active=""
+                                if items.number === n
+                                    -active="active"
+                                else
+                                    - active=""
+                                li(class="paginate_button page-item "+active)
+                                    a.page-link(href="javascript:;", data-page=(n+1))=n+1
+                                -n++
+
+                        if items.number + 1 > 4
+                            li.paginate_button.page-item
+                                a.page-link(href="javascript:;", data-page=1)=1
+                            li.paginate_button.page-item.disabled
+                                a.page-link="…"
+                            - var n = (items.totalPages-items.number)<3 ? items.totalPages-3 :items.number ;
+                                while n < (items.number+3) && items.totalPages-1 > n
+                                    - var active = ""
+                                    if items.number === n
+                                        - active = "active"
+                                    else
+                                        - active = ""
+                                    li(class="paginate_button page-item " + active)
+                                        a.page-link(href="javascript:;", data-page=(n + 1))=n + 1
+                                    -n++
+
+                        if ((items.totalPages-5) > items.number)
+                            li.paginate_button.page-item.disabled
+                                a.page-link="…"
+
+                        - var active = ""
+                        if items.number === n
+                            - active = "active"
+                        else
+                            - active = ""
+
+                        if items.totalPages > 5
+                            li(class="paginate_button page-item " + active)
+                                a.page-link(href="javascript:;", data-page=items.totalPages)=items.totalPages
+
+                        if items.totalPages === 5 && items.number === 4
+                            li(class="paginate_button page-item " + active)
+                                a.page-link(href="javascript:;", data-page=items.totalPages)=items.totalPages
+
+                        if items.number !== (items.totalPages-1)
+                            li.paginate_button.page-item.next
+                                a.page-link(href="javascript:;", data-page=(items.number+2)) #{__("Next")}
+

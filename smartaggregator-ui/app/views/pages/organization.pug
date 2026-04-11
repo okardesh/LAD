@@ -1,0 +1,163 @@
+extends ../layout
+
+block content
+    #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
+        include ../partials/header
+        include ../partials/sidebar
+
+        .page-wrapper
+            form(id='organization', method='POST', enctype="multipart/form-data")
+                input(type='hidden', name='_csrf', value=_csrf)
+                input(type='hidden', name='uuid', id='uuid',
+                    value=organization.uuid)
+                input(type='hidden', name='logo', value=organization.logo)
+                .page-breadcrumb
+                    .row
+                        .col-md-5.col-lg-4.align-self-center
+                            h4.page-title.text-truncate.text-dark.font-weight-medium.mb-1 #{__('Organization')}
+                            .d-flex.align-items-center
+                                nav(aria-label='breadcrumb')
+                                    ol.breadcrumb.m-0.p-0
+                                        li.breadcrumb-item
+                                            a.text-muted.active-link(href='/') #{__('Home')}
+                                        li.breadcrumb-item.text-muted.active(aria-current='page') #{__('Organization')}
+                        .col-md-7.col-lg-8
+                            .row.justify-content-end
+                                if organization.uuid
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-warning(type='submit', name='action', value='update')
+                                            i.far.fa-edit
+                                            |  #{__('Update')}
+                                    //- .col-sm-4.col-lg-3
+                                    //-     button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-danger(type='submit', name='action', value='delete')
+                                    //-         i.fa.fa-trash-alt
+                                    //-         |  #{__('Delete')}
+                                else
+                                    .col-sm-4.col-lg-3
+                                        button.form-control.btn-rounded.btn.waves-effect.waves-light.btn-success(type='submit', name='action', value='save')
+                                            i.fas.fa-save
+                                            |  #{__('Save')}
+                    .row.mt-4.ml-0
+                        div#info.text-primary&attributes({'data-html': info})
+                .container-fluid.p-3
+                    .card
+                        .card-body
+                            .row
+                                .col-md-5.col-lg-4.text-center
+                                    .form-group
+                                      .kv-avatar
+                                        .file-loading
+                                            input#organizationLogo(type='file', name='file')
+                                      .kv-avatar-hint
+                                        placeholder=__('SelectLogoOnlyPng')
+                                      .kv-avatar-hint
+                                        placeholder=__('FileSize<5000KB')
+                                      .kv-avatar-hint
+                                        placeholder=__('Minimum image ratio 4:3')
+
+                                .col-md-7.col-lg-8
+                                    .row
+                                        .col-md-6.col-lg-4
+                                            .form-group.position-right
+                                                label.col-form-label(for='name') #{__('Name')}
+                                                input.form-control(name='name', id='name', placeholder=__('Name'), value=organization.name)
+                                        .col-md-6.col-lg-4
+                                            .form-group.position-right
+                                                label.col-form-label(for='name') #{__('Description')}
+                                                input.form-control(name='description', id='description', placeholder=__('Description'), value=organization.description)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='code') #{__('organizationCode')}
+                                                input.form-control(type='text', name='code', id='code',autocomplete = "off" , placeholder=__('organizationCode'), value=organization.code, readonly)
+
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='mainContactName') #{__('MainContactName')}
+                                                input.form-control(type='text', name='mainContactName', id='mainContactName',autocomplete = "off" , placeholder=__('MainContactName'), value=organization.mainContactName)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='mainContactEmail') #{__('MainContactEmail')}
+                                                input.form-control(type='text', name='mainContactEmail', id='mainContactEmail',autocomplete = "off" , placeholder=__('MainContactEmail'), value=organization.mainContactEmail)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='mainContactPhone') #{__('MainContactPhone')}
+                                                input.form-control.text-right.input-phone(type='text', name='mainContactPhone', id='mainContactPhone',autocomplete = "off" , placeholder=__('MainContactPhone'), value=organization.mainContactPhone)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='mainContactMobile') #{__('MainContactMobile')}
+                                                input.form-control.text-right.input-phone(name='mainContactMobile', id='mainContactMobile',autocomplete = "off" , placeholder=__('MainContactMobile'), value=organization.mainContactMobile)
+
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='website') #{__('WebSite')}
+                                                input.form-control(type='text', name='website', id='website',autocomplete = "off" , placeholder=__('webSite'), value=organization.website)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='twitter') #{__('Twitter')}
+                                                input.form-control(type='text', name='twitter', id='twitter',autocomplete = "off" , placeholder=__('Twitter'), value=organization.twitter)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='facebook') #{__('Facebook')}
+                                                input.form-control(type='text', name='facebook', id='facebook',autocomplete = "off" , placeholder=__('Facebook'), value=organization.facebook)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='instagram') #{__('Instagram')}
+                                                input.form-control(type='text', name='instagram', id='instagram',autocomplete = "off" , placeholder=__('Instagram'), value=organization.instagram)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='linkedin') #{__('Linkedin')}
+                                                input.form-control(type='text', name='linkedin', id='linkedin',autocomplete = "off" , placeholder=__('Linkedin'), value=organization.linkedin)
+                                        .col-md-6.col-lg-4
+                                            .form-group
+                                                label.col-form-label(for='youtube') #{__('Youtube')}
+                                                input.form-control(type='text', name='youtube', id='youtube',autocomplete = "off" , placeholder=__('Youtube'), value=organization.youtube)
+
+            if organization.history
+                .container-fluid.p-3
+                    .card
+                        .card-header.bg-transparent
+                            .row.align-items-baseline
+                                .com-sm-5.col-md-5.col-lg-4.mb-0
+                                    h5
+                                        i.fas.fa-info-circle(style="margin-right:5px;margin-left:-10px;color:royalblue")
+                                            | #{__('Data History')}
+
+                        .card-body
+                            .table-responsive.dragscroll
+                                table#roleTable.multi-col-order.table.table-striped.table-bordered.display.no-wrap(style='width:100%')
+                                    thead
+                                        tr
+                                            th.notexport
+                                            th #{__('Name')}
+                                            th #{__('Code')}
+                                            th #{__('MainContactName')}
+                                            th #{__('MainContactEmail')}
+                                            th #{__('MainContactPhone')}
+                                            th #{__('MainContactMobile')}
+                                            th #{__('WebSite')}
+                                            th #{__('Facebook')}
+                                            th #{__('Insragram')}
+                                            th #{__('Linkedin')}
+                                            th #{__('Youtube')}
+                                            th #{__('Last Updated By')}
+                                            th #{__('Last Updated Time')}
+                                    tbody
+                                     each item in organization.history
+                                        tr
+                                            td
+                                            td=item.name
+                                            td=item.code
+                                            td=item.mainContactName
+                                            td=item.mainContactEmail
+                                            td=item.mainContactPhone
+                                            td=item.mainContactMobile
+                                            td=item.website
+                                            td=item.facebook
+                                            td=item.instagram
+                                            td=item.linkedin
+                                            td=item.youtube
+                                            td=item.lastUpdaterName
+                                            td=item.lastUpdatedTime
+
+        script.
+            var organization = !{JSON.stringify(organization).replace(/<\//g, '<\\/')}

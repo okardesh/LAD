@@ -1,0 +1,72 @@
+.container.data-groups.active    
+    .row 
+        .col-sm-12
+            div.table-div
+                h1(style="color:black; padding-top:25px;") #{__('DailyIntensityDataTable')}
+                table.table#daily-intensity-table.job-list2
+                    thead 
+                        tr 
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('Data Date')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('Work Date')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('00:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('01:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('02:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('03:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('04:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('05:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('06:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('07:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('08:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('09:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('10:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('11:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('12:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('13:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('14:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('15:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('16:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('17:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('18:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('19:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('20:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('21:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('22:00')}
+                            th.col-2(style="background-color:#F5F5F5;min-width: 0!important; padding: 6px!important;")  #{__('23:00')}
+                    tbody
+                        each item in dailyIntensity
+                            tr 
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.dataDate != null ? item.dataDate : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.workDate != null ? item.workDate : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h0  != null ? item.h0 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h1  != null ? item.h1 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h2  != null ? item.h2 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h3  != null ? item.h3 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h4  != null ? item.h4 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h5  != null ? item.h5 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h6  != null ? item.h6 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h7  != null ? item.h7 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h8  != null ? item.h8 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h9  != null ? item.h9 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h10 != null ? item.h10 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h11 != null ? item.h11 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h12 != null ? item.h12 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h13 != null ? item.h13 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h14 != null ? item.h14 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h15 != null ? item.h15 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h16 != null ? item.h16 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h17 != null ? item.h17 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h18 != null ? item.h18 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h19 != null ? item.h19 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h20 != null ? item.h20 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h21 != null ? item.h21 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h22 != null ? item.h22 : 'N/A'
+                                td.text-center(style="background-color: white;min-width: 0!important; padding: 6px!important;")=item.h23 != null ? item.h23 : 'N/A'
+script.
+
+    $(".job-list2").fancyTable({
+        searchable: false,
+        pagination: true,
+        perPage:7,
+        globalSearch: false,
+        sortable: true,
+    });
