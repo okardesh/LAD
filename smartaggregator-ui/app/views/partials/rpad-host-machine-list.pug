@@ -8,7 +8,7 @@
                             th.col-1(style="background-color:#F5F5F5; width:80%;")  #{__('Host Machine Name')}
                             th.col-2(style="background-color:#F5F5F5; width:20%;")  #{__('Last Data Date')}
                     tbody
-                        each item in hosts
+                        each item in (hosts || [])
                             tr
                                 if(item.hostMachineName != null)
                                     td.text-center(style="background-color: white; width:80%;")=item.hostMachineName != null ? item.hostMachineName : 'N/A'

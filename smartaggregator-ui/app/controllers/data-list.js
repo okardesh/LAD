@@ -73,10 +73,10 @@ exports.getRobotList = async (req, res) => {
         console.error('data-list controller error:', err);
     }
 
-    const robots = Array.isArray(response.robots) ? response.robots : [];
-    const hosts = Array.isArray(response.hosts) ? response.hosts : [];
-    const dailyIntensity = Array.isArray(response.dailyIntensity) ? response.dailyIntensity : [];
-    const jobs = Array.isArray(response.jobs) ? response.jobs : [];
+    const robots = Array.isArray(response && response.robots) ? response.robots : [];
+    const hosts = Array.isArray(response && response.hosts) ? response.hosts : [];
+    const dailyIntensity = Array.isArray(response && response.dailyIntensity) ? response.dailyIntensity : [];
+    const jobs = Array.isArray(response && response.jobs) ? response.jobs : [];
 
     return res.render('pages/data-list', {
         title: 'Data List',

@@ -59,10 +59,10 @@ exports.getRobotsList = async (req, res) => {
 
         res.render('pages/robots', {
             title: 'Robots',
-            robots: response.robots,
-            hosts: response.hosts,
-            dailyIntensity: response.dailyIntensity,
-            jobs:response.jobs,
+            robots: Array.isArray(response && response.robots) ? response.robots : [],
+            hosts: Array.isArray(response && response.hosts) ? response.hosts : [],
+            dailyIntensity: Array.isArray(response && response.dailyIntensity) ? response.dailyIntensity : [],
+            jobs: Array.isArray(response && response.jobs) ? response.jobs : [],
             months: months,
             years: generateArrayOfYears(),
             filters: filters,
