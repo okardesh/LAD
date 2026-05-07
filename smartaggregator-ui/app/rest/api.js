@@ -10,6 +10,9 @@ const USERUUID = "User-Uuid";
 const USER_DETAILS = "UserDetails";
 const SIDE_MENU_PERMISSION = "sideMenuPermission";
 const ORGANIZATION = "organization";
+const API_BASE_URL = process.env.API_URL || 'http://127.0.0.1:8081';
+const API_LOGIN_PATH = process.env.API_LOGIN || '/login';
+const API_LOGOUT_PATH = process.env.API_LOGOUT || '/logout';
 
 exports.login = (username, password, req, cb) => {
     let data = {
@@ -18,7 +21,7 @@ exports.login = (username, password, req, cb) => {
     };
 
     let options = {
-        url: `${process.env.API_URL}/login`,
+        url: `${API_BASE_URL}/login`,
         method: 'POST',
         json: data,
         headers: {
@@ -65,7 +68,7 @@ exports.login = (username, password, req, cb) => {
 
 exports.logged = (req, cb) => {
     let options = {
-        url: `${process.env.API_URL}${process.env.API_LOGIN}`,
+        url: `${API_BASE_URL}${API_LOGIN_PATH}`,
         method: 'POST',
         headers: {
             Authorization: req.user.authorization,
@@ -75,7 +78,7 @@ exports.logged = (req, cb) => {
     };
 
     console.info("********** CALL API **********");
-    console.info(`/POST ${process.env.API_LOGIN}`);
+    console.info(`/POST ${API_LOGIN_PATH}`);
 
     request(options, function (error, response) {
         if (error) console.error('response error-->', error);
@@ -92,7 +95,7 @@ exports.logged = (req, cb) => {
 
 exports.logout = (req, cb) => {
     let options = {
-        url: `${process.env.API_URL}${process.env.API_LOGOUT}`,
+        url: `${API_BASE_URL}${API_LOGOUT_PATH}`,
         method: 'POST',
         timeout: 5000,
         headers: {
@@ -103,7 +106,7 @@ exports.logout = (req, cb) => {
     };
 
     console.info("********** CALL API **********");
-    console.info(`/POST ${process.env.API_LOGOUT}`);
+    console.info(`/POST ${API_LOGOUT_PATH}`);
 
     request(options, function (error, response) {
         if (error) console.error('response error-->', error);
@@ -123,7 +126,7 @@ exports.requestAsync = async (uri, method, data, req) => {
     console.info(`/${method} ${uri}`);
 
     let options = {
-        url: `${process.env.API_URL}${uri}`,
+        url: `${API_BASE_URL}${uri}`,
         method: `${method}`,
         json: data,
         headers: {
@@ -168,7 +171,7 @@ exports.request = (uri, method, data, req, res, cb) => {
     console.info(`/${method} ${uri}`);
 
     let options = {
-        url: `${process.env.API_URL}${uri}`,
+        url: `${API_BASE_URL}${uri}`,
         method: `${method}`,
         json: data,
         headers: {

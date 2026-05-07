@@ -520,6 +520,7 @@
 	"Rejected": "İade Edildi",
 	"RemoteIp": "Uzak Ip",
 	"RemotePort": "Uzak Port",
+	"RememberMe": "Beni Hatırla",
 	"RepeatPassword": "Yeni Şifre Tekrarı",
 	"Replication Subsidiary": "Kopyalanacak İştirak",
 	"Report date cannot be empty": "Veri girişi için rapor tarihi seçiniz.",
@@ -3112,7 +3113,29 @@
 	"Current password is not correct.": "Mevcut şifre doğru değil.",
 	"Password does not match.": "Şifre eşleşmiyor.",
 	"Upload":"Yükleme",
-	"title.Upload":"Yükleme Ekranı"
+	"title.Upload":"Yükleme Ekranı",
+	"Management": "Yönetim",
+	"CollapseMenu": "Menüyü Daralt",
+	"LatestUpdate": "Son Güncelleme",
+	"AIAgent": "AI Agent",
+	"Queue": "Kuyruk",
+	"Process": "Süreç",
+	"SuccessRate": "Başarı Oranı",
+	"RobotAnalytics": "Robot Analitiği",
+	"QueueAnalytics": "Kuyruk Analitiği",
+	"Filters": "Filtreler",
+	"DashboardEdit": "Dashboard Düzenle",
+	"DashboardCustomizeNote": "Aşağıdaki alanların görünürlüğünü değiştirerek kontrol panelini özelleştirebilirsiniz.",
+	"Section": "Bölüm",
+	"ProcessStatuses": "Süreç Durumları",
+	"RobotOccupancy": "Robot Doluluk",
+	"WorkingHoursOccupancy": "Çalışma Saatleri Doluluk",
+	"WeeklyDensity": "Haftalık Yoğunluk",
+	"DailyWorkingTime": "Günlük Çalışma Süresi",
+	"ProcessAnalytics": "Süreç Analitiği",
+	"QueueStatuses": "Kuyruk Durumları",
+	"TotalTime": "Toplam Süre",
+	"ExportFailedRetry": "Dışa aktarma işlemi başarısız oldu. Lütfen tekrar deneyin."
 
 
 }

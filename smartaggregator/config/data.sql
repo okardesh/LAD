@@ -31,6 +31,10 @@ VALUES (1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 1, 1, random_uuid(), '
 INSERT INTO app_users (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, email, name, surname, username, password, user_type, subsidiary_id)
 VALUES (1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 1, 1, random_uuid(), 'admin1@example.com', 'System', 'Admin', 'admin', 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec', 1, 1);
 
+-- Create a local test user
+INSERT INTO app_users (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, email, name, surname, username, password, user_type, subsidiary_id)
+VALUES (2, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 1, 1, random_uuid(), 'okardes@linktera.com.tr', 'Onur', 'Kardes', 'okardes', '$2a$10$TLblujSfrN3DIuNqitYPnOBLjlVbLQ0tHMxtnBvVYPdcmiU2ME/RC', 1, 1);
+
 -- Link user to role
 INSERT INTO app_user_roles (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, role_id, user_id)
 VALUES (1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 1, 1, random_uuid(), 1, 1);
@@ -38,7 +42,9 @@ VALUES (1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 1, 1, random_uuid(), 1
 INSERT INTO app_user_roles (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, role_id, user_id)
 VALUES (2, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 0, 1, random_uuid(), 1, 2);
 
-UPDATE app_users SET password = '$2b$10$UqLGjNunxkvKzeBpcBdIGeNFvVj2afinwLOHdiqPSuG2u58XkRA8y' WHERE username = 'admin';
+-- Reset local passwords to 123456
+UPDATE app_users SET password = '$2a$10$TLblujSfrN3DIuNqitYPnOBLjlVbLQ0tHMxtnBvVYPdcmiU2ME/RC' WHERE username = 'admin';
+UPDATE app_users SET password = '$2a$10$TLblujSfrN3DIuNqitYPnOBLjlVbLQ0tHMxtnBvVYPdcmiU2ME/RC' WHERE username = 'okardes';
 
 ALTER TABLE app_api_logs ALTER COLUMN response_exception CLOB;
 INSERT INTO app_tables (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, name) VALUES (150, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 0, 1, random_uuid(), 'APP_SUBSIDIARY');

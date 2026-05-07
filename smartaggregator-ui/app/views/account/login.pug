@@ -60,29 +60,29 @@ block content
     .login-main
       .login-card
         .login-card__header
-          h1 Giriş
-          p Kullanıcı adınızı ve şifrenizi giriniz.
+          h1 #{__('Login')}
+          p #{__('Enter your username and password.')}
 
         form.login-form(method='POST', id='loginForm')
           .form-field
-            label(for='username') Kullanıcı Adı
-            input#username.login-input(type='text', name='username', autofocus, required, placeholder='Yazınız')
+            label(for='username') #{__('Username')}
+            input#username.login-input(type='text', name='username', autofocus, required, placeholder=__('Username'))
             p.helper.helper1
 
           .form-field
-            label(for='password') Şifre
+            label(for='password') #{__('Password')}
             .password-wrap
-              input#password.login-input(type='password', name='password', required, placeholder='Şifre')
-              button.password-eye(type='button', onclick='togglePassword()', id='passwordEye', aria-label='Şifreyi göster/gizle')
+              input#password.login-input(type='password', name='password', required, placeholder=__('Password'))
+              button.password-eye(type='button', onclick='togglePassword()', id='passwordEye', aria-label=__('Password'))
                 i.las.la-eye
             p.helper.helper2
 
           .login-row
             .remember-wrap
               input#remember(type='checkbox', name='remember')
-              label.checkbox-label(for='remember') Beni Hatırla
+              label.checkbox-label(for='remember') #{__('RememberMe')}
 
-            button.btn.login-btn(type='submit', id='cbLoginBtn', onclick='lsRememberMe();') Giriş Yap
+            button.btn.login-btn(type='submit', id='cbLoginBtn', onclick='lsRememberMe();') #{__('Login')}
 
     .login-bottom
       .login-bottom__left

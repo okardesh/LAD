@@ -1252,11 +1252,11 @@ block content
             .container-fluid.px-3.py-2.dashboard-shell
                 .dashboard-topbar
                     .dashboard-topbar__left
-                        h1.dashboard-title Dashboard
+                        h1.dashboard-title #{__('Dashboard')}
                         if lastDataDateInformation[0]
-                            span.dashboard-chip Son Güncelleme: #{lastDataDateInformation[0].lastDate} 00:00:00
+                            span.dashboard-chip #{__('LatestUpdate')}: #{lastDataDateInformation[0].lastDate} 00:00:00
                         else
-                            span.dashboard-chip Son Güncelleme: 00/00/0000 00:00:00
+                            span.dashboard-chip #{__('LatestUpdate')}: 00/00/0000 00:00:00
                     .dashboard-topbar__right
                         .view-mode-switch
                             span#viewMode2DLabel.view-mode-switch__label 2D
@@ -1264,10 +1264,10 @@ block content
                             span#viewMode3DLabel.view-mode-switch__label.active 3D
                         button#dashboardUploadBtn.dash-btn.dash-btn--primary(type='button' data-toggle='modal' data-target='#exampleModal')
                             i.svg-icon(data-feather='upload')
-                            span Yükle
+                            span #{__('Upload')}
                         button#dashboardExportBtn.dash-btn.dash-btn--primary(type='button')
                             i.svg-icon(data-feather='download')
-                            span Dışa Aktar
+                            span #{__('Export')}
                         if locale == 'en'
                             a.dash-btn(href=`${originalPath()}?lang=tr`)
                                 i.svg-icon(data-feather='globe')
@@ -1281,7 +1281,7 @@ block content
                                 path(d='M12 3 L13.8 8.2 L19 10 L13.8 11.8 L12 17 L10.2 11.8 L5 10 L10.2 8.2 Z')
                                 path(d='M18 4 L18.7 6.1 L20.8 6.8 L18.7 7.5 L18 9.6 L17.3 7.5 L15.2 6.8 L17.3 6.1 Z')
                                 path(d='M6 14 L6.6 15.7 L8.3 16.3 L6.6 16.9 L6 18.6 L5.4 16.9 L3.7 16.3 L5.4 15.7 Z')
-                            span AI Agent
+                            span #{__('AIAgent')}
 
                 .row
                     .col-sm-6.align-self-center
@@ -1312,67 +1312,67 @@ block content
                                     i.svg-icon(data-feather='cpu')
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Kuyruk
+                                    .rpad-stat-card__label #{__('Queue')}
                                     .rpad-stat-card__value= _totalQueues
                                 .rpad-stat-card__icon.rpad-stat-card__icon--purple
                                     i.svg-icon(data-feather='git-branch')
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Süreç
+                                    .rpad-stat-card__label #{__('Process')}
                                     .rpad-stat-card__value= _totalProcesses
                                 .rpad-stat-card__icon.rpad-stat-card__icon--orange
                                     i.svg-icon(data-feather='zap')
                             .rpad-stat-card
                                 .rpad-stat-card__info
-                                    .rpad-stat-card__label Başarı Oranı
+                                    .rpad-stat-card__label #{__('SuccessRate')}
                                     .rpad-stat-card__value= _successRate + '%'
                                 .rpad-stat-card__icon.rpad-stat-card__icon--green
                                     i.svg-icon(data-feather='check-circle')
                 .dashboard-toolbar
                     .dashboard-tabs
-                        .dashboard-tab.active Robot Analitiği
-                        .dashboard-tab Kuyruk Analitiği
+                        .dashboard-tab.active #{__('RobotAnalytics')}
+                        .dashboard-tab #{__('QueueAnalytics')}
                     .dashboard-actions
                         button#dashboardEditBtn.dash-chip-btn(type='button')
                             i.svg-icon(data-feather='edit-3')
-                            span Düzenle
+                            span #{__('Edit')}
                         button#dashboardFilterBtn.dash-chip-btn.primary(type='button')
-                            span Filtreler
+                            span #{__('Filters')}
                             i.svg-icon(data-feather='menu')
 
                 .dashboard-config-backdrop#dashboardConfigBackdrop
                 aside.dashboard-config-panel#dashboardConfigPanel
                     .cfg-head
                         button.cfg-close#dashboardConfigClose(type='button') ×
-                        span Dashboard Düzenle
+                        span #{__('DashboardEdit')}
                     .cfg-body
                         .cfg-note
-                            span Aşağıdaki alanların görünürlüğünü değiştirerek kontrol panelini özelleştirebilirsiniz.
+                            span #{__('DashboardCustomizeNote')}
 
                         .cfg-section
                             .cfg-section-head
-                                .cfg-section-title Robot Analitiği
+                                .cfg-section-title #{__('RobotAnalytics')}
                                 .cfg-switch-wrap
-                                    span.cfg-switch-label Bölüm
+                                    span.cfg-switch-label #{__('Section')}
                                     input#cfg-section-robot.cfg-switch(type='checkbox' checked)
                             .cfg-section-divider
                             .cfg-grid-3
                                 .cfg-item
-                                    .cfg-item__title Süreç Durumları
+                                    .cfg-item__title #{__('ProcessStatuses')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='1' data-state='show')
                                             i.svg-icon(data-feather='eye')
                                         button.cfg-act-btn(type='button' data-chart='1' data-state='hide')
                                             i.svg-icon(data-feather='eye-off')
                                 .cfg-item
-                                    .cfg-item__title Robot Doluluk
+                                    .cfg-item__title #{__('RobotOccupancy')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='2' data-state='show')
                                             i.svg-icon(data-feather='eye')
                                         button.cfg-act-btn(type='button' data-chart='2' data-state='hide')
                                             i.svg-icon(data-feather='eye-off')
                                 .cfg-item
-                                    .cfg-item__title Çalışma Saatleri Doluluk
+                                    .cfg-item__title #{__('WorkingHoursOccupancy')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='3' data-state='show')
                                             i.svg-icon(data-feather='eye')
@@ -1380,14 +1380,14 @@ block content
                                             i.svg-icon(data-feather='eye-off')
                             .cfg-grid-1
                                 .cfg-item
-                                    .cfg-item__title Haftalık Yoğunluk
+                                    .cfg-item__title #{__('WeeklyDensity')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='4' data-state='show')
                                             i.svg-icon(data-feather='eye')
                                         button.cfg-act-btn(type='button' data-chart='4' data-state='hide')
                                             i.svg-icon(data-feather='eye-off')
                                 .cfg-item
-                                    .cfg-item__title Günlük Çalışma Süresi
+                                    .cfg-item__title #{__('DailyWorkingTime')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='5' data-state='show')
                                             i.svg-icon(data-feather='eye')
@@ -1396,21 +1396,21 @@ block content
 
                         .cfg-section
                             .cfg-section-head
-                                .cfg-section-title Süreç Analitiği
+                                .cfg-section-title #{__('ProcessAnalytics')}
                                 .cfg-switch-wrap
-                                    span.cfg-switch-label Bölüm
+                                    span.cfg-switch-label #{__('Section')}
                                     input#cfg-section-process.cfg-switch(type='checkbox' checked)
                             .cfg-section-divider
                             .cfg-grid-1
                                 .cfg-item
-                                    .cfg-item__title Kuyruk Durumları
+                                    .cfg-item__title #{__('QueueStatuses')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='9' data-state='show')
                                             i.svg-icon(data-feather='eye')
                                         button.cfg-act-btn(type='button' data-chart='9' data-state='hide')
                                             i.svg-icon(data-feather='eye-off')
                                 .cfg-item
-                                    .cfg-item__title Toplam Süre
+                                    .cfg-item__title #{__('TotalTime')}
                                     .cfg-item__actions
                                         button.cfg-act-btn.active(type='button' data-chart='8' data-state='show')
                                             i.svg-icon(data-feather='eye')
@@ -1461,7 +1461,7 @@ block content
                                                                     each t in models
                                                                         option(value=toCamelCase(t))= __(t)
                                                         .col-md-8
-                                                            if(user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
+                                                            if (user && Array.isArray(user.rolePermissionAll) && user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
                                                             //- a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
                                                             //-     .far.fa-file
                                                             .container-fluid.p-3
@@ -2374,7 +2374,7 @@ block content
                                 .catch(function () {
                                     $.alert({
                                         title: 'Hata',
-                                        content: 'Dışa aktarma işlemi başarısız oldu. Lütfen tekrar deneyin.'
+                                        content: '#{__('ExportFailedRetry')}'
                                     });
                                 })
                                 .finally(function () {

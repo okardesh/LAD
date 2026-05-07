@@ -278,6 +278,21 @@ app.use((req, res, next) => {
 app.use('/', express.static(path.join(__dirname, 'public'), {
     maxAge: 31557600000
 }));
+app.use('/assets/libs/jquery/dist', express.static(path.join(__dirname, 'node_modules/jquery/dist'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/popper.js/dist/umd', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/bootstrap/dist/js', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/js'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/perfect-scrollbar/dist', express.static(path.join(__dirname, 'node_modules/perfect-scrollbar/dist'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/chartist/dist', express.static(path.join(__dirname, 'node_modules/chartist/dist'), {
+    maxAge: 31557600000
+}));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd'), {
     maxAge: 31557600000
 }));
@@ -825,13 +840,22 @@ var getRolePermissionList = async (req, res, next) => {
         }, req, res);
 
         if (data && data.statusCode == 200) {
-            res.locals.user.rolePermissionAll = data.rolePermissionAll;
+            const permissions = Array.isArray(data.rolePermissionAll) ? data.rolePermissionAll : [];
+            req.user.rolePermissionAll = permissions;
+            res.locals.user.rolePermissionAll = permissions;
             next();
         } else {
-            res.locals.user.rolePermissionAll = null;
+            req.user.rolePermissionAll = [];
+            res.locals.user.rolePermissionAll = [];
             next();
         }
     } else {
+        if (req && req.user && !Array.isArray(req.user.rolePermissionAll)) {
+            req.user.rolePermissionAll = [];
+            if (res && res.locals && res.locals.user) {
+                res.locals.user.rolePermissionAll = [];
+            }
+        }
         next();
     }
 };

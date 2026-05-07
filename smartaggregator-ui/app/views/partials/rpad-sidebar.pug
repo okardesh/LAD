@@ -3,7 +3,7 @@ if user
         .rpad-sidebar__header
             a.rpad-sidebar__logo(href='/rpa-dashboard')
                 img(src='/assets/images/linktera-robotics-logo.png' alt='Linktera Robotics' style='height:52px; width:auto;')
-            button.rpad-sidebar__toggle#sidebarToggle(type='button' title='Menüyü Daralt')
+            button.rpad-sidebar__toggle#sidebarToggle(type='button' title=__('CollapseMenu'))
                 i.svg-icon(data-feather='menu')
 
         .rpad-sidebar__nav
@@ -13,33 +13,33 @@ if user
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/rpa-dashboard' class=(page === 'rpaDashboard' ? 'active' : ''))
                                 i.svg-icon(data-feather='home')
-                                span Dashboard
+                                span #{__('Dashboard')}
 
             .rpad-sidebar__section
-                .rpad-sidebar__section-title Veriler
+                .rpad-sidebar__section-title #{__('DATA')}
                 ul.rpad-sidebar__menu
                     if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/robots' class=(page === 'robots' ? 'active' : ''))
                                 i.svg-icon(data-feather='server')
-                                span Robotlar
+                                span #{__('Robots')}
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/queue' class=(page === 'queue' ? 'active' : ''))
                                 i.svg-icon(data-feather='git-branch')
-                                span Kuyruklar
+                                span #{__('Queues')}
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/jobs' class=(page === 'jobs' ? 'active' : ''))
                                 i.svg-icon(data-feather='zap')
-                                span Süreçler
+                                span #{__('Processes')}
 
             .rpad-sidebar__section
-                .rpad-sidebar__section-title Yönetim
+                .rpad-sidebar__section-title #{__('Management')}
                 ul.rpad-sidebar__menu
                     if user.roles.includes('ADMIN') || user.roles.includes('SUB_ADMIN')
                         li.rpad-sidebar__item
                             a.rpad-sidebar__link(href='/users' class=(page === 'users' ? 'active' : ''))
                                 i.svg-icon(data-feather='users')
-                                span Kullanıcılar
+                                span #{__('Users')}
 
         .rpad-sidebar__profile
             if user.img
@@ -50,7 +50,7 @@ if user
             .rpad-sidebar__user-info
                 span.rpad-sidebar__user-name= user.name + ' ' + user.surname
                 span.rpad-sidebar__user-role= user.roles ? user.roles[0] : ''
-            a.rpad-sidebar__logout(href='/logout' title='Çıkış Yap')
+            a.rpad-sidebar__logout(href='/logout' title=__('Logout'))
                 i.svg-icon(data-feather='log-out')
 
     script.
