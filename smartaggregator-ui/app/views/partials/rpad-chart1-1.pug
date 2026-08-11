@@ -123,7 +123,9 @@ script.
         }
         $('input[name="startTimeStateChartDatePicker"]').datepicker("setDate", dashboardDataWeekRange.start);
         $('input[name="endTimeStateChartDatePicker"]').datepicker("setDate", dashboardDataWeekRange.end);
-        stateChartFilterFunction();
+        if (!stateRobots || stateRobots.length === 0) {
+            stateChartFilterFunction();
+        }
 
     });
         $('input[name="startTimeStateChartDatePicker"]').on('change', function () {
@@ -376,7 +378,7 @@ script.
 
                     renderStateBattery(newStateChart2);
                 }else{
-                    $('#rpad-chart1-1').addClass('visibility-none')
+                    $('#rpad-chart1-1').removeClass('visibility-none')
                 }
             },
             error: function(err){

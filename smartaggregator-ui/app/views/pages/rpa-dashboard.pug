@@ -1291,6 +1291,9 @@ block content
                             p.lastDataDateTransitionClass.text-end #{__(__('Last data date uploaded to') + ' ' + lastDataDateInformation[0].lastDate)}
                         else
                             p.lastDataDateTransitionClass.text-end #{__('There is no data')}
+                        if (jobsData && jobsData.length)
+                            .dashboard-fallback-banner.mt-2
+                                | Some dashboard charts are using local fallback data because the backend chart endpoints are failing in this environment.
                 - var _stateRobots = stateRobots && Array.isArray(stateRobots) ? stateRobots : []
                 - var _queues = queueTransactionTimeChart && Array.isArray(queueTransactionTimeChart) ? queueTransactionTimeChart : []
                 - var _releases = releaseTotalTimeChart && Array.isArray(releaseTotalTimeChart) ? releaseTotalTimeChart : []
@@ -1452,7 +1455,7 @@ block content
                                         .row.d-flex.justify-content-center.text-center
                                             .col-md-12
                                                 //if user.userType===0 && user.rolePermissionAll && user.rolePermissionAll.includes('financial-management_POST')
-                                                form(id='import-'.concat(toCamelCase(title)), method='POST', enctype="multipart/form-data")
+                                                form(id='import-'.concat(toCamelCase(title)), method='POST', action='/rpa-dashboard', enctype="multipart/form-data")
                                                     input(type='hidden', name='_csrf', value=_csrf)
                                                     .row
                                                         .col-md-4.p-3(style="text-align:start; padding-left:31px!important;")
@@ -1469,6 +1472,9 @@ block content
                                                                     .file-loading
                                                                             input#file-input(type='file', name='file', accept='.xlsx,.csv')
                                                                     #errorBlock.help-block
+                                                    .row.mt-3
+                                                        .col-12.d-flex.justify-content-end
+                                                            button#dashboardUploadSubmit.btn.btn-primary(type='submit', name='action', value='import') #{__('Upload')}
 
                         //- .col-xl-6.col-md-12
                         //-     div.dashboard-big--div.dashboard-big--div--second1
@@ -1763,7 +1769,7 @@ block content
                                                 select.chart-select-module.js-example-basic-single(name="releaseTotalTimeChart_filter" id="releaseTotalTimeChart_month")
                                         div.row#alertTextReleaseChart.d-flex.justify-content-center
                                             p(style="color:red!important;")
-                                        include ../partials/rpad-chart7
+                                        include ../partials/rpad-chart6
 
                     //- Queue Total Time Chart start
 

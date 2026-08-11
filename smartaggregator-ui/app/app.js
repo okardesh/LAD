@@ -17,7 +17,14 @@ const flash = require('express-flash');
 const passport = require('passport');
 const expressValidator = require('express-validator');
 const expressStatusMonitor = require('express-status-monitor');
-const sass = require('node-sass-middleware');
+let sassMiddleware = null;
+
+try {
+    sassMiddleware = require('node-sass-middleware');
+} catch (error) {
+    console.warn('node-sass-middleware unavailable, continuing without Sass compilation:', error.message);
+}
+
 const cookieParser = require('cookie-parser');
 const i18n = require("i18n");
 const swaggerUi = require('swagger-ui-express');
@@ -46,21 +53,63 @@ if (environment && (environment == 'dev' || environment == 'development')) {
     });
 }
 
+// Local fallback values when env files are absent.
+process.env.ACCEPTABLE_FILE_TYPE = process.env.ACCEPTABLE_FILE_TYPE || 'xlsx,xls,csv';
+process.env.ACCEPTABLE_FILE_SIZE = process.env.ACCEPTABLE_FILE_SIZE || '25';
+process.env.API_SYSTEM = process.env.API_SYSTEM || '/mock-system';
+process.env.API_DASHBOARD_TABLE = process.env.API_DASHBOARD_TABLE || '/mock-dashboard-table';
+process.env.API_RPAD_ROBOT_LIST = process.env.API_RPAD_ROBOT_LIST || '/mock-rpad-robot-list';
+process.env.API_RPAD_CHARTS_STATUS_LIST = process.env.API_RPAD_CHARTS_STATUS_LIST || '/mock-rpad-charts-status';
+process.env.API_RPAD_CHARTS_STATUS_SAVE = process.env.API_RPAD_CHARTS_STATUS_SAVE || '/mock-rpad-charts-status-save';
+process.env.API_RPAD_HISTORY_SAVE = process.env.API_RPAD_HISTORY_SAVE || '/mock-rpad-history-save';
+process.env.API_HISTORIES = process.env.API_HISTORIES || '/mock-histories';
+process.env.API_ROLE_OPERATIONS = process.env.API_ROLE_OPERATIONS || '/mock-role-operations';
+process.env.API_RPAD_STATE_FILTER = process.env.API_RPAD_STATE_FILTER || '/mock-rpad-state-filter';
+process.env.API_RPAD_WORKING_HOURS_RATE_FILTER = process.env.API_RPAD_WORKING_HOURS_RATE_FILTER || '/mock-working-hours-occupancy-filter';
+process.env.API_RPAD_TOTAL_TIME_WEEKLY_FILTER = process.env.API_RPAD_TOTAL_TIME_WEEKLY_FILTER || '/mock-total-job-time-filter';
+process.env.API_RPAD_DAILY_WORKED_TIME_FILTER = process.env.API_RPAD_DAILY_WORKED_TIME_FILTER || '/mock-overall-worked-time-filter';
+process.env.API_RPAD_ROBOTS_OCCUPANCY_RATE_CHART = process.env.API_RPAD_ROBOTS_OCCUPANCY_RATE_CHART || '/mock-robots-occupancy-filter';
+process.env.API_QUEUE_TRANSACTION_TIME_CHART = process.env.API_QUEUE_TRANSACTION_TIME_CHART || '/mock-queue-transaction-filter';
+process.env.API_QUEUE_STATUS_CHART = process.env.API_QUEUE_STATUS_CHART || '/mock-queue-status-filter';
+process.env.API_RELEASE_TOTAL_TIME_CHART = process.env.API_RELEASE_TOTAL_TIME_CHART || '/mock-release-total-time-filter';
+process.env.API_RPAD_INTENSITY_DAILY_DENSITY = process.env.API_RPAD_INTENSITY_DAILY_DENSITY || '/mock-daily-density-filter';
+process.env.API_RPAD_ROBOTS_LIST = process.env.API_RPAD_ROBOTS_LIST || '/mock-rpad-state-by-robot-filter';
+process.env.API_RPAD_ROBOTS_LIST2 = process.env.API_RPAD_ROBOTS_LIST2 || '/mock-robots-occupancy-by-robot-filter';
+process.env.API_RPAD_DATA = process.env.API_RPAD_DATA || '/mock-rpad-data-filter';
+process.env.DEFAULT_LOCALE = process.env.DEFAULT_LOCALE || 'en';
+
 var upload = multer({
     storage: multer.memoryStorage()
 });
 
-const s3 = require('./config/s3config.js');
+const uploadMiddleware = (middleware) => (req, res, next) => {
+    if (!middleware) {
+        return next();
+    }
+    return middleware(req, res, next);
+};
 
-var aws = multer({
-    storage: multerS3({
-        s3: s3.config,
-        bucket: s3.params.Bucket,
-        key: function (req, file, cb) {
-            cb(null, uuidv4() + path.extname(file.originalname));
-        }
-    })
-});
+let aws = null;
+let s3 = null;
+
+try {
+    s3 = require('./config/s3config.js');
+    if (s3 && s3.config && s3.params && s3.params.Bucket) {
+        aws = multer({
+            storage: multerS3({
+                s3: s3.config,
+                bucket: s3.params.Bucket,
+                key: function (req, file, cb) {
+                    cb(null, uuidv4() + path.extname(file.originalname));
+                }
+            })
+        });
+    } else {
+        console.warn('S3 bucket not configured, file uploads will use memory storage only.');
+    }
+} catch (error) {
+    console.warn('S3 configuration unavailable, continuing without S3 uploads:', error.message);
+}
 
 /**
  * Rest API
@@ -118,6 +167,8 @@ const queueController = require('./controllers/queue');
  * Create Express server.
  */
 const app = express();
+const uploadFolder = process.env.UPLOAD_FOLDER || path.join(__dirname, 'uploads');
+const sessionSecret = process.env.SESSION_SECRET || 'local-dev-secret';
 
 /**
  * i18n configure
@@ -143,10 +194,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(expressStatusMonitor());
 app.use(compression());
-app.use(sass({
-    src: path.join(__dirname, 'public'),
-    dest: path.join(__dirname, 'public')
-}));
+if (sassMiddleware) {
+    app.use(sassMiddleware({
+        src: path.join(__dirname, 'public'),
+        dest: path.join(__dirname, 'public')
+    }));
+}
 app.use(useragent.express());
 
 app.enable('trust proxy');
@@ -239,7 +292,7 @@ app.use(expressValidator());
 app.use(session({
     resave: true,
     saveUninitialized: true,
-    secret: process.env.SESSION_SECRET,
+    secret: sessionSecret,
     cookie: {
         maxAge: 1209600000
     }, // two weeks in milliseconds
@@ -260,7 +313,7 @@ app.use((req, res, next) => {
     var locale = req.cookies['_locale'];
 
     if (!locale) {
-        locale = process.env.DEFAULT_LOCALE;
+        locale = process.env.DEFAULT_LOCALE || 'en';
     }
     if (req.query &&
         req.query.lang &&
@@ -272,7 +325,12 @@ app.use((req, res, next) => {
         maxAge: 31557600000,
         httpOnly: true
     });
-    res.setLocale(locale);
+
+    if (typeof res.setLocale === 'function') {
+        res.setLocale(locale);
+    } else if (req.i18n) {
+        req.i18n.setLocale(locale);
+    }
     next();
 });
 app.use('/', express.static(path.join(__dirname, 'public'), {
@@ -290,7 +348,16 @@ app.use('/assets/libs/bootstrap/dist/js', express.static(path.join(__dirname, 'n
 app.use('/assets/libs/perfect-scrollbar/dist', express.static(path.join(__dirname, 'node_modules/perfect-scrollbar/dist'), {
     maxAge: 31557600000
 }));
+app.use('/assets/libs/perfect-scrollbar/dist', express.static(path.join(__dirname, 'node_modules/perfect-scrollbar/dist/js'), {
+    maxAge: 31557600000
+}));
 app.use('/assets/libs/chartist/dist', express.static(path.join(__dirname, 'node_modules/chartist/dist'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/@antv/g2plot/dist', express.static(path.join(__dirname, 'node_modules/@antv/g2plot/dist'), {
+    maxAge: 31557600000
+}));
+app.use('/assets/libs/@antv/g2/dist', express.static(path.join(__dirname, 'node_modules/@antv/g2/dist'), {
     maxAge: 31557600000
 }));
 app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd'), {
@@ -305,7 +372,7 @@ app.use('/js/lib', express.static(path.join(__dirname, 'node_modules/jquery/dist
 app.use('/webfonts', express.static(path.join(__dirname, 'node_modules/@fortawesome/fontawesome-free/webfonts'), {
     maxAge: 31557600000
 }));
-app.use('/uploads', express.static(process.env.UPLOAD_FOLDER, {
+app.use('/uploads', express.static(uploadFolder, {
     maxAge: 31557600000
 }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, {
@@ -943,7 +1010,7 @@ app.get('/login', loginController.getLogin);
 app.post('/login', loginController.postLogin);
 app.get('/logout', passportConfig.isAuthenticated, loginController.logout);
 app.get('/profile', passportConfig.isAuthenticated, usersController.getUserProfile);
-app.post('/profile', passportConfig.isAuthenticated, aws.single('file'), usersController.postUserProfile);
+app.post('/profile', passportConfig.isAuthenticated, uploadMiddleware(aws && aws.single ? aws.single('file') : null), usersController.postUserProfile);
 
 app.get('/operations', passportConfig.isAuthenticated, operationsController.getOperations);
 app.get('/operation/:uuid', passportConfig.isAuthenticated, operationsController.getOperation);
@@ -1048,17 +1115,17 @@ app.get('/announcements/unread-popup-announcement', passportConfig.isAuthenticat
 app.get('/unreadAnnouncement', passportConfig.isAuthenticated, announcementController.unreadAnouncement);
 
 app.get('/organization', passportConfig.isAuthenticated, organizationController.getOrganization);
-app.post('/organization', passportConfig.isAuthenticated, aws.single('file'), organizationController.postOrganization);
+app.post('/organization', passportConfig.isAuthenticated, uploadMiddleware(aws && aws.single ? aws.single('file') : null), organizationController.postOrganization);
 
 app.get('/companies', passportConfig.isAuthenticated, companyController.getSubsidiaries);
 app.post('/companies', passportConfig.isAuthenticated, companyController.postSubsidiaries);
 app.get('/company/:uuid', passportConfig.isAuthenticated, companyController.getSubsidiary);
-app.post('/company/:uuid', passportConfig.isAuthenticated, aws.single('file'), companyController.postSubsidiary);
+app.post('/company/:uuid', passportConfig.isAuthenticated, uploadMiddleware(aws && aws.single ? aws.single('file') : null), companyController.postSubsidiary);
 
 app.get('/documents', passportConfig.isAuthenticated, documentController.getDocuments);
 app.post('/documents', passportConfig.isAuthenticated, documentController.postDocuments);
 app.get('/document/:uuid', passportConfig.isAuthenticated, documentController.getDocument);
-app.post('/document/:uuid', passportConfig.isAuthenticated, aws.single('file'), documentController.postDocument);
+app.post('/document/:uuid', passportConfig.isAuthenticated, uploadMiddleware(aws && aws.single ? aws.single('file') : null), documentController.postDocument);
 app.get('/documentFiles/:screenCode', passportConfig.isAuthenticated, documentController.getDocumentFiles);
 app.get('/document/download/:fileName/:code', passportConfig.isAuthenticated, documentController.downloadDocument);
 

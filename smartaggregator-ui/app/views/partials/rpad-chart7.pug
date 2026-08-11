@@ -111,7 +111,9 @@ script.
                 $('select[id="releaseTotalTimeChart_month"]').val(newMonthLastData);
             }            
             ensureSelectHasValue('releaseRobots');
-            releaseChartFilterFunction();
+            if (!releaseTotalTimeChart || releaseTotalTimeChart.length === 0) {
+                releaseChartFilterFunction();
+            }
         });
         $('select[id="releaseTotalTimeChart_year"]').on('change', function () {
             releaseChartFilterFunction();

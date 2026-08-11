@@ -163,6 +163,348 @@ exports.getRpaDashboard = async (req, res) => {
                     lastQueueDate: latestDate
                 }));
             }
+
+            const chartSourceJobs = normalizedPreviewJobs;
+            const toNumber = (value) => {
+                const parsed = parseFloat(`${value != null ? value : 0}`.replace(',', '.'));
+                return Number.isFinite(parsed) ? parsed : 0;
+            };
+            const resolveMinutes = (row) => {
+                const full = toNumber(row && row.fullTime);
+                if (full > 0) return full;
+                const total = toNumber(row && row.totalJobTime);
+                if (total > 0) return total;
+                const tx = toNumber(row && row.transactionExecutionTime);
+                if (tx > 0) return tx;
+                const avg = toNumber(row && row.averageTime);
+                const cnt = parseInt(row && row.count != null ? row.count : 1, 10);
+                if (avg > 0) return avg * (Number.isFinite(cnt) && cnt > 0 ? cnt : 1);
+                if (Number.isFinite(cnt) && cnt > 0) return cnt;
+                return 0;
+            };
+            const hasPositiveValue = (rows, fields) => {
+                return (rows || []).some(row => fields.some(field => toNumber(row && row[field]) > 0));
+            };
+            const latestValue = (rows, keys) => {
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    const row = rows[i] || {};
+                    for (const key of keys) {
+                        if (row[key]) return row[key];
+                    }
+                }
+                return null;
+            };
+            const aggregateHours = (rows, groupKey, valueKey = groupKey) => {
+                const map = new Map();
+                rows.forEach(row => {
+                    const fallbackDate = row && (row.workDate || row.dataDate || row.createDate || row.updateDate);
+                    const key = row && row[groupKey] ? row[groupKey] : (groupKey === 'workDate' ? (fallbackDate || 'N/A') : 'N/A');
+                    if (!map.has(key)) {
+                        const entry = { [valueKey]: key };
+                        for (let i = 0; i < 24; i++) entry[`h${i}`] = 0;
+                        map.set(key, entry);
+                    }
+                    const entry = map.get(key);
+                    let hasNativeHourly = false;
+                    for (let i = 0; i < 24; i++) {
+                        const hourlyValue = toNumber(row && row[`h${i}`]);
+                        if (hourlyValue > 0) hasNativeHourly = true;
+                        entry[`h${i}`] += hourlyValue;
+                    }
+
+                    if (!hasNativeHourly) {
+                        // Spread inferred runtime to business-hour slots for a visible non-zero profile.
+                        const inferredMinutes = resolveMinutes(row);
+                        if (inferredMinutes > 0) {
+                            const perHour = inferredMinutes / 9;
+                            for (let i = 8; i <= 16; i++) {
+                                entry[`h${i}`] += perHour;
+                            }
+                        }
+                    }
+                });
+                return Array.from(map.values());
+            };
+            const aggregateByKey = (rows, groupKey, fields) => {
+                const map = new Map();
+                rows.forEach(row => {
+                    const key = row && row[groupKey] ? row[groupKey] : 'N/A';
+                    if (!map.has(key)) {
+                        const entry = { [groupKey]: key };
+                        fields.forEach(field => {
+                            entry[field] = 0;
+                        });
+                        map.set(key, entry);
+                    }
+                    const entry = map.get(key);
+                    fields.forEach(field => {
+                        entry[field] += toNumber(row && row[field]);
+                    });
+                });
+                return Array.from(map.values());
+            };
+            const classifyState = (stateValue) => {
+                const text = `${stateValue || ''}`.toLowerCase();
+                if (!text) return 'stopped';
+                if (text.includes('success') || text.includes('başar')) return 'successful';
+                if (text.includes('fault') || text.includes('error') || text.includes('fail') || text.includes('hata')) return 'faulted';
+                return 'stopped';
+            };
+            const resolveQueueName = (row) => {
+                const queue = row && typeof row.queueName === 'string' ? row.queueName.trim() : '';
+                if (queue && queue.toUpperCase() !== 'N/A') return queue;
+
+                const release = row && typeof row.releaseName === 'string' ? row.releaseName.trim() : '';
+                if (release) return `Release: ${release}`;
+
+                const host = row && typeof row.hostMachineName === 'string' ? row.hostMachineName.trim() : '';
+                if (host) return `Robot: ${host}`;
+
+                return null;
+            };
+
+            // Chart1 expects per-robot successful/faulted/stopped counters.
+            if (!hasItems(response.rpadStateChart2) || response.rpadStateChart2.every(r => r && r.successfulCount == null && r.faultedCount == null && r.stoppedCount == null)) {
+                const stateByRobot = new Map();
+                chartSourceJobs.forEach(row => {
+                    const host = row && row.hostMachineName ? row.hostMachineName : null;
+                    if (!host) return;
+                    if (!stateByRobot.has(host)) {
+                        stateByRobot.set(host, {
+                            hostMachineName: host,
+                            successfulCount: 0,
+                            faultedCount: 0,
+                            stoppedCount: 0
+                        });
+                    }
+                    const item = stateByRobot.get(host);
+                    const count = parseInt(row && row.count != null ? row.count : 1, 10);
+                    const add = Number.isFinite(count) ? count : 1;
+                    const kind = classifyState(row && row.state);
+                    if (kind === 'successful') item.successfulCount += add;
+                    else if (kind === 'faulted') item.faultedCount += add;
+                    else item.stoppedCount += add;
+                });
+                response.rpadStateChart2 = Array.from(stateByRobot.values());
+            }
+
+            // Chart2 expects per-robot fullTime/freeTime values.
+            if (!hasItems(response.robotsOccupancyRateChart2)
+                || response.robotsOccupancyRateChart2.every(r => r && r.fullTime == null && r.freeTime == null)
+                || !hasPositiveValue(response.robotsOccupancyRateChart2, ['fullTime', 'freeTime'])) {
+                const occupancyByRobot = new Map();
+                chartSourceJobs.forEach(row => {
+                    const host = row && row.hostMachineName ? row.hostMachineName : null;
+                    if (!host) return;
+                    if (!occupancyByRobot.has(host)) {
+                        occupancyByRobot.set(host, {
+                            hostMachineName: host,
+                            fullTime: 0,
+                            freeTime: 0
+                        });
+                    }
+                    const item = occupancyByRobot.get(host);
+                    const inferred = resolveMinutes(row);
+                    item.fullTime += toNumber(row && row.fullTime) || inferred;
+                    item.freeTime += toNumber(row && row.freeTime);
+                });
+                response.robotsOccupancyRateChart2 = Array.from(occupancyByRobot.values());
+            }
+
+            if (!hasItems(response.workingHoursOccupancyChart)
+                || !hasPositiveValue(response.workingHoursOccupancyChart, ['workedHours', 'freeHours'])) {
+                const inferredWorkedMinutes = chartSourceJobs.reduce((sum, row) => sum + resolveMinutes(row), 0);
+                response.workingHoursOccupancyChart = [{
+                    workDate: latestValue(chartSourceJobs, ['workDate', 'dataDate']) || null,
+                    workedHours: chartSourceJobs.reduce((sum, row) => sum + toNumber(row && (row.workedHours != null ? row.workedHours : row.fullTime)), 0) || inferredWorkedMinutes,
+                    freeHours: chartSourceJobs.reduce((sum, row) => sum + toNumber(row && (row.freeHours != null ? row.freeHours : row.freeTime)), 0)
+                }];
+            }
+
+            if (!hasItems(response.totalJobTimeChart)) {
+                response.totalJobTimeChart = aggregateByKey(chartSourceJobs, 'hostMachineName', ['totalJobTime']);
+            }
+
+            if (!hasItems(response.robotsOccupancyRateChart)
+                || !hasPositiveValue(response.robotsOccupancyRateChart, ['fullTime', 'freeTime'])) {
+                const robotOccMap = new Map();
+                chartSourceJobs.forEach(row => {
+                    const host = row && row.hostMachineName ? row.hostMachineName : 'N/A';
+                    if (!robotOccMap.has(host)) {
+                        robotOccMap.set(host, { hostMachineName: host, fullTime: 0, freeTime: 0 });
+                    }
+                    const item = robotOccMap.get(host);
+                    const inferred = resolveMinutes(row);
+                    item.fullTime += toNumber(row && row.fullTime) || inferred;
+                    item.freeTime += toNumber(row && row.freeTime);
+                });
+                response.robotsOccupancyRateChart = Array.from(robotOccMap.values());
+            }
+
+            const densityHasPositive = (rows) => (rows || []).some(row => {
+                for (let i = 0; i < 24; i++) {
+                    if (toNumber(row && row[`h${i}`]) > 0) return true;
+                }
+                return false;
+            });
+
+            if (!hasItems(response.dailyDensityChart) || !densityHasPositive(response.dailyDensityChart)) {
+                response.dailyDensityChart = aggregateHours(chartSourceJobs, 'workDate');
+            }
+
+            if (!hasItems(response.overallChart)) {
+                response.overallChart = aggregateHours(chartSourceJobs, 'releaseName', 'releaseName');
+                response.overallChart.forEach(row => {
+                    row.workDate = latestValue(chartSourceJobs, ['workDate', 'dataDate']) || null;
+                    row.releaseName = row.releaseName || row.releaseName || 'N/A';
+                });
+            }
+
+            if (!hasItems(response.queueTransactionTimeChart)) {
+                const queueTransactionMap = new Map();
+                chartSourceJobs.forEach(row => {
+                    const queueName = resolveQueueName(row);
+                    if (!queueName) return;
+
+                    if (!queueTransactionMap.has(queueName)) {
+                        queueTransactionMap.set(queueName, {
+                            queueName,
+                            transactionExecutionTime: 0,
+                            averageTime: 0,
+                            _count: 0
+                        });
+                    }
+                    const entry = queueTransactionMap.get(queueName);
+                    entry.transactionExecutionTime += toNumber(row && (row.transactionExecutionTime != null ? row.transactionExecutionTime : row.totalJobTime));
+                    entry.averageTime += toNumber(row && (row.averageTime != null ? row.averageTime : row.transactionExecutionTime));
+                    entry._count += 1;
+                });
+                response.queueTransactionTimeChart = Array.from(queueTransactionMap.values()).map(entry => ({
+                    queueName: entry.queueName,
+                    transactionExecutionTime: entry.transactionExecutionTime,
+                    averageTime: Math.round(entry.averageTime / Math.max(1, entry._count))
+                }));
+            }
+
+            if (!hasItems(response.queueStatusChart)) {
+                const queueStatusMap = new Map();
+                chartSourceJobs.forEach(row => {
+                    const queueName = resolveQueueName(row);
+                    if (!queueName) return;
+                    if (!queueStatusMap.has(queueName)) {
+                        queueStatusMap.set(queueName, {
+                            queueName,
+                            successfulCount: 0,
+                            newCount: 0,
+                            inProgressCount: 0,
+                            failedCount: 0,
+                            abandonedCount: 0,
+                            retriedCount: 0
+                        });
+                    }
+                    const item = queueStatusMap.get(queueName);
+                    const count = parseInt(row && row.count != null ? row.count : 1, 10);
+                    const add = Number.isFinite(count) ? count : 1;
+                    const kind = classifyState(row && row.state);
+                    if (kind === 'successful') item.successfulCount += add;
+                    else if (kind === 'faulted') item.failedCount += add;
+                    else item.inProgressCount += add;
+                });
+                response.queueStatusChart = Array.from(queueStatusMap.values());
+                if (!response.queueStatusChart.length && chartSourceJobs.length > 0) {
+                    response.queueStatusChart = [{
+                        queueName: 'Generated Queue',
+                        successfulCount: 0,
+                        newCount: 0,
+                        inProgressCount: chartSourceJobs.length,
+                        failedCount: 0,
+                        abandonedCount: 0,
+                        retriedCount: 0
+                    }];
+                }
+            }
+        }
+
+        // Secondary fallback: when backend payload has state counters but minute-based datasets
+        // are empty/zero, derive non-zero chart values from available state counts.
+        {
+            const asArraySafe = (v) => Array.isArray(v) ? v : [];
+            const toNumSafe = (v) => {
+                const n = parseFloat(`${v != null ? v : 0}`.replace(',', '.'));
+                return Number.isFinite(n) ? n : 0;
+            };
+            const hasPositive = (rows, fields) => asArraySafe(rows).some(row => fields.some(field => toNumSafe(row && row[field]) > 0));
+
+            const stateRows = asArraySafe(response.rpadStateChart2);
+            const totalStateCount = stateRows.reduce((sum, row) => {
+                return sum
+                    + toNumSafe(row && row.successfulCount)
+                    + toNumSafe(row && row.faultedCount)
+                    + toNumSafe(row && row.stoppedCount);
+            }, 0);
+
+            if (stateRows.length && (!Array.isArray(response.robotsOccupancyRateChart2) || !hasPositive(response.robotsOccupancyRateChart2, ['fullTime', 'freeTime']))) {
+                response.robotsOccupancyRateChart2 = stateRows.map(row => {
+                    const full = toNumSafe(row && row.successfulCount) + toNumSafe(row && row.faultedCount) + toNumSafe(row && row.stoppedCount);
+                    return {
+                        hostMachineName: row && row.hostMachineName ? row.hostMachineName : 'N/A',
+                        fullTime: full,
+                        freeTime: 0
+                    };
+                });
+            }
+
+            if (!Array.isArray(response.robotsOccupancyRateChart) || !hasPositive(response.robotsOccupancyRateChart, ['fullTime', 'freeTime'])) {
+                response.robotsOccupancyRateChart = asArraySafe(response.robotsOccupancyRateChart2).map(row => ({
+                    hostMachineName: row.hostMachineName,
+                    fullTime: toNumSafe(row.fullTime),
+                    freeTime: toNumSafe(row.freeTime)
+                }));
+            }
+
+            if (!Array.isArray(response.workingHoursOccupancyChart) || !hasPositive(response.workingHoursOccupancyChart, ['workedHours', 'freeHours'])) {
+                const workedFromRobots = asArraySafe(response.robotsOccupancyRateChart2).reduce((sum, row) => sum + toNumSafe(row && row.fullTime), 0);
+                const freeFromRobots = asArraySafe(response.robotsOccupancyRateChart2).reduce((sum, row) => sum + toNumSafe(row && row.freeTime), 0);
+                const latestDate = asArraySafe(response.jobsData).map(j => (j && (j.workDate || j.dataDate)) || null).filter(Boolean).slice(-1)[0] || null;
+                response.workingHoursOccupancyChart = [{
+                    workDate: latestDate,
+                    workedHours: workedFromRobots || totalStateCount,
+                    freeHours: freeFromRobots
+                }];
+            }
+
+            const dailyHasPositive = asArraySafe(response.dailyDensityChart).some(row => {
+                for (let i = 0; i < 24; i++) {
+                    if (toNumSafe(row && row[`h${i}`]) > 0) return true;
+                }
+                return false;
+            });
+
+            if (!Array.isArray(response.dailyDensityChart) || !response.dailyDensityChart.length || !dailyHasPositive) {
+                const worked = asArraySafe(response.workingHoursOccupancyChart).reduce((sum, row) => sum + toNumSafe(row && row.workedHours), 0) || totalStateCount;
+                const row = { workDate: asArraySafe(response.workingHoursOccupancyChart)[0]?.workDate || null };
+                for (let i = 0; i < 24; i++) row[`h${i}`] = 0;
+                const bucket = worked > 0 ? worked / 9 : 0;
+                for (let i = 8; i <= 16; i++) row[`h${i}`] = bucket;
+                response.dailyDensityChart = [row];
+            }
+
+            const overallHasPositive = asArraySafe(response.overallChart).some(row => {
+                for (let i = 0; i < 24; i++) {
+                    if (toNumSafe(row && row[`h${i}`]) > 0) return true;
+                }
+                return false;
+            });
+
+            if (!Array.isArray(response.overallChart) || !response.overallChart.length || !overallHasPositive) {
+                const worked = asArraySafe(response.workingHoursOccupancyChart).reduce((sum, row) => sum + toNumSafe(row && row.workedHours), 0) || totalStateCount;
+                const releaseName = asArraySafe(response.releaseTotalTimeChart)[0]?.releaseName || 'Generated Release';
+                const row = { releaseName, workDate: asArraySafe(response.workingHoursOccupancyChart)[0]?.workDate || null };
+                for (let i = 0; i < 24; i++) row[`h${i}`] = 0;
+                const bucket = worked > 0 ? worked / 9 : 0;
+                for (let i = 8; i <= 16; i++) row[`h${i}`] = bucket;
+                response.overallChart = [row];
+            }
         }
 
         const render = {

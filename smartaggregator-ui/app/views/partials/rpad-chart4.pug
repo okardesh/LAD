@@ -129,7 +129,9 @@ script.
             }
             $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
             $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
-            dailyDensityChartFilterFunction();
+            if (chartDDG.length === 0) {
+                dailyDensityChartFilterFunction();
+            }
         });
         //$('input[name="startTime"]').attr('value', lastEndTime)
         //$('input[name="endTime"]').attr('value', lastStartTime)
@@ -182,7 +184,9 @@ script.
             $('input[name="endTime"]').datepicker(options);
             $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
             $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
-            dailyDensityChartFilterFunction();
+            if (chartDDG.length === 0) {
+                dailyDensityChartFilterFunction();
+            }
         });
         $('input[name="startTime"]').on('change', function () {
             dailyDensityChartFilterFunction();
@@ -260,7 +264,7 @@ script.
                         line.changeData(DDG1);
                         line.render();
                     }else{
-                        $('#rpad-chart4').addClass('visibility-none')
+                        $('#rpad-chart4').removeClass('visibility-none')
                     }
                 },
                 error: function(err){

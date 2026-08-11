@@ -1112,18 +1112,18 @@ $(document).ready(function () {
         theme: "fa",
         showPreview: false,
         showCancel: false,
+        showUpload: false,
         placeholder: "test",
         elErrorContainer: "#errorBlock",
         mainClass: "input-group-sm",
         allowedFileExtensions: ["xlsx"],
     });
+    $("html").on("click", "#dashboardUploadSubmit", function () {
+        $(this).prop("disabled", true);
+    });
     $("html").on("click", ".fileinput-upload-button", function (e) {
         e.preventDefault();
-        $("<button>").attr({
-            type: "submit",
-            name: "action",
-            value: "import",
-        }).hide().appendTo($(e.currentTarget).parents("form:first")).click();
+        $("#dashboardUploadSubmit").trigger("click");
     });
     $(".alert-success").fadeOut(2500);
     $("#rule-operations").on("change", function () {

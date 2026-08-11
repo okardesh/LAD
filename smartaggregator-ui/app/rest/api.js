@@ -125,6 +125,16 @@ exports.requestAsync = async (uri, method, data, req) => {
     console.info("********** CALL ASYNC API **********");
     console.info(`/${method} ${uri}`);
 
+    if (!uri || typeof uri !== 'string') {
+        const errorMessage = 'API uri is undefined';
+        console.error('response error-->', errorMessage);
+        console.info("********** END ASYNC API **********");
+        return {
+            error: errorMessage,
+            statusCode: 500
+        };
+    }
+
     let options = {
         url: `${API_BASE_URL}${uri}`,
         method: `${method}`,
@@ -162,13 +172,32 @@ exports.requestAsync = async (uri, method, data, req) => {
         return data;
     };
 
-    return await requestPromise(options).then(resolve).catch(resolve);
+    try {
+        return await requestPromise(options).then(resolve).catch(resolve);
+    } catch (error) {
+        console.error('response error-->', error.message || error);
+        console.info("********** END ASYNC API **********");
+        return {
+            error: error.message || 'Request failed',
+            statusCode: 500
+        };
+    }
 };
 
 //BU KOD KALDIRILACAKTIR
 exports.request = (uri, method, data, req, res, cb) => {
     console.info("********** CALL API **********");
     console.info(`/${method} ${uri}`);
+
+    if (!uri || typeof uri !== 'string') {
+        const errorMessage = 'API uri is undefined';
+        console.error('response error-->', errorMessage);
+        console.info("********** END API **********");
+        return cb({
+            error: errorMessage,
+            statusCode: 500
+        });
+    }
 
     let options = {
         url: `${API_BASE_URL}${uri}`,

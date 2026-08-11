@@ -216,7 +216,9 @@ script.
             $('select[name="whoRobots"]').val(workingHoursOccupancyRobots);
         }
         $('input[name="workDate"]').datepicker("setDate", dashboardDataWeekRange.end);
-        dailyDensityChartFilterFunction3();
+        if (!workingHoursOccupancyChart || workingHoursOccupancyChart.length === 0) {
+            dailyDensityChartFilterFunction3();
+        }
     });
 
         // DATEPICKERDA OLAN HER DEGISIKLIKTE dailyDensityChartFilterFunction3 FONKSIYONUNUN TETIKLENDIGI KISIM
@@ -296,12 +298,12 @@ script.
                                 }
                             });
                         } else {
-                            $('#rpad-chart3').addClass('visibility-none')
+                            $('#rpad-chart3').removeClass('visibility-none')
                         }
 
                     },
                     error: function (err) {
-                        $('#rpad-chart3').addClass('visibility-none')
+                        $('#rpad-chart3').removeClass('visibility-none')
                     }
                 });
             }

@@ -169,7 +169,9 @@ script.
             $('select[name="queueStatusNames"]').val(separatedRobots9);
             $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
             $('input[name="queueStatusEndTime"]').datepicker("setDate", queueDataWeekRange.end);
-            queueStatusChartFilterFunction();
+            if (!queueStatusChart1 || queueStatusChart1.length === 0) {
+                queueStatusChartFilterFunction();
+            }
         }else {
             if (lastQueueDate !== undefined) {
                 $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
@@ -178,7 +180,9 @@ script.
                 $('input[name="queueStatusStartTime"]').datepicker("setDate", queueDataWeekRange.start);
                 $('input[name="queueStatusEndTime"]').datepicker("setDate", queueDataWeekRange.end);
             }
-            queueStatusChartFilterFunction();
+            if (!queueStatusChart1 || queueStatusChart1.length === 0) {
+                queueStatusChartFilterFunction();
+            }
         }
 
     });
@@ -333,7 +337,7 @@ script.
                         piePlotQueue.changeData(queueDataFilter);
                         piePlotQueue.render();
                     }else{
-                        $('#rpad-chart9').addClass('visibility-none')
+                        $('#rpad-chart9').removeClass('visibility-none')
                     }
                 },
                 error: function(err){

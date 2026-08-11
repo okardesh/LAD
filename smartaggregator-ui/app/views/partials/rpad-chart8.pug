@@ -88,7 +88,9 @@ script.
             $('select[name="queueRobots"]').val(robotArray);
             $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
             $('input[name="qttEndTime"]').datepicker("setDate", queueDataWeekRange.end);
-            queueTransactionChartFilterFunction();
+            if (!queueTransactionTimeChart || queueTransactionTimeChart.length === 0) {
+                queueTransactionChartFilterFunction();
+            }
         }else{
             if (lastQueueDate  !== undefined) {
                 $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
@@ -97,7 +99,9 @@ script.
                 $('input[name="qttStartTime"]').datepicker("setDate", queueDataWeekRange.start);
                 $('input[name="qttEndTime"]').datepicker("setDate", queueDataWeekRange.end);
             }
-            queueTransactionChartFilterFunction();
+            if (!queueTransactionTimeChart || queueTransactionTimeChart.length === 0) {
+                queueTransactionChartFilterFunction();
+            }
         } 
     });
 
@@ -182,7 +186,7 @@ script.
                         barPlot3.changeData(TTWM);
                         barPlot3.render();
                     }else{
-                        $('#rpad-chart8').addClass('visibility-none')
+                        $('#rpad-chart8').removeClass('visibility-none')
                     }
                 },
                 error: function(err){

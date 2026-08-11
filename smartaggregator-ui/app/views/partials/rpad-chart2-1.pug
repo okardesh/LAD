@@ -278,7 +278,9 @@ script.
         }
         $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.start);
         $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.end);
-        stateChartFilterFunction2();
+        if (!occupanyRobots || occupanyRobots.length === 0) {
+            stateChartFilterFunction2();
+        }
     });
         $('input[name="startTimeRobotsOccupancyRateDatePicker"]').on('change', function () {
             if (responseControl2 === 0) {

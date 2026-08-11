@@ -126,7 +126,9 @@ script.
             $('select[name="odwRobots"]').val(separatedRobots5);
         }
         $('input[name="workDate2"]').datepicker("setDate", dashboardDataWeekRange.end);
-        dailyDensityChartFilterFunction5();
+        if (!overallChart || overallChart.length === 0) {
+            dailyDensityChartFilterFunction5();
+        }
         
     })
     $('input[name="workDate2"]').on('change', function () {
@@ -213,12 +215,12 @@ script.
                         columnPlot.changeData(YENI1);
                         columnPlot.render();
                     }else{
-                        $('#rpad-chart5').addClass('visibility-none')
+                        $('#rpad-chart5').removeClass('visibility-none')
                     }
                     
                 },
                 error: function(err){
-                    $('#rpad-chart5').addClass('visibility-none')
+                    $('#rpad-chart5').removeClass('visibility-none')
                 }
             });
         }
