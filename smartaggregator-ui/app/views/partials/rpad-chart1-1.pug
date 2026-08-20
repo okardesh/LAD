@@ -34,7 +34,7 @@ script.
         
     });
     dataRobots.push({
-        type : "#{__('Successful')} : " + totalSuccessful,
+        type : "Successful Jobs : " + totalSuccessful,
         value : totalSuccessful,
         totalRobotsValue : totalRobots
     });
@@ -50,14 +50,21 @@ script.
     });
     const statePieIs3D = window.__rpad3dEnabled !== false;
 
+    function getDashboardRobotCount(fallbackCount) {
+        const configuredRobotCount = $('select[name="statesRobots"] option').length;
+        return configuredRobotCount || fallbackCount;
+    }
+
     function renderStateBattery(chartData) {
         const success = chartData[0] ? (parseInt(chartData[0].value, 10) || 0) : 0;
         const faulted = chartData[1] ? (parseInt(chartData[1].value, 10) || 0) : 0;
         const stopped = chartData[2] ? (parseInt(chartData[2].value, 10) || 0) : 0;
         const total = success + faulted + stopped;
-        const totalRobotsValue = chartData[0] && chartData[0].totalRobotsValue != null
-            ? chartData[0].totalRobotsValue
-            : totalRobots;
+        const totalRobotsValue = getDashboardRobotCount(
+            chartData[0] && chartData[0].totalRobotsValue != null
+                ? chartData[0].totalRobotsValue
+                : totalRobots
+        );
 
         const successPct = total > 0 ? (success / total) * 100 : 0;
         const faultedPct = total > 0 ? (faulted / total) * 100 : 0;
@@ -78,13 +85,13 @@ script.
                     <div class="state-battery__cap"></div>
                 </div>
                 <div class="state-battery__meta">
-                    <span>#{__('Total')} #{__('Robot')}</span>
+                    <span>Total Robots</span>
                     <strong>${totalRobotsValue}</strong>
                 </div>
                 <div class="state-battery__legend">
                     <div class="state-battery__legend-row">
                         <span class="state-battery__dot state-battery__dot--success"></span>
-                        <span>#{__('Successful')}</span>
+                        <span>Successful Jobs</span>
                         <span class="state-battery__value">${success}</span>
                     </div>
                     <div class="state-battery__legend-row">
@@ -356,22 +363,21 @@ script.
                             });
                         });
                         newStateChart2.push({
-                            type : "#{__('Number of Successful Jobs')} : " + totalSuccessful,
+                            type : "Successful Jobs : " + totalSuccessful,
                             value : totalSuccessful,
-                            totalRobotsValue : totalRobots
+                            totalRobotsValue : getDashboardRobotCount(totalRobots)
                         });
                         newStateChart2.push({
                             type : "#{__('Number of Faulted Jobs')} : " + totalFaulted,
                             value : totalFaulted,
-                            totalRobotsValue : totalRobots
+                            totalRobotsValue : getDashboardRobotCount(totalRobots)
                         });
                         newStateChart2.push({
                             type : "#{__('Number of Stopped Jobs')} : " + totalStopped,
                             value : totalStopped,
-                            totalRobotsValue : totalRobots
+                            totalRobotsValue : getDashboardRobotCount(totalRobots)
                         });
 
-                        $('#dashboardRobotCount').text(totalRobots);
 
                         totalRobots = 0;
                         totalSuccessful = 0;

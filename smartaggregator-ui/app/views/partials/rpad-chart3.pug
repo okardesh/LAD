@@ -56,18 +56,35 @@ script.
     let totalFreePercent = totalAvailableMinutes > 0 ? Math.round((toIntValue(freeHoursValue) / totalAvailableMinutes) * 100) : 0;
     totalOccupancy = 0;
     chartWHOR.push({
-        type : `#{__('Worked Minutes')} : %${totalWorkedPercent} - ${workedHoursValue} #{__('Minutes')}`,
+        type : `Utilized Time - %${totalWorkedPercent} - ${workedHoursValue} min`,
         value : workedHoursValue,
     });
 
     chartWHOR.push({
-        type : `#{__('Free Minutes')} : %${totalFreePercent} - ${freeHoursValue} #{__('Minutes')}`,
+        type : `Idle Time - %${totalFreePercent} - ${freeHoursValue} min`,
         value : freeHoursValue,
     });
     const whPieColors = ['#62DAAB', '#FF4D4F'];
     const whPieIs3D = window.__rpad3dEnabled !== false;
     const whPieRadius = 0.88;
     const whPieInnerRadius = 0.62;
+
+    function formatWorkingHoursDateRange(startDate, endDate) {
+        const parseDate = value => {
+            const parts = `${value || ''}`.split('/').map(Number);
+            return parts.length === 3 && parts.every(Number.isFinite)
+                ? new Date(parts[2], parts[1] - 1, parts[0])
+                : null;
+        };
+        const start = parseDate(startDate);
+        const end = parseDate(endDate);
+        if (!start || !end) return workedDateValue;
+        const month = start.toLocaleString('en-US', { month: 'short' });
+        if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
+            return `${start.getDate()}–${end.getDate()} ${month} ${end.getFullYear()}`;
+        }
+        return `${start.getDate()} ${start.toLocaleString('en-US', { month: 'short' })} ${start.getFullYear()}–${end.getDate()} ${end.toLocaleString('en-US', { month: 'short' })} ${end.getFullYear()}`;
+    }
 
     function renderWorkingHoursMetricCard(rows) {
         const worked = rows && rows[0] ? (parseInt(rows[0].value, 10) || 0) : 0;
@@ -80,9 +97,9 @@ script.
             <div class="metric-3d-card" style="--metric-primary:#f59e0b; --metric-primary-light:#f9c15d; --metric-percent:${workedPct}; --metric-percent-str:${workedPct}%">
                 <div class="metric-3d-card__top">
                     <div>
-                        <div class="metric-3d-card__headline">#{__('Worked Minutes')}</div>
+                        <div class="metric-3d-card__headline">Utilization Rate</div>
                         <div class="metric-3d-card__percent">${workedPct}%</div>
-                        <div class="metric-3d-card__sub">${total} #{__('Minutes')} · ${workedDateValue}</div>
+                        <div class="metric-3d-card__sub">${total.toLocaleString('en-US')} Available Minutes · ${workedDateValue}</div>
                     </div>
                     <div class="metric-3d-card__ring"></div>
                 </div>
@@ -94,13 +111,13 @@ script.
                 <div class="metric-3d-card__legend">
                     <div class="metric-3d-card__legend-row">
                         <span class="metric-3d-card__legend-dot" style="background:#f59e0b"></span>
-                        <span>#{__('Worked Minutes')}</span>
-                        <span class="metric-3d-card__legend-value">${worked} #{__('Minutes')}</span>
+                        <span>Utilized Time</span>
+                        <span class="metric-3d-card__legend-value">${workedPct}% · ${worked.toLocaleString('en-US')} min</span>
                     </div>
                     <div class="metric-3d-card__legend-row">
-                        <span class="metric-3d-card__legend-dot" style="background:#ff4d4f"></span>
-                        <span>#{__('Free Minutes')}</span>
-                        <span class="metric-3d-card__legend-value">${freePct}% · ${free} #{__('Minutes')}</span>
+                        <span class="metric-3d-card__legend-dot" style="background:#98a2b3"></span>
+                        <span>Idle Time</span>
+                        <span class="metric-3d-card__legend-value">${freePct}% · ${free.toLocaleString('en-US')} min</span>
                     </div>
                 </div>
             </div>
@@ -204,108 +221,111 @@ script.
             language: locale,
             autoclose: true,
         };
-        $('input[name="workDate"]').datepicker(options);
+        $('input[name="workingHoursStartTime"]').datepicker(options);
+        $('input[name="workingHoursEndTime"]').datepicker(options);
         // EN SON CALISILAN GUNUN DEFAULT OLARAK CHARTA YANSITILMASINI SAGLAYAN KISIM
         //- $('input[name="workDate"]').datepicker("setDate", workedDateValue);
         //- $('input[name="workDate"]').attr('value', workedDateValue);
         //-     dailyDensityChartFilterFunction3();
         //- });
         let workingHoursOccupancyRobots = filters.rpadHistoryList[2]?.robots?.split(', ') || undefined
-        let workingHoursOccupancyStartTime = filters.rpadHistoryList[2]?.date1 || undefined
         if (workingHoursOccupancyRobots !== undefined ){
             $('select[name="whoRobots"]').val(workingHoursOccupancyRobots);
         }
-        $('input[name="workDate"]').datepicker("setDate", dashboardDataWeekRange.end);
-        if (!workingHoursOccupancyChart || workingHoursOccupancyChart.length === 0) {
-            dailyDensityChartFilterFunction3();
-        }
+        $('input[name="workingHoursStartTime"]').datepicker("setDate", dashboardWeeklyRange.start);
+        $('input[name="workingHoursEndTime"]').datepicker("setDate", dashboardWeeklyRange.end);
+        dailyDensityChartFilterFunction3();
     });
 
         // DATEPICKERDA OLAN HER DEGISIKLIKTE dailyDensityChartFilterFunction3 FONKSIYONUNUN TETIKLENDIGI KISIM
-        $('input[name="workDate"]').on('change', function () {
+        $('input[name="workingHoursStartTime"], input[name="workingHoursEndTime"]').on('change', function () {
             dailyDensityChartFilterFunction3()
         });
         $('select[name="whoRobots"]').on('change', function () {
             dailyDensityChartFilterFunction3();
         });
 
+        function getDateRange(startDate, endDate) {
+            const parseDate = value => {
+                const parts = `${value || ''}`.split('/').map(Number);
+                return parts.length === 3 && parts.every(Number.isFinite)
+                    ? new Date(parts[2], parts[1] - 1, parts[0])
+                    : null;
+            };
+            const start = parseDate(startDate);
+            const end = parseDate(endDate);
+            if (!start || !end || start > end) return [];
+            const dates = [];
+            for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+                dates.push(('0' + date.getDate()).slice(-2) + '/' + ('0' + (date.getMonth() + 1)).slice(-2) + '/' + date.getFullYear());
+            }
+            return dates;
+        }
+
+        function getWorkingDayCount(startDate, endDate) {
+            return getDateRange(startDate, endDate).filter(value => {
+                const parts = value.split('/').map(Number);
+                const day = new Date(parts[2], parts[1] - 1, parts[0]).getDay();
+                return day !== 0 && day !== 6;
+            }).length;
+        }
+
+        function requestWorkingHoursForDate(workDate, robots) {
+            return $.ajax({
+                url: "/workingHoursOccupancyChart-filter",
+                type: 'POST',
+                data: {workDate: workDate, robots: robots},
+                dataType: 'json'
+            });
+        }
+
         // HER FILTRELEME ISLEMINDE GONDERILEN SORGU ISLEMINE AIT FONKSIYON
         function dailyDensityChartFilterFunction3() {
-            const selectedDate = $(workDate).val();
+            const selectedStartDate = $('#workingHoursStartTime').val();
+            const selectedEndDate = $('#workingHoursEndTime').val();
             let occupanyRobots = ensureSelectHasValue('whoRobots');
             let workingHoursOcpChartAlert = '';
 
             if (occupanyRobots.length < 1) {
                 workingHoursOcpChartAlert = workingHoursOcpChartAlert + ' * ' + "#{__('Robots are empty')}"
             }
+            if (!selectedStartDate || !selectedEndDate || selectedStartDate === 'Start Date' || selectedEndDate === 'End Date') {
+                workingHoursOcpChartAlert = workingHoursOcpChartAlert + ' * ' + "#{__('Date is empty')}"
+            }
             $('#alertWorkingHourChart').empty()
             $("<p class='alertText' style='color:red!important;'>" + workingHoursOcpChartAlert + "</p>").appendTo('#alertWorkingHourChart')
             if (workingHoursOcpChartAlert === '') {
-                filterworkingHoursOccupancyChart = {workDate: selectedDate, robots: occupanyRobots};
-                filterworkingHoursOccupancyChart.workDate = workDate.value;
-                $.ajax({
-                    url: "/workingHoursOccupancyChart-filter",
-                    type: 'POST',
-                    data: filterworkingHoursOccupancyChart,
-                    dataType: 'json', // added data type
-                    success: function (res) {
+                const dates = getDateRange(selectedStartDate, selectedEndDate);
+                Promise.all(dates.map(date => requestWorkingHoursForDate(date, occupanyRobots)))
+                    .then(function (responses) {
                         let WHOC1 = [];
-                        if (res && res.rpadDailyIntensityList && res.rpadDailyIntensityList.length > 0) {
+                        let workedMinutes = 0;
+                        let freeMinutes = 0;
+                        responses.forEach(function (res) {
+                            (res && res.rpadDailyIntensityList || []).forEach(function (element) {
+                                workedMinutes += toIntValue(element.workedHours);
+                            });
+                        });
+                        if (workedMinutes > 0 || freeMinutes > 0) {
                             $('#rpad-chart3').removeClass('visibility-none')
-                            res.rpadDailyIntensityList.forEach(function (element) {
-                                Object.keys(element).forEach(function (key) {
-                                    if (key === 'freeHours' || key === 'workedHours') {
-                                        totalOccupancy = totalOccupancy + toIntValue(element[key]);
-                                    }
-                                    if (key === 'freeHours') {
-                                        freeHoursValue = toIntValue(element[key])
-                                    } else if (key === 'workDate') {
-                                        workedDateValue = element[key]
-                                    } else if (key === 'workedHours') {
-                                        workedHoursValue = toIntValue(element[key])
-                                    }
-                                });
-                            });
-                            let freeMinutes = toIntValue(freeHoursValue);
-                            let workedMinutes = toIntValue(workedHoursValue);
-
-                            requestOccupancySummaryForDate(selectedDate, occupanyRobots).then(function(occ){
-                                if (freeMinutes === 0 && occ.free > 0) {
-                                    freeMinutes = toIntValue(occ.free);
-                                }
-                                if (workedMinutes === 0 && occ.worked > 0) {
-                                    workedMinutes = toIntValue(occ.worked);
-                                }
-
-                                let totalAvailableHours = freeMinutes + workedMinutes;
-                                let totalFreePercent = totalAvailableHours > 0 ? Math.round((freeMinutes / totalAvailableHours) * 100) : 0;
-                                let totalWorkedPercent = totalAvailableHours > 0 ? Math.round((workedMinutes / totalAvailableHours) * 100) : 0;
-                                totalOccupancy = 0;
-                                WHOC1.push({
-                                    type: `#{__('Worked Minutes')} : %${totalWorkedPercent} - ${workedMinutes} #{__('Minutes')}`,
-                                    value: workedMinutes,
-                                });
-
-                                WHOC1.push({
-                                    type: `#{__('Free Minutes')} : %${totalFreePercent} - ${freeMinutes} #{__('Minutes')}`,
-                                    value: freeMinutes,
-                                });
-                                if (whPieIs3D) {
-                                    renderWorkingHoursMetricCard(WHOC1);
-                                } else {
-                                    piePlot3.changeData(WHOC1);
-                                    piePlot3.render();
-                                }
-                            });
+                            const workingDays = getWorkingDayCount(selectedStartDate, selectedEndDate);
+                            const capacityMinutes = workingDays * occupanyRobots.length * 9 * 60;
+                            freeMinutes = Math.max(0, capacityMinutes - workedMinutes);
+                            workedDateValue = formatWorkingHoursDateRange(selectedStartDate, selectedEndDate);
+                            let totalAvailableHours = freeMinutes + workedMinutes;
+                            let totalFreePercent = totalAvailableHours > 0 ? Math.round((freeMinutes / totalAvailableHours) * 100) : 0;
+                            let totalWorkedPercent = totalAvailableHours > 0 ? Math.round((workedMinutes / totalAvailableHours) * 100) : 0;
+                            WHOC1.push({type: `Utilized Time - %${totalWorkedPercent} - ${workedMinutes} min`, value: workedMinutes});
+                            WHOC1.push({type: `Idle Time - %${totalFreePercent} - ${freeMinutes} min`, value: freeMinutes});
+                            if (whPieIs3D) renderWorkingHoursMetricCard(WHOC1);
+                            else { piePlot3.changeData(WHOC1); piePlot3.render(); }
                         } else {
                             $('#rpad-chart3').removeClass('visibility-none')
                         }
-
-                    },
-                    error: function (err) {
+                    })
+                    .catch(function () {
                         $('#rpad-chart3').removeClass('visibility-none')
-                    }
-                });
+                    });
             }
         }
  

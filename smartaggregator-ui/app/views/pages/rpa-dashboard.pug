@@ -2,7 +2,10 @@ extends ../layout
 block content
     #main-wrapper(data-theme='light', data-layout='vertical', data-navbarbg='skin6', data-sidebartype='full', data-sidebar-position='fixed', data-header-position='fixed', data-boxed-layout='full')
         style.
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
             :root {
+                --dashboard-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 --rpad-bg: #f3f5f8;
                 --rpad-card: #ffffff;
                 --rpad-border: #e6ebf3;
@@ -11,6 +14,24 @@ block content
                 --rpad-text: #1f2937;
                 --rpad-muted: #667085;
                 --rpad-primary: #2f5ecc;
+            }
+
+            #main-wrapper,
+            #main-wrapper *:not([class*='fa-']):not([class*='icon-']):not([class*='ti-']),
+            #main-wrapper button,
+            #main-wrapper input,
+            #main-wrapper select,
+            #main-wrapper textarea,
+            #main-wrapper .g2-tooltip,
+            #main-wrapper .select2-container,
+            #main-wrapper .datepicker,
+            #main-wrapper .modal {
+                font-family: var(--dashboard-font) !important;
+            }
+
+            #main-wrapper svg text,
+            #main-wrapper svg tspan {
+                font-family: var(--dashboard-font) !important;
             }
 
             /* Upload modal */
@@ -33,7 +54,7 @@ block content
             #exampleModal .modal-title {
                 margin: 0;
                 color: #1f2937 !important;
-                font-family: Georgia, 'Times New Roman', serif;
+                font-family: var(--dashboard-font) !important;
                 font-size: 28px;
                 font-weight: 700;
                 line-height: 1.2;
@@ -179,7 +200,7 @@ block content
                 margin: 0 0 8px !important;
                 line-height: 20px;
                 color: #344054;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 13px;
                 font-weight: 700;
             }
@@ -193,7 +214,7 @@ block content
                 border-radius: 8px;
                 background: #fff;
                 color: #1f2937;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 14px;
                 font-weight: 600;
             }
@@ -214,7 +235,7 @@ block content
                 overflow: hidden;
                 padding: 0 12px;
                 color: #667085;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 14px;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -234,7 +255,7 @@ block content
                 background: #2f5ecc;
                 color: #fff;
                 cursor: pointer;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 14px;
                 font-weight: 700;
                 transition: background .15s;
@@ -243,7 +264,7 @@ block content
             #exampleModal .upload-file-hint {
                 margin: 8px 0 0;
                 color: #98a2b3;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 12px;
             }
             #exampleModal #dashboardUploadSubmit {
@@ -255,7 +276,7 @@ block content
                 min-width: 132px;
                 box-sizing: border-box;
                 border-radius: 8px !important;
-                font-family: Arial, sans-serif;
+                font-family: var(--dashboard-font);
                 font-size: 14px;
                 font-weight: 700;
                 line-height: 1;
@@ -1607,10 +1628,11 @@ block content
                             p.lastDataDateTransitionClass.text-end #{__('There is no data')}
                         if (jobsData && jobsData.length)
                 - var _stateRobots = stateRobots && Array.isArray(stateRobots) ? stateRobots : []
+                - var _occupanyRobots = occupanyRobots && Array.isArray(occupanyRobots) ? occupanyRobots : []
                 - var _queues = queueTransactionTimeChart && Array.isArray(queueTransactionTimeChart) ? queueTransactionTimeChart : []
                 - var _releases = releaseTotalTimeChart && Array.isArray(releaseTotalTimeChart) ? releaseTotalTimeChart : []
                 - var _jobs = jobsData && Array.isArray(jobsData) ? jobsData : []
-                - var _totalRobots = _stateRobots.filter(function(r){ return r.hostMachineName; }).length
+                - var _totalRobots = _occupanyRobots.filter(function(r){ return r.hostMachineName; }).length
                 - var _totalQueues = _queues.filter(function(q){ return q.queueName; }).length
                 - var _totalProcesses = _releases.filter(function(p){ return p.releaseName; }).length
                 - var _totalJobCount = _jobs.reduce(function(s,j){ return s + (parseInt(j.count)||0); }, 0)
@@ -1890,7 +1912,7 @@ block content
                     .chart-div.col-xl-4.col-md-12.robot-ocp-division#chart-2-div(data-order = "2")
                                 div.dashboard-big--div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active #{__('RobotsOccupancyRate')}
+                                        li.active Robot Utilization
                                     div.non-overflow.p-3
                                         .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
@@ -1934,7 +1956,7 @@ block content
                     .chart-div.col-xl-4.col-md-12.working-hours-division#chart-3-div(data-order = "3")
                                 div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active #{__('Working Hours Occupancy Rate')}
+                                        li.active Working-Hours Utilization
                                             if(locale === 'tr')
                                                 img.header-info-icon(src='/assets/images/info.svg' data-toggle="tooltip", data-html="true", title="Çalışma saatleri 09:00 - 18:00 olarak baz alınmıştır." )
                                             if(locale === 'en')
@@ -1955,13 +1977,19 @@ block content
                                                         if(item.hostMachineName != null)
                                                             option(value=item.hostMachineName, selected=true)=item.hostMachineName
                                     div.non-overflow.p-3
-                                        div.filter-div
-                                            .col-md-12.pl-0
+                                        div.filter-div.d-flex.flex-row
+                                            .col-md-6.pl-0
                                                 label.labelRpa.mb-0
                                                     | #{__('Start Date')}
                                                 .input-append.date
                                                     i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
-                                                    input.form-control.text-center.datepicker2.mb-3(style="display:flex ", name='workDate', id="workDate" placeholder=__('Tarih Seç'),value=__('Tarih Seçiniz'))
+                                                    input.form-control.text-center.datepicker2.mb-3(name='workingHoursStartTime', id="workingHoursStartTime" placeholder=__('Start Date'),value=__('Start Date'))
+                                            .col-md-6.pr-0
+                                                label.labelRpa.mb-0
+                                                    | #{__('End Date')}
+                                                .input-append.date
+                                                    i.far.fa-calendar-alt.position-absolute.calender-icon(style='font-size:25px;')
+                                                    input.form-control.text-center.datepicker2.mb-3(name='workingHoursEndTime', id="workingHoursEndTime" placeholder=__('End Date'),value=__('End Date'))
                                         div.row.justify-content-center.mb-3.invisible(style="cursor:auto!important")
                                             button.filter-button.btn(style="pointer-events:none", type="button", name="month-to-date4") #{__('Month to Date')}
                                             button.filter-button.btn(style="pointer-events:none", type="button", name="last-working-date4") #{__('Last Working Date')}
@@ -1977,7 +2005,8 @@ block content
                     .chart-div.col-xl-12.col-md-12.weekly-density-division#chart-4-div(data-order = "4")
                                 div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active #{__('WeeklyDensityGraph')}
+                                        li.active Hourly Robot Running Time
+                                    p.chart-subtitle Utilized time by hour and day
                                     div.non-overflow.p-3
                                         .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
@@ -2017,7 +2046,8 @@ block content
                     .chart-div.col-xl-12.col-md-12.overall-daily-division#chart-5-div(data-order = "5")
                                 div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active #{__('OverallDailyWorkingHours')}
+                                        li.active Hourly Robot Running Time
+                                    p.chart-subtitle Total utilized time across the selected robots and date range
                                     div.non-overflow.p-3
                                         .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
@@ -2050,7 +2080,8 @@ block content
                     .chart-div.col-xl-12.col-md-12.total-time-division#chart-6-div(data-order = "6")
                                 div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active #{__('Total Time Monthly (Min.)')}
+                                        li.active Monthly Job Runtime by Robot
+                                    p.chart-subtitle Total job execution time for each robot
                                     div.non-overflow.p-3
                                         .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
@@ -2744,15 +2775,16 @@ block content
                                 date1 : startTimeRobotsOccupancyRateDatePicker,
                                 date2 : endTimeRobotsOccupancyRateDatePicker
                             }
-                            let workDate = $("#workDate").val();
+                            let workingHoursStartTime = $("#workingHoursStartTime").val();
+                            let workingHoursEndTime = $("#workingHoursEndTime").val();
                             let whoRobots = $("#whoRobots").val()
                             let whoRobotsString = whoRobots.join(", ")
                             var chart3 = {
                                 uuid : userId,
                                 chartName : "chart3",
                                 robots : whoRobotsString,
-                                date1 : workDate,
-                                date2 : null
+                                date1 : workingHoursStartTime,
+                                date2 : workingHoursEndTime
                             }
                             let startTime = $("#startTime").val()
                             let endTime = $("#endTime").val()

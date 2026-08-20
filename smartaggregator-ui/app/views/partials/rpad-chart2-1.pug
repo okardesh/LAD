@@ -24,12 +24,12 @@ script.
     let totalFullTimePercent = (parseInt(totalFullTime)/((parseInt(totalFullTime) + parseInt(totalFreeTime))/100));
     let totalFreeTimePercent = 100 - totalFullTimePercent;
     dataRobots2.push({
-        type : "#{__('Full Time')} : %" + Math.round(totalFullTimePercent) + " - " + totalFullTime + " #{__('Minutes')}",
+        type : "Utilized Time - %" + Math.round(totalFullTimePercent) + " - " + totalFullTime + " min",
         value : totalFullTime,
         totalRobotsValue : totalRobots2
     });
     dataRobots2.push({
-        type : "#{__('Free Time')} : %" + Math.round(totalFreeTimePercent) + " - " + totalFreeTime + " #{__('Minutes')}",
+        type : "Idle Time - %" + Math.round(totalFreeTimePercent) + " - " + totalFreeTime + " min",
         value : totalFreeTime,
         totalRobotsValue : totalRobots2
     });
@@ -38,21 +38,38 @@ script.
     const occPieRadius = 0.88;
     const occPieInnerRadius = 0.62;
 
+    function getOccupancyCalendarDays(startDate, endDate) {
+        const parseDate = value => {
+            const parts = `${value || ''}`.split('/').map(Number);
+            return parts.length === 3 && parts.every(Number.isFinite)
+                ? new Date(parts[2], parts[1] - 1, parts[0])
+                : null;
+        };
+        const start = parseDate(startDate);
+        const end = parseDate(endDate);
+        if (!start || !end || start > end) return 0;
+        return Math.floor((end - start) / 86400000) + 1;
+    }
+
     function renderOccupancyMetricCard(rows) {
         const full = rows && rows[0] ? (parseInt(rows[0].value, 10) || 0) : 0;
-        const free = rows && rows[1] ? (parseInt(rows[1].value, 10) || 0) : 0;
-        const total = full + free;
+        const robotCount = rows && rows[0] && rows[0].totalRobotsValue != null ? rows[0].totalRobotsValue : totalRobots2;
+        const startDate = $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val();
+        const endDate = $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val();
+        const selectedDays = getOccupancyCalendarDays(startDate, endDate);
+        const capacity = robotCount * selectedDays * 24 * 60;
+        const free = capacity > 0 ? Math.max(0, capacity - full) : (rows && rows[1] ? (parseInt(rows[1].value, 10) || 0) : 0);
+        const total = capacity > 0 ? capacity : full + free;
         const fullPct = total > 0 ? Math.round((full / total) * 100) : 0;
         const freePct = total > 0 ? Math.round((free / total) * 100) : 0;
-        const robotCount = rows && rows[0] && rows[0].totalRobotsValue != null ? rows[0].totalRobotsValue : totalRobots2;
 
         $('#rpad-chart2-1').html(`
             <div class="metric-3d-card" style="--metric-primary:#27b983; --metric-primary-light:#5fdbb0; --metric-percent:${fullPct}; --metric-percent-str:${fullPct}%">
                 <div class="metric-3d-card__top">
                     <div>
-                        <div class="metric-3d-card__headline">#{__('Full Time')}</div>
+                        <div class="metric-3d-card__headline">Utilization Rate</div>
                         <div class="metric-3d-card__percent">${fullPct}%</div>
-                        <div class="metric-3d-card__sub">${robotCount} #{__('Robot')} · ${total} #{__('Minutes')}</div>
+                        <div class="metric-3d-card__sub">${robotCount} Robots · ${total.toLocaleString('en-US')} Total Available Minutes</div>
                     </div>
                     <div class="metric-3d-card__ring"></div>
                 </div>
@@ -64,13 +81,13 @@ script.
                 <div class="metric-3d-card__legend">
                     <div class="metric-3d-card__legend-row">
                         <span class="metric-3d-card__legend-dot" style="background:#27b983"></span>
-                        <span>#{__('Full Time')}</span>
-                        <span class="metric-3d-card__legend-value">${full} #{__('Minutes')}</span>
+                        <span>Utilized Time</span>
+                        <span class="metric-3d-card__legend-value">${fullPct}% · ${full.toLocaleString('en-US')} min</span>
                     </div>
                     <div class="metric-3d-card__legend-row">
                         <span class="metric-3d-card__legend-dot" style="background:#ff4d4f"></span>
-                        <span>#{__('Free Time')}</span>
-                        <span class="metric-3d-card__legend-value">${freePct}% · ${free} #{__('Minutes')}</span>
+                        <span>Idle Time</span>
+                        <span class="metric-3d-card__legend-value">${freePct}% · ${free.toLocaleString('en-US')} min</span>
                     </div>
                 </div>
             </div>
@@ -165,17 +182,23 @@ script.
                 });
             });
 
-            const totalMinutes = totalFullTime + totalFreeTime;
+            const selectedDays = getOccupancyCalendarDays(
+                $('input[name="startTimeRobotsOccupancyRateDatePicker"]').val(),
+                $('input[name="endTimeRobotsOccupancyRateDatePicker"]').val()
+            );
+            const capacityMinutes = totalRobots2 > 0 ? totalRobots2 * selectedDays * 24 * 60 : 0;
+            totalFreeTime = capacityMinutes > 0 ? Math.max(0, capacityMinutes - totalFullTime) : totalFreeTime;
+            const totalMinutes = capacityMinutes > 0 ? capacityMinutes : totalFullTime + totalFreeTime;
             const totalFullTimePercent = totalMinutes > 0 ? Math.round((totalFullTime / totalMinutes) * 100) : 0;
             const totalFreeTimePercent = totalMinutes > 0 ? Math.round((totalFreeTime / totalMinutes) * 100) : 0;
 
             newStateChart3.push({
-                type : "#{__('Full Time')} : %" + totalFullTimePercent + " - " + totalFullTime + " #{__('Minutes')}",
+                type : "Utilized Time - %" + totalFullTimePercent + " - " + totalFullTime + " min",
                 value : totalFullTime,
                 totalRobotsValue : totalRobots2
             });
             newStateChart3.push({
-                type : "#{__('Free Time')} : %" + totalFreeTimePercent + " - " + totalFreeTime + " #{__('Minutes')}",
+                type : "Idle Time - %" + totalFreeTimePercent + " - " + totalFreeTime + " min",
                 value : totalFreeTime,
                 totalRobotsValue : totalRobots2
             });
@@ -283,9 +306,7 @@ script.
         }
         $('input[name="startTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.start);
         $('input[name="endTimeRobotsOccupancyRateDatePicker"]').datepicker("setDate", dashboardDataWeekRange.end);
-        if (!occupanyRobots || occupanyRobots.length === 0) {
-            stateChartFilterFunction2();
-        }
+        stateChartFilterFunction2();
     });
         $('input[name="startTimeRobotsOccupancyRateDatePicker"]').on('change', function () {
             if (responseControl2 === 0) {

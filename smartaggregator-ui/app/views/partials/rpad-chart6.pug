@@ -17,6 +17,20 @@ script.
         height: 544,
         xField: 'totalJobTime',
         yField: 'hostMachineName',
+        xAxis: {
+            title: { text: 'Job Runtime (min)' },
+            grid: {
+                line: {
+                    style: {
+                        stroke: '#e8edf7',
+                        lineDash: [4, 4]
+                    }
+                }
+            }
+        },
+        yAxis: {
+            title: { text: 'Robot' }
+        },
         color: (window.__rpad3dEnabled !== false) ? () => 'l(0) 0:#7fd8ff 0.5:#5ea9f6 1:#2f5ecc' : '#4e86e8',
         barStyle: (window.__rpad3dEnabled !== false) ? {
             radius: [0, 8, 8, 0],
@@ -36,24 +50,14 @@ script.
                     insideItem = data[0].data;
                     if(insideItem != null || insideItem != undefined){
                         return `<div class="tooltip-div">
-                                    <h5 class="tooltip-header">Robot Name</h5><h5 class="tooltip-content">Total Job Time : ${insideItem.totalJobTime}</h5>
-                                </div>`;    
+                                    <h5 class="tooltip-header">${insideItem.hostMachineName} — ${insideItem.totalJobTime} min</h5>
+                                </div>`;
                     }
                 }
             }
         },
         minBarWidth: 20,
         maxBarWidth: 20,
-        xAxis: {
-            grid: {
-                line: {
-                    style: {
-                        stroke: '#e8edf7',
-                        lineDash: [4, 4]
-                    }
-                }
-            }
-        }
         });
 
         barPlot.render();

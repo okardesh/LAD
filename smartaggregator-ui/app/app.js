@@ -1488,6 +1488,8 @@ app.post('/workingHoursOccupancyChart-filter', passportConfig.isAuthenticated, a
     const filterworkingHoursOccupancyChart = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_WORKING_HOURS_RATE_FILTER}`, 'POST', {
         workDate : filterworkingHoursOccupancyChart.workDate,
+        startTime : filterworkingHoursOccupancyChart.startTime,
+        endTime : filterworkingHoursOccupancyChart.endTime,
         robots : normalizeRobotFilter(filterworkingHoursOccupancyChart.robots),
     }, req, res);
     res.json(table)

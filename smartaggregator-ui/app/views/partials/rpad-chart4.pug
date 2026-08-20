@@ -6,6 +6,13 @@ script.
     const dailyDensityChart = JSON.parse('!{JSON.stringify(dailyDensityChart)}');
     const chartDDG = [];
 
+    function formatDensityLegendDate(value) {
+        const parts = `${value || ''}`.split('/').map(Number);
+        if (parts.length !== 3 || parts.some(Number.isNaN)) return value;
+        const date = new Date(parts[2], parts[1] - 1, parts[0]);
+        return `${date.toLocaleString('en-US', { weekday: 'short' })}, ${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
+    }
+
     currentDate.setDate(currentDate.getDate() - 7);
 
     var newDayYear = currentDate.getFullYear();
@@ -28,9 +35,9 @@ script.
                     keyString = key.replace('h','');
                 }
                 chartDDG.push({
-                    type : keyString, 
+                    type : `${keyString}:00`,
                     value : element[key], 
-                    category : category2
+                    category : formatDensityLegendDate(category2)
                 });
             }
         });
@@ -40,6 +47,12 @@ script.
         data : chartDDG,
         xField: 'type',
         yField: 'value',
+        xAxis: {
+            title: { text: 'Hour of Day' }
+        },
+        yAxis: {
+            title: { text: 'Utilized Time (min)' }
+        },
         height: 490,
         seriesField: 'category',
         smooth: true,
@@ -64,7 +77,7 @@ script.
                     if(data[i] != null || data[i] != undefined){
                         insideItem += `<li class="g2-tooltip-list-item">
                                             <span style="background-color:${data[i].color}" class="g2-tooltip-marker"></span>
-                                            <span class="g2-tooltip-name">${data[i].data.category}</span>:<span class="g2-tooltip-value">${data[i].data.value}</span>
+                                            <span class="g2-tooltip-name">${data[i].data.category}</span> — <span class="g2-tooltip-value">${data[i].data.value} min</span>
                                         </li>`;
                     }
                 }
@@ -254,9 +267,9 @@ script.
                                     keyString = key.replace('h','');
                                 }
                                 DDG1.push({
-                                    type : keyString, 
+                                    type : `${keyString}:00`,
                                     value : element[key], 
-                                    category : category2
+                                    category : formatDensityLegendDate(category2)
                                 });
                             }
                         });
