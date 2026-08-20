@@ -13,6 +13,23 @@ script.
         return `${date.toLocaleString('en-US', { weekday: 'short' })}, ${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })}`;
     }
 
+    function formatDensityCaptionDate(value) {
+        const parts = `${value || ''}`.split('/').map(Number);
+        if (parts.length !== 3 || parts.some(Number.isNaN)) return '';
+        const date = new Date(parts[2], parts[1] - 1, parts[0]);
+        return `${date.getDate()} ${date.toLocaleString('en-US', { month: 'short' })} ${date.getFullYear()}`;
+    }
+
+    function updateDensityCaption() {
+        const start = formatDensityCaptionDate($('input[name="startTime"]').val());
+        const end = formatDensityCaptionDate($('input[name="endTime"]').val());
+        if (start && end) {
+            $('#weeklyDensityCaption').text(`Selected robots · ${start}–${end}`);
+        }
+    }
+
+    const densityTickStep = window.innerWidth < 576 ? 4 : (window.innerWidth < 900 ? 3 : 2);
+
     currentDate.setDate(currentDate.getDate() - 7);
 
     var newDayYear = currentDate.getFullYear();
@@ -45,13 +62,17 @@ script.
     
     const chart4Config = {
         data : chartDDG,
+        appendPadding: [12, 24, 12, 24],
         xField: 'type',
         yField: 'value',
         xAxis: {
-            title: { text: 'Hour of Day' }
+            label: {
+                autoRotate: false,
+                formatter: value => parseInt(value, 10) % densityTickStep === 0 ? value : ''
+            }
         },
         yAxis: {
-            title: { text: 'Utilized Time (min)' }
+            title: { text: 'Runtime (min)' }
         },
         height: 490,
         seriesField: 'category',
@@ -142,6 +163,7 @@ script.
             }
             $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
             $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
+            updateDensityCaption();
             if (chartDDG.length === 0) {
                 dailyDensityChartFilterFunction();
             }
@@ -151,9 +173,11 @@ script.
 
 
         $('input[name="startTime"]').on('change', function () {
+            updateDensityCaption();
             dailyDensityChartFilterFunction();
         });
         $('input[name="endTime"]').on('change', function (){
+            updateDensityCaption();
             dailyDensityChartFilterFunction();
         });
         $('select[name="wdRobots"]').on('change', function () {
@@ -197,14 +221,17 @@ script.
             $('input[name="endTime"]').datepicker(options);
             $('input[name="startTime"]').datepicker("setDate", dashboardWeeklyRange.start);
             $('input[name="endTime"]').datepicker("setDate", dashboardWeeklyRange.end);
+            updateDensityCaption();
             if (chartDDG.length === 0) {
                 dailyDensityChartFilterFunction();
             }
         });
         $('input[name="startTime"]').on('change', function () {
+            updateDensityCaption();
             dailyDensityChartFilterFunction();
         });
         $('input[name="endTime"]').on('change', function () {
+            updateDensityCaption();
             dailyDensityChartFilterFunction();
         });
         $('select[name="wdRobots"]').on('change', function () {

@@ -1336,6 +1336,58 @@ block content
                 font-weight: 800;
                 color: #111827;
             }
+            .dashboard-export-format {
+                min-height: 42px;
+                padding: 0 10px;
+                border: 1px solid #d6deea;
+                border-radius: 8px;
+                background: #fff;
+                color: #344054;
+                font-family: var(--dashboard-font);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .dashboard-export-group .dash-btn {
+                margin-left: 0;
+                margin-right: 0;
+            }
+            .dashboard-export-group #dashboardExportBtn {
+                width: 206px;
+                height: 42px;
+                padding: 0 10px !important;
+                justify-content: center;
+                gap: 6px;
+                white-space: nowrap;
+                font-size: 12px !important;
+                line-height: 1;
+            }
+            .dashboard-export-group .dropdown-toggle {
+                height: 42px;
+                min-width: 38px;
+                padding-left: 8px;
+                padding-right: 8px;
+                font-size: 12px !important;
+            }
+            .dashboard-export-group .dropdown-menu {
+                min-width: 210px;
+                padding: 6px;
+                border: 1px solid #d6deea;
+                box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+            }
+            .dashboard-export-group .dropdown-item {
+                border-radius: 6px;
+                color: #344054;
+                font-family: var(--dashboard-font);
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .chart-caption {
+                margin: 4px 24px 0;
+                color: #667085;
+                font-size: 12px;
+                font-weight: 500;
+                letter-spacing: 0;
+            }
 
             /* 2D mode overrides */
             .page-wrapper.view-2d .chart-div .dashboard-big--div,
@@ -1600,9 +1652,16 @@ block content
                         button#dashboardUploadBtn.dash-btn.dash-btn--primary(type='button' data-toggle='modal' data-target='#exampleModal')
                             i.svg-icon(data-feather='upload')
                             span #{__('Upload')}
-                        button#dashboardExportBtn.dash-btn.dash-btn--primary(type='button')
-                            i.svg-icon(data-feather='download')
-                            span #{__('Export')}
+                        .btn-group.dashboard-export-group
+                            button#dashboardExportBtn.dash-btn.dash-btn--primary(type='button' data-export-format='png')
+                                i.svg-icon(data-feather='download')
+                                span#dashboardExportLabel PNG olarak dışa aktar
+                            button.dash-btn.dash-btn--primary.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-label='Export format')
+                                i.svg-icon(data-feather='chevron-down')
+                            .dropdown-menu.dropdown-menu-right#dashboardExportMenu
+                                button.dropdown-item(type='button' data-export-format='png') PNG olarak dışa aktar
+                                button.dropdown-item(type='button' data-export-format='jpg') JPG olarak dışa aktar
+                                button.dropdown-item(type='button' data-export-format='pdf') PDF olarak dışa aktar
                         if locale == 'en'
                             a.dash-btn(href=`${originalPath()}?lang=tr`)
                                 i.svg-icon(data-feather='globe')
@@ -1667,8 +1726,8 @@ block content
                                     i.svg-icon(data-feather='check-circle')
                 .dashboard-toolbar
                     .dashboard-tabs
-                        .dashboard-tab.active #{__('RobotAnalytics')}
-                        .dashboard-tab #{__('QueueAnalytics')}
+                        .dashboard-tab.active(data-analytics-tab='robot') #{__('RobotAnalytics')}
+                        .dashboard-tab(data-analytics-tab='queue') #{__('QueueAnalytics')}
                     .dashboard-actions
                         button#dashboardEditBtn.dash-chip-btn(type='button')
                             i.svg-icon(data-feather='edit-3')
@@ -2005,8 +2064,8 @@ block content
                     .chart-div.col-xl-12.col-md-12.weekly-density-division#chart-4-div(data-order = "4")
                                 div.dashboard-big--div--second1
                                     ul.second-area.non-overflow.dashboard-big--div-second
-                                        li.active Hourly Robot Running Time
-                                    p.chart-subtitle Utilized time by hour and day
+                                        li.active Hourly Robot Runtime
+                                    p.chart-caption#weeklyDensityCaption Selected robots
                                     div.non-overflow.p-3
                                         .row.mb-3
                                             .col-md-12.d-flex.justify-content-center.align-items-center
@@ -2478,6 +2537,25 @@ block content
                             }
                         });
 
+                        function setAnalyticsTab(tab) {
+                            const robotCharts = [1, 2, 3, 4, 5, 6];
+                            const queueCharts = [8, 9];
+                            const showRobotCharts = tab === 'robot';
+
+                            robotCharts.forEach(function (chartNo) {
+                                setChartVisibility(chartNo, showRobotCharts);
+                            });
+                            queueCharts.forEach(function (chartNo) {
+                                setChartVisibility(chartNo, !showRobotCharts);
+                            });
+                            $('.dashboard-tab').removeClass('active');
+                            $('.dashboard-tab[data-analytics-tab="' + tab + '"]').addClass('active');
+                        }
+
+                        $('.dashboard-tab').on('click', function () {
+                            setAnalyticsTab($(this).data('analytics-tab'));
+                        });
+
                         function chartDivSelector(chartNo) {
                             return '#chart-' + chartNo + '-div';
                         }
@@ -2685,24 +2763,65 @@ block content
                             $(".js-example-basic-multiple-chart9-queue").val(null).trigger("change");
                         });
                         // Print whole page part
-                        function downloadDashboardImage(dataUrl) {
+                        function downloadDashboardFile(dataUrl, filename) {
                             var link = document.createElement('a');
-                            link.download = 'RPA Dashboard.png';
+                            link.download = filename;
                             link.href = dataUrl;
+                            document.body.appendChild(link);
                             link.click();
+                            link.remove();
                         }
 
-                        function exportWithHtml2Canvas(el) {
-                            return html2canvas(el, {
+                        function exportDashboardAsCanvas(el) {
+                            if (typeof window.html2canvas !== 'function') {
+                                return Promise.reject(new Error('Dashboard export library is unavailable.'));
+                            }
+                            return window.html2canvas(el, {
                                 useCORS: true,
-                                allowTaint: true,
+                                allowTaint: false,
                                 backgroundColor: '#f5f6f8',
-                                scale: 2,
-                                logging: false
-                            }).then(function (canvas) {
-                                return canvas.toDataURL('image/png');
+                                scale: Math.min(window.devicePixelRatio || 1, 2),
+                                logging: false,
+                                imageTimeout: 15000,
+                                onclone: function (clonedDocument) {
+                                    clonedDocument.querySelectorAll('.dashboard-export-format, #dashboardExportBtn').forEach(function (node) {
+                                        node.style.display = 'none';
+                                    });
+                                }
                             });
                         }
+
+                        function downloadDashboardExport(canvas, format) {
+                            var safeFormat = format === 'jpg' || format === 'pdf' ? format : 'png';
+                            if (safeFormat === 'pdf') {
+                                if (!window.jspdf || !window.jspdf.jsPDF) {
+                                    throw new Error('PDF export library is unavailable.');
+                                }
+                                var pdf = new window.jspdf.jsPDF({
+                                    orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
+                                    unit: 'px',
+                                    format: [canvas.width, canvas.height],
+                                    compress: true
+                                });
+                                pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, canvas.width, canvas.height);
+                                pdf.save('RPA Dashboard.pdf');
+                                return;
+                            }
+                            var mime = safeFormat === 'jpg' ? 'image/jpeg' : 'image/png';
+                            var extension = safeFormat === 'jpg' ? 'jpg' : 'png';
+                            downloadDashboardFile(canvas.toDataURL(mime, 0.92), 'RPA Dashboard.' + extension);
+                        }
+
+                        $('#dashboardExportMenu [data-export-format]').on('click', function () {
+                            var format = $(this).data('export-format');
+                            var labels = {
+                                png: 'PNG olarak dışa aktar',
+                                jpg: 'JPG olarak dışa aktar',
+                                pdf: 'PDF olarak dışa aktar'
+                            };
+                            $('#dashboardExportBtn').attr('data-export-format', format);
+                            $('#dashboardExportLabel').text(labels[format] || labels.png);
+                        });
 
                         $("#dashboardExportBtn").off('click.rpadExport').on('click.rpadExport', function () {
                             var exportBtn = $(this);
@@ -2711,25 +2830,9 @@ block content
 
                             exportBtn.prop('disabled', true);
 
-                            var exportPromise;
-                            if (typeof domtoimage !== 'undefined' && domtoimage.toPng) {
-                                exportPromise = domtoimage.toPng(exportTarget, {
-                                    quality: 1,
-                                    cacheBust: true,
-                                    bgcolor: '#f5f6f8'
-                                });
-                            } else {
-                                exportPromise = exportWithHtml2Canvas(exportTarget);
-                            }
-
-                            exportPromise
-                                .then(function (dataUrl) {
-                                    downloadDashboardImage(dataUrl);
-                                })
-                                .catch(function () {
-                                    return exportWithHtml2Canvas(exportTarget).then(function (dataUrl) {
-                                        downloadDashboardImage(dataUrl);
-                                    });
+                            exportDashboardAsCanvas(exportTarget)
+                                .then(function (canvas) {
+                                    downloadDashboardExport(canvas, exportBtn.attr('data-export-format') || 'png');
                                 })
                                 .catch(function () {
                                     $.alert({
@@ -2904,6 +3007,8 @@ block content
                                 $('#' + chartDivId).addClass('d-none');
                             }
                         }
+
+                        setAnalyticsTab('robot');
 
                         // Re-initialise feather icons for sidebar
                         feather.replace();
