@@ -158,8 +158,8 @@ script.
         $('input[name="queueStatusStartTime"]').datepicker(options);
         $('input[name="queueStatusEndTime"]').datepicker(options);
         if (filters.rpadHistoryList[7] !== undefined){
-            if (filters.rpadHistoryList[7].robots != null){
-                var separatedRobots9 = filters.rpadHistoryList[7].robots.split(', ');
+                if (typeof filters.rpadHistoryList[7].robots === 'string' && filters.rpadHistoryList[7].robots.trim() !== ''){
+                    var separatedRobots9 = filters.rpadHistoryList[7].robots.split(', ');
             }else{
                 var separatedRobots = filters.rpadHistoryList[7].robots === undefined;
             }

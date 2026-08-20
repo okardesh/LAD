@@ -9,5 +9,12 @@ if [ ! -f "env/dev.env" ]; then
   exit 1
 fi
 
-echo "Starting UI in real-backend mode (NODE_ENV=development)"
-exec env NODE_ENV=development node app.js
+set -a
+. ./env/dev.env
+set +a
+
+PORT="${PORT:-8082}"
+NODE_ENV="${NODE_ENV:-development}"
+
+echo "Starting UI in real-backend mode (NODE_ENV=$NODE_ENV, PORT=$PORT)"
+exec env NODE_ENV="$NODE_ENV" PORT="$PORT" node app.js

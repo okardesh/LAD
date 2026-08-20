@@ -23,6 +23,67 @@ function toCamelCase(str) {
   return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
 }
 
+function getJobDate(row) {
+        const value = row && (row.startTime || row.workDate || row.dataDate);
+        const text = `${value || ''}`.trim();
+        const match = text.match(/(\d{1,4})[./-](\d{1,2})[./-](\d{1,4})/);
+        if (!match) return value || null;
+
+        const first = Number(match[1]);
+        const second = Number(match[2]);
+        const third = Number(match[3]);
+        const year = first > 31 ? first : third;
+        const month = first > 31 ? second : (second > 12 ? third : second);
+        const day = first > 31 ? third : (second > 12 ? second : first);
+        if (![year, month, day].every(Number.isFinite) || year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) {
+                return value || null;
+        }
+
+        return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+}
+
+function formatUploadDate(value, includeTime) {
+    if (value === null || value === undefined || `${value}`.trim() === '') return value;
+    const text = `${value}`.trim();
+    let date = null;
+    const european = text.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (european) {
+        date = new Date(Number(european[3]), Number(european[2]) - 1, Number(european[1]), Number(european[4] || 0), Number(european[5] || 0), Number(european[6] || 0));
+    } else if (iso) {
+        date = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]), Number(iso[4] || 0), Number(iso[5] || 0), Number(iso[6] || 0));
+    } else {
+        const parsed = new Date(text);
+        if (!Number.isNaN(parsed.getTime())) date = parsed;
+    }
+    if (!date || Number.isNaN(date.getTime())) return value;
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    if (!includeTime) return `${year}-${month}-${day}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function formatUploadDateOnly(value) {
+    const normalized = formatUploadDate(value, false);
+    if (!normalized || !/^\d{4}-\d{2}-\d{2}$/.test(`${normalized}`)) return normalized;
+    const [year, month, day] = normalized.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+function normalizeJobsUploadRows(rows) {
+    return rows.map(row => {
+        const normalized = {...row};
+        normalized.startTime = formatUploadDate(normalized.startTime, true);
+        normalized.endTime = formatUploadDate(normalized.endTime, true);
+        delete normalized.dataDate;
+        return normalized;
+    });
+}
+
 const endpoints = [
   {
       model: 'Jobs',
@@ -53,6 +114,7 @@ exports.getRpaDashboard = async (req, res) => {
     try {
         const asArray = (v) => Array.isArray(v) ? v : [];
         const hasItems = (v) => Array.isArray(v) && v.length > 0;
+        const useLocalFallback = process.env.USE_LOCAL_FALLBACK === 'true';
         const uniqueBy = (arr, keyFn) => {
             const map = new Map();
             (arr || []).forEach(item => {
@@ -82,21 +144,21 @@ exports.getRpaDashboard = async (req, res) => {
 
         // Fallback for local/dev where dashboard aggregate endpoints may return empty,
         // but user has just uploaded valid RPAD_JOBS rows.
-        let previewJobs = req.session && Array.isArray(req.session.uploadPreviewJobs)
+        let previewJobs = useLocalFallback && req.session && Array.isArray(req.session.uploadPreviewJobs)
             ? req.session.uploadPreviewJobs
             : [];
 
-        if ((!previewJobs || !previewJobs.length) && req.user && req.user.uuid) {
+        if (useLocalFallback && (!previewJobs || !previewJobs.length) && req.user && req.user.uuid) {
             previewJobs = await loadUploadPreviewJobs(req.user.uuid);
             if (req.session && previewJobs.length) req.session.uploadPreviewJobs = previewJobs;
         }
 
-        if (previewJobs && previewJobs.length && req.user && req.user.uuid) {
+        if (useLocalFallback && previewJobs && previewJobs.length && req.user && req.user.uuid) {
             // Backfill persistent cache from session on read path.
             await saveUploadPreviewJobs(req.user.uuid, previewJobs);
         }
 
-        if (previewJobs.length) {
+        if (useLocalFallback && previewJobs.length) {
             const normalizedPreviewJobs = previewJobs.map(j => ({
                 ...j,
                 count: j && j.count != null && `${j.count}` !== '' ? j.count : 1
@@ -143,7 +205,7 @@ exports.getRpaDashboard = async (req, res) => {
 
             if (!hasItems(dataDateResponse.hosts)) {
                 const latestDate = normalizedPreviewJobs
-                    .map(j => j && j.dataDate)
+                    .map(getJobDate)
                     .filter(Boolean)
                     .slice(-1)[0] || null;
                 dataDateResponse.hosts = robots.map(r => ({
@@ -155,7 +217,7 @@ exports.getRpaDashboard = async (req, res) => {
 
             if (!hasItems(dataDateResponse.robotNames)) {
                 const latestDate = normalizedPreviewJobs
-                    .map(j => j && j.dataDate)
+                    .map(getJobDate)
                     .filter(Boolean)
                     .slice(-1)[0] || null;
                 dataDateResponse.robotNames = robots.map(r => ({
@@ -173,7 +235,7 @@ exports.getRpaDashboard = async (req, res) => {
                 const full = toNumber(row && row.fullTime);
                 if (full > 0) return full;
                 const total = toNumber(row && row.totalJobTime);
-                if (total > 0) return total;
+                if (total > 0) return total / 60;
                 const tx = toNumber(row && row.transactionExecutionTime);
                 if (tx > 0) return tx;
                 const avg = toNumber(row && row.averageTime);
@@ -197,7 +259,9 @@ exports.getRpaDashboard = async (req, res) => {
             const aggregateHours = (rows, groupKey, valueKey = groupKey) => {
                 const map = new Map();
                 rows.forEach(row => {
-                    const fallbackDate = row && (row.workDate || row.dataDate || row.createDate || row.updateDate);
+                    const fallbackDate = groupKey === 'workDate'
+                        ? getJobDate(row)
+                        : row && (row.workDate || row.dataDate || row.createDate || row.updateDate);
                     const key = row && row[groupKey] ? row[groupKey] : (groupKey === 'workDate' ? (fallbackDate || 'N/A') : 'N/A');
                     if (!map.has(key)) {
                         const entry = { [valueKey]: key };
@@ -314,10 +378,17 @@ exports.getRpaDashboard = async (req, res) => {
             if (!hasItems(response.workingHoursOccupancyChart)
                 || !hasPositiveValue(response.workingHoursOccupancyChart, ['workedHours', 'freeHours'])) {
                 const inferredWorkedMinutes = chartSourceJobs.reduce((sum, row) => sum + resolveMinutes(row), 0);
+                const robotCount = new Set(chartSourceJobs
+                    .map(row => row && row.hostMachineName)
+                    .filter(Boolean)).size;
+                const availableMinutes = Math.max(0, robotCount * 9 * 60);
+                const workedMinutes = availableMinutes > 0
+                    ? Math.min(inferredWorkedMinutes, availableMinutes)
+                    : inferredWorkedMinutes;
                 response.workingHoursOccupancyChart = [{
-                    workDate: latestValue(chartSourceJobs, ['workDate', 'dataDate']) || null,
-                    workedHours: chartSourceJobs.reduce((sum, row) => sum + toNumber(row && (row.workedHours != null ? row.workedHours : row.fullTime)), 0) || inferredWorkedMinutes,
-                    freeHours: chartSourceJobs.reduce((sum, row) => sum + toNumber(row && (row.freeHours != null ? row.freeHours : row.freeTime)), 0)
+                    workDate: getJobDate(chartSourceJobs[chartSourceJobs.length - 1]),
+                    workedHours: workedMinutes,
+                    freeHours: Math.max(0, availableMinutes - workedMinutes)
                 }];
             }
 
@@ -355,7 +426,7 @@ exports.getRpaDashboard = async (req, res) => {
             if (!hasItems(response.overallChart)) {
                 response.overallChart = aggregateHours(chartSourceJobs, 'releaseName', 'releaseName');
                 response.overallChart.forEach(row => {
-                    row.workDate = latestValue(chartSourceJobs, ['workDate', 'dataDate']) || null;
+                    row.workDate = getJobDate(chartSourceJobs[chartSourceJobs.length - 1]);
                     row.releaseName = row.releaseName || row.releaseName || 'N/A';
                 });
             }
@@ -427,7 +498,7 @@ exports.getRpaDashboard = async (req, res) => {
 
         // Secondary fallback: when backend payload has state counters but minute-based datasets
         // are empty/zero, derive non-zero chart values from available state counts.
-        {
+        if (useLocalFallback) {
             const asArraySafe = (v) => Array.isArray(v) ? v : [];
             const toNumSafe = (v) => {
                 const n = parseFloat(`${v != null ? v : 0}`.replace(',', '.'));
@@ -465,7 +536,7 @@ exports.getRpaDashboard = async (req, res) => {
             if (!Array.isArray(response.workingHoursOccupancyChart) || !hasPositive(response.workingHoursOccupancyChart, ['workedHours', 'freeHours'])) {
                 const workedFromRobots = asArraySafe(response.robotsOccupancyRateChart2).reduce((sum, row) => sum + toNumSafe(row && row.fullTime), 0);
                 const freeFromRobots = asArraySafe(response.robotsOccupancyRateChart2).reduce((sum, row) => sum + toNumSafe(row && row.freeTime), 0);
-                const latestDate = asArraySafe(response.jobsData).map(j => (j && (j.workDate || j.dataDate)) || null).filter(Boolean).slice(-1)[0] || null;
+                const latestDate = getJobDate(asArraySafe(response.jobsData).slice(-1)[0]);
                 response.workingHoursOccupancyChart = [{
                     workDate: latestDate,
                     workedHours: workedFromRobots || totalStateCount,
@@ -514,8 +585,19 @@ exports.getRpaDashboard = async (req, res) => {
         };
         let userId = req.user.uuid;
         let checkRoles = req.user.roles;
-        let arrangement = await API.requestAsync( `${process.env.API_RPAD_CHARTS_STATUS_LIST}/${userId}` , 'GET' , {} , req,res)
-        let filters = await API.requestAsync( `${process.env.API_HISTORIES}/${userId}` , 'GET', {} , req,res)
+        let arrangement = { rpadChartsStatusList: [] };
+        let filters = { rpadHistoryList: [] };
+
+        const arrangementResponse = await API.requestAsync(`${process.env.API_RPAD_CHARTS_STATUS_LIST}/${userId}`, 'GET', {}, req, res);
+        const filtersResponse = await API.requestAsync(`${process.env.API_HISTORIES}/${userId}`, 'GET', {}, req, res);
+
+        if (arrangementResponse && arrangementResponse.statusCode === 200 && arrangementResponse.rpadChartsStatusList) {
+            arrangement = arrangementResponse;
+        }
+        if (filtersResponse && filtersResponse.statusCode === 200 && filtersResponse.rpadHistoryList) {
+            filters = filtersResponse;
+        }
+
         render.info = markdown.toHTML(req.__('info.'.concat(render.page)));
         render.models = endpoints.map(x => x.model);
         const pageRender = {
@@ -617,7 +699,10 @@ exports.postRpaDashboard = async (req, res) => {
             }
         }
 
-        const normalizedJson = camelcaseKeys(json);
+        let normalizedJson = camelcaseKeys(json);
+        if (action.table === 'RPAD_JOBS') {
+            normalizedJson = normalizeJobsUploadRows(normalizedJson);
+        }
 
         console.log('[upload] model:', req.body.model, '| action.table:', action.table, '| rows:', normalizedJson.length);
         if (normalizedJson.length > 0) console.log('[upload] first row keys:', Object.keys(normalizedJson[0]));
@@ -649,6 +734,11 @@ exports.postRpaDashboard = async (req, res) => {
         }, req, res);
 
         const statusCode = data && data.statusCode;
+
+        if (data && data.error) {
+            req.flash('errors', {msg: data.error});
+            return res.redirect(req.path);
+        }
 
         if (statusCode === 200) {
             if (action.table === 'RPAD_JOBS') {

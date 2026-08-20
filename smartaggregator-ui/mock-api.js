@@ -36,6 +36,42 @@ const parseHourFromDateTime = (value) => {
   return Math.max(0, Math.min(23, hour));
 };
 
+const parseDateFromDateTime = (value, fallback) => {
+  const text = `${value || ''}`.trim();
+  const match = text.match(/(\d{1,4})[./-](\d{1,2})[./-](\d{1,4})/);
+  if (!match) return fallback;
+
+  const first = Number(match[1]);
+  const second = Number(match[2]);
+  const third = Number(match[3]);
+  if (![first, second, third].every(Number.isFinite)) return fallback;
+
+  const year = first > 31 ? first : third;
+  const month = first > 31 ? second : (second > 12 ? third : second);
+  const day = first > 31 ? third : (second > 12 ? second : first);
+  if (year < 1000 || month < 1 || month > 12 || day < 1 || day > 31) return fallback;
+
+  return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+};
+
+const dateKey = (value) => {
+  const normalized = parseDateFromDateTime(value, null);
+  if (!normalized) return null;
+  const [day, month, year] = normalized.split('/');
+  return `${year}-${month}-${day}`;
+};
+
+const filterByDateRange = (rows, startTime, endTime) => {
+  const startKey = dateKey(startTime);
+  const endKey = dateKey(endTime || startTime);
+  if (!startKey || !endKey) return rows;
+
+  return rows.filter((row) => {
+    const rowKey = dateKey(row.startTime);
+    return rowKey && rowKey >= startKey && rowKey <= endKey;
+  });
+};
+
 const normalizeText = (value, fallback) => {
   const text = `${value || ''}`.trim();
   return text || fallback;
@@ -138,7 +174,7 @@ const aggregateReleaseTotals = (rows) => {
 const toDailyIntensity = (rows) => {
   const byDayRelease = new Map();
   rows.forEach((row) => {
-    const day = normalizeText(row.dataDate, 'N/A');
+    const day = parseDateFromDateTime(row.startTime, normalizeText(row.dataDate, 'N/A'));
     const releaseName = normalizeText(row.releaseName, 'Unknown Queue');
     const key = `${day}|${releaseName}`;
     if (!byDayRelease.has(key)) {
@@ -154,6 +190,25 @@ const toDailyIntensity = (rows) => {
     item[`h${hour}`] += 1;
   });
   return Array.from(byDayRelease.values());
+};
+
+const toWorkingHoursSummary = (rows, workDate, robots) => {
+  const robotFilter = normalizeRobotFilter(robots);
+  const selectedRows = filterByDateRange(filterByRobots(rows, robotFilter), workDate, workDate);
+  const robotCount = robotFilter
+    ? robotFilter.length
+    : new Set(rows.map((row) => normalizeText(row.hostMachineName, 'N/A'))).size;
+  const availableMinutes = robotCount * 9 * 60;
+  const workedMinutes = Math.min(
+    availableMinutes,
+    selectedRows.reduce((sum, row) => sum + toMinutes(row.totalJobTime), 0)
+  );
+
+  return [{
+    workDate: parseDateFromDateTime(workDate, workDate || null),
+    workedHours: workedMinutes,
+    freeHours: Math.max(0, availableMinutes - workedMinutes)
+  }];
 };
 
 const aggregateQueueTransaction = (rows) => {
@@ -349,7 +404,9 @@ app.post('/mock-rpad-charts-status-save', (req, res) => {
 app.get('/mock-rpad-robot-list', (req, res) => {
   const rows = uploadedRows;
   const robotRows = aggregateByRobot(rows);
-  const latestDate = rows.length > 0 ? normalizeText(rows[rows.length - 1].dataDate, null) : null;
+  const latestDate = rows.length > 0
+    ? parseDateFromDateTime(rows[rows.length - 1].startTime, normalizeText(rows[rows.length - 1].dataDate, null))
+    : null;
   res.status(200).json({
     rpad: {
       hosts: robotRows.map((r) => ({
@@ -415,17 +472,24 @@ app.post('/mock-rpad-state-by-robot-filter', (req, res) => {
 });
 
 app.post('/mock-robots-occupancy-filter', (req, res) => {
-  res.status(200).json({ rpadJobsList: aggregateByRobot(uploadedRows) });
+  const rows = filterByDateRange(uploadedRows, req.body && req.body.startTime, req.body && req.body.endTime);
+  res.status(200).json({ rpadJobsList: aggregateByRobot(rows) });
 });
 
 app.post('/mock-robots-occupancy-by-robot-filter', (req, res) => {
-  const rows = filterByRobots(uploadedRows, req.body && req.body.robots);
+  const robotRows = filterByRobots(uploadedRows, req.body && req.body.robots);
+  const rows = filterByDateRange(robotRows, req.body && req.body.startTime, req.body && req.body.endTime);
   res.status(200).json({ rpadJobsList: aggregateByRobot(rows) });
 });
 
 app.post('/mock-working-hours-occupancy-filter', (req, res) => {
-  const rows = filterByRobots(uploadedRows, req.body && req.body.robots);
-  res.status(200).json({ rpadDailyIntensityList: toDailyIntensity(rows) });
+  res.status(200).json({
+    rpadDailyIntensityList: toWorkingHoursSummary(
+      uploadedRows,
+      req.body && req.body.workDate,
+      req.body && req.body.robots
+    )
+  });
 });
 
 app.post('/mock-daily-density-filter', (req, res) => {

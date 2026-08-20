@@ -14,6 +14,60 @@ const API_BASE_URL = process.env.API_URL || 'http://127.0.0.1:8081';
 const API_LOGIN_PATH = process.env.API_LOGIN || '/login';
 const API_LOGOUT_PATH = process.env.API_LOGOUT || '/logout';
 
+function isIgnorableTransportError(error) {
+    if (!error) return false;
+
+    const codes = new Set([
+        'EPIPE',
+        'ECONNRESET',
+        'ECONNABORTED',
+        'ETIMEDOUT',
+        'ENOTFOUND',
+        'ERR_HTTP2_STREAM_ERROR'
+    ]);
+
+    const code = (error.code || error.errno || (error.cause && error.cause.code) || '').toString().toUpperCase();
+    const message = `${error.message || ''}`.toLowerCase();
+
+    return codes.has(code)
+        || message.includes('broken pipe')
+        || message.includes('socket hang up')
+        || message.includes('connection reset')
+        || message.includes('econnreset')
+        || message.includes('epipe');
+}
+
+function backendDateOnly(value) {
+    if (value === null || value === undefined || `${value}`.trim() === '') return value;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return `${String(parsed.getDate()).padStart(2, '0')}/${String(parsed.getMonth() + 1).padStart(2, '0')}/${parsed.getFullYear()}`;
+}
+
+function normalizeUploadRequest(data) {
+    if (!data || data.table !== 'RPAD_JOBS' || !Array.isArray(data.list)) return data;
+    return {
+        ...data,
+        list: data.list.map(row => {
+            const normalized = {...row};
+            delete normalized.dataDate;
+            return normalized;
+        })
+    };
+}
+
+if (!process._ladApiTransportErrorGuard) {
+    process.on('uncaughtException', (error) => {
+        if (isIgnorableTransportError(error)) {
+            console.warn('[api] suppressed transport error:', error && (error.code || error.message));
+            return;
+        }
+
+        throw error;
+    });
+    process._ladApiTransportErrorGuard = true;
+}
+
 exports.login = (username, password, req, cb) => {
     let data = {
         username: username,
@@ -37,7 +91,13 @@ exports.login = (username, password, req, cb) => {
 
 
     request(options, function (error, response) {
-        if (error) console.error('response error-->', error);
+        if (error) {
+            if (isIgnorableTransportError(error)) {
+                console.warn('[api] login suppressed transport error:', error.code || error.message);
+                return cb(null);
+            }
+            console.error('response error-->', error);
+        }
         console.info('response status-->', response && response.statusCode ? response.statusCode : 'XXX');
         console.info("********** END API  **********");
 
@@ -81,7 +141,13 @@ exports.logged = (req, cb) => {
     console.info(`/POST ${API_LOGIN_PATH}`);
 
     request(options, function (error, response) {
-        if (error) console.error('response error-->', error);
+        if (error) {
+            if (isIgnorableTransportError(error)) {
+                console.warn('[api] logged suppressed transport error:', error.code || error.message);
+                return cb(false);
+            }
+            console.error('response error-->', error);
+        }
         console.info('response status-->', response && response.statusCode ? response.statusCode : 'XXX');
         console.info("********** END API  **********");
 
@@ -109,7 +175,13 @@ exports.logout = (req, cb) => {
     console.info(`/POST ${API_LOGOUT_PATH}`);
 
     request(options, function (error, response) {
-        if (error) console.error('response error-->', error);
+        if (error) {
+            if (isIgnorableTransportError(error)) {
+                console.warn('[api] logout suppressed transport error:', error.code || error.message);
+                return cb(false);
+            }
+            console.error('response error-->', error);
+        }
         console.info('response status-->', response && response.statusCode ? response.statusCode : 'XXX');
         console.info("********** END API  **********");
 
@@ -135,6 +207,7 @@ exports.requestAsync = async (uri, method, data, req) => {
         };
     }
 
+    data = normalizeUploadRequest(data);
     let options = {
         url: `${API_BASE_URL}${uri}`,
         method: `${method}`,
@@ -173,8 +246,24 @@ exports.requestAsync = async (uri, method, data, req) => {
     };
 
     try {
-        return await requestPromise(options).then(resolve).catch(resolve);
+        return await requestPromise(options).then(resolve).catch((error) => {
+            if (isIgnorableTransportError(error)) {
+                console.warn('[api] requestAsync suppressed transport error:', error.code || error.message);
+                return {
+                    error: 'The server connection was closed while processing the request.',
+                    statusCode: 503
+                };
+            }
+            return resolve({statusCode: 500, body: {error: error.message || 'Request failed'}});
+        });
     } catch (error) {
+        if (isIgnorableTransportError(error)) {
+            console.warn('[api] requestAsync caught transport error:', error.code || error.message);
+            return {
+                error: 'The server connection was closed while processing the request.',
+                statusCode: 503
+            };
+        }
         console.error('response error-->', error.message || error);
         console.info("********** END ASYNC API **********");
         return {

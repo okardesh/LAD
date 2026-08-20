@@ -17,17 +17,17 @@ script.
                 
             } else if(key === 'successfulCount'){
                 if(element['hostMachineName'] != null)
-                    totalSuccessful = totalSuccessful + element[key];
+                    totalSuccessful = totalSuccessful + (parseInt(element[key], 10) || 0);
                 
             }
             else if(key ==='faultedCount'){
                 if(element['hostMachineName'] != null)
-                    totalFaulted = totalFaulted + element[key];
+                    totalFaulted = totalFaulted + (parseInt(element[key], 10) || 0);
                 
             }
             else if(key === 'stoppedCount'){
                 if(element['hostMachineName'] != null)
-                    totalStopped = totalStopped + element[key];
+                    totalStopped = totalStopped + (parseInt(element[key], 10) || 0);
                 
             }
         });
@@ -370,6 +370,8 @@ script.
                             value : totalStopped,
                             totalRobotsValue : totalRobots
                         });
+
+                        $('#dashboardRobotCount').text(totalRobots);
 
                         totalRobots = 0;
                         totalSuccessful = 0;

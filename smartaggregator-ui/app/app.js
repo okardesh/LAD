@@ -56,13 +56,13 @@ if (environment && (environment == 'dev' || environment == 'development')) {
 // Local fallback values when env files are absent.
 process.env.ACCEPTABLE_FILE_TYPE = process.env.ACCEPTABLE_FILE_TYPE || 'xlsx,xls,csv';
 process.env.ACCEPTABLE_FILE_SIZE = process.env.ACCEPTABLE_FILE_SIZE || '25';
-process.env.API_SYSTEM = process.env.API_SYSTEM || '/mock-system';
-process.env.API_DASHBOARD_TABLE = process.env.API_DASHBOARD_TABLE || '/mock-dashboard-table';
-process.env.API_RPAD_ROBOT_LIST = process.env.API_RPAD_ROBOT_LIST || '/mock-rpad-robot-list';
-process.env.API_RPAD_CHARTS_STATUS_LIST = process.env.API_RPAD_CHARTS_STATUS_LIST || '/mock-rpad-charts-status';
-process.env.API_RPAD_CHARTS_STATUS_SAVE = process.env.API_RPAD_CHARTS_STATUS_SAVE || '/mock-rpad-charts-status-save';
-process.env.API_RPAD_HISTORY_SAVE = process.env.API_RPAD_HISTORY_SAVE || '/mock-rpad-history-save';
-process.env.API_HISTORIES = process.env.API_HISTORIES || '/mock-histories';
+process.env.API_SYSTEM = process.env.API_SYSTEM || '/v1/systems';
+process.env.API_DASHBOARD_TABLE = process.env.API_DASHBOARD_TABLE || '/v1/src-dashboard';
+process.env.API_RPAD_ROBOT_LIST = process.env.API_RPAD_ROBOT_LIST || '/v1/src-dashboard/hosts';
+process.env.API_RPAD_CHARTS_STATUS_LIST = process.env.API_RPAD_CHARTS_STATUS_LIST || '/v1/rpad-charts-status';
+process.env.API_RPAD_CHARTS_STATUS_SAVE = process.env.API_RPAD_CHARTS_STATUS_SAVE || '/v1/rpad-charts-status/save';
+process.env.API_RPAD_HISTORY_SAVE = process.env.API_RPAD_HISTORY_SAVE || '/v1/rpad-history/save';
+process.env.API_HISTORIES = process.env.API_HISTORIES || '/v1/rpad-history';
 process.env.API_ROLE_OPERATIONS = process.env.API_ROLE_OPERATIONS || '/mock-role-operations';
 process.env.API_RPAD_STATE_FILTER = process.env.API_RPAD_STATE_FILTER || '/mock-rpad-state-filter';
 process.env.API_RPAD_WORKING_HOURS_RATE_FILTER = process.env.API_RPAD_WORKING_HOURS_RATE_FILTER || '/mock-working-hours-occupancy-filter';
@@ -1468,6 +1468,12 @@ app.get('/jobs', passportConfig.isAuthenticated, jobsController.getJobs);
 app.get('/queue', passportConfig.isAuthenticated, queueController.getQueue);
 app.get('/robots', passportConfig.isAuthenticated,robotsController.getRobotsList)
 
+function normalizeRobotFilter(robots) {
+    if (Array.isArray(robots)) return robots.filter(Boolean);
+    if (typeof robots !== 'string' || !robots.trim()) return [];
+    return robots.split(/[|,]/).map(robot => robot.trim()).filter(Boolean);
+}
+
 app.post('/rpadStateChart-filter', passportConfig.isAuthenticated, async function (req, res) {
     const filterStateChart = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_STATE_FILTER}`, 'POST', {
@@ -1482,7 +1488,7 @@ app.post('/workingHoursOccupancyChart-filter', passportConfig.isAuthenticated, a
     const filterworkingHoursOccupancyChart = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_WORKING_HOURS_RATE_FILTER}`, 'POST', {
         workDate : filterworkingHoursOccupancyChart.workDate,
-        robots : filterworkingHoursOccupancyChart.robots,
+        robots : normalizeRobotFilter(filterworkingHoursOccupancyChart.robots),
     }, req, res);
     res.json(table)
 });
@@ -1500,7 +1506,7 @@ app.post('/overallChart-filter', passportConfig.isAuthenticated, async function 
     const filteroverallChart = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_DAILY_WORKED_TIME_FILTER}`, 'POST', {
         workDate : filteroverallChart.workDate2,
-        robots : filteroverallChart.robots,
+        robots : normalizeRobotFilter(filteroverallChart.robots),
     }, req, res);
     res.json(table)
 });
@@ -1520,7 +1526,7 @@ app.post('/queueTransactionTimeChart-filter', passportConfig.isAuthenticated, as
         startTime: filterQueueTransactionTimeChart.startTime,
         endTime: filterQueueTransactionTimeChart.endTime,
         queues : filterQueueTransactionTimeChart.queues,
-        robots : filterQueueTransactionTimeChart.robots,
+        robots : normalizeRobotFilter(filterQueueTransactionTimeChart.robots),
     }, req, res);
     res.json(table)
 });
@@ -1551,7 +1557,7 @@ app.post('/dailyDensityChart-filter', passportConfig.isAuthenticated, async func
     let table = await API.requestAsync(`${process.env.API_RPAD_INTENSITY_DAILY_DENSITY}`, 'POST', {
         startTime : filterDailyDensityChart.startTime,
         endTime : filterDailyDensityChart.endTime,
-        robots : filterDailyDensityChart.robots,
+        robots : normalizeRobotFilter(filterDailyDensityChart.robots),
     }, req, res);
     res.json(table)
 });
@@ -1559,7 +1565,7 @@ app.post('/dailyDensityChart-filter', passportConfig.isAuthenticated, async func
 app.post('/rpadStateChart2-filter', passportConfig.isAuthenticated, async function (req, res) {
     const filterRpadStateChart2 = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_ROBOTS_LIST}`, 'POST', {
-        robots : filterRpadStateChart2.robots,
+        robots : normalizeRobotFilter(filterRpadStateChart2.robots),
         startTime : filterRpadStateChart2.startTime,
         endTime : filterRpadStateChart2.endTime 
     }, req, res);
@@ -1569,7 +1575,7 @@ app.post('/rpadStateChart2-filter', passportConfig.isAuthenticated, async functi
 app.post('/robotsOccupancyRateChart2-filter', passportConfig.isAuthenticated, async function (req, res) {
     const filterRobotsOccupancyRateChart2 = req.body;
     let table = await API.requestAsync(`${process.env.API_RPAD_ROBOTS_LIST2}`, 'POST', {
-        robots : filterRobotsOccupancyRateChart2.robots,
+        robots : normalizeRobotFilter(filterRobotsOccupancyRateChart2.robots),
         startTime : filterRobotsOccupancyRateChart2.startTime,
         endTime : filterRobotsOccupancyRateChart2.endTime 
     }, req, res);

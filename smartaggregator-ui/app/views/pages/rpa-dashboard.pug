@@ -13,6 +13,277 @@ block content
                 --rpad-primary: #2f5ecc;
             }
 
+            /* Upload modal */
+            #exampleModal .modal-dialog {
+                max-width: 760px;
+                margin: 6vh auto;
+            }
+            #exampleModal .modal-content {
+                border: 1px solid #e4e9f2;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 24px 60px rgba(16,24,40,.18);
+            }
+            #exampleModal .modal-header {
+                min-height: 72px;
+                padding: 18px 24px;
+                border-bottom: 1px solid #edf1f7;
+                background: #fff;
+            }
+            #exampleModal .modal-title {
+                margin: 0;
+                color: #1f2937 !important;
+                font-family: Georgia, 'Times New Roman', serif;
+                font-size: 28px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+            #exampleModal .modal-header .close {
+                width: 36px;
+                height: 36px;
+                margin: 0;
+                padding: 0;
+                border: 1px solid #d9e1ee;
+                border-radius: 8px;
+                color: #667085;
+                font-size: 24px;
+                line-height: 32px;
+                opacity: 1;
+                transition: background .15s, color .15s, border-color .15s;
+            }
+            #exampleModal .modal-header .close:hover {
+                border-color: #2f5ecc;
+                background: #eef3ff;
+                color: #2f5ecc;
+            }
+            #exampleModal .modal-body {
+                padding: 24px !important;
+                background: #f8faff;
+            }
+            #exampleModal .modal-body > .row,
+            #exampleModal .modal-body > .row > .col-md-12 {
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #exampleModal form > .row:first-of-type {
+                display: grid;
+                grid-template-columns: 180px 1fr;
+                gap: 18px;
+                align-items: center;
+                margin: 0;
+            }
+            #exampleModal .upload-module {
+                width: 100% !important;
+                height: 42px;
+                padding: 0 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #fff;
+                color: #1f2937;
+                font-family: inherit;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            #exampleModal .file-loading,
+            #exampleModal .file-input,
+            #exampleModal .file-caption {
+                width: 100%;
+            }
+            #exampleModal .fileinput-upload-button {
+                display: none !important;
+            }
+            #exampleModal .fileinput-remove-button,
+            #exampleModal .fileinput-browse,
+            #exampleModal #dashboardUploadSubmit {
+                min-width: 104px;
+                height: 42px;
+                padding: 0 16px;
+                border: 1px solid #2f5ecc !important;
+                border-radius: 8px !important;
+                background: #2f5ecc !important;
+                color: #fff !important;
+                font-family: inherit;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 40px;
+                box-shadow: none !important;
+                transition: background .15s, border-color .15s, transform .15s;
+            }
+            #exampleModal .fileinput-remove-button:hover,
+            #exampleModal .fileinput-browse:hover,
+            #exampleModal #dashboardUploadSubmit:hover:not(:disabled) {
+                border-color: #244aa5 !important;
+                background: #244aa5 !important;
+                color: #fff !important;
+                transform: translateY(-1px);
+            }
+            #exampleModal .fileinput-remove-button {
+                background: #fff !important;
+                border-color: #cbd5e1 !important;
+                color: #475467 !important;
+            }
+            #exampleModal .fileinput-remove-button:hover {
+                background: #f1f5f9 !important;
+                border-color: #94a3b8 !important;
+                color: #1f2937 !important;
+            }
+            #exampleModal .file-caption {
+                height: 42px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px 0 0 8px;
+                background: #fff;
+                color: #475467;
+                font-family: inherit;
+                font-size: 14px;
+            }
+            #exampleModal .file-caption-name {
+                line-height: 40px;
+            }
+            #exampleModal .fileinput-upload-button,
+            #exampleModal .fileinput-remove-button,
+            #exampleModal .fileinput-browse {
+                margin: 0 0 0 8px;
+            }
+            #exampleModal form > .row:last-child {
+                margin: 24px 0 0;
+                padding-top: 20px;
+                border-top: 1px solid #e4e9f2;
+            }
+            #exampleModal #dashboardUploadSubmit {
+                min-width: 132px;
+                margin: 0;
+            }
+            @media (max-width: 640px) {
+                #exampleModal .modal-dialog { margin: 16px; }
+                #exampleModal form > .row:first-of-type { display: block; }
+                #exampleModal form > .row:first-of-type > div { margin-bottom: 16px; }
+            }
+            #exampleModal .upload-form-row {
+                display: grid;
+                grid-template-columns: 160px minmax(0, 1fr);
+                gap: 20px;
+                align-items: start !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            #exampleModal .upload-field {
+                min-width: 0;
+                margin: 0 !important;
+                padding: 0 !important;
+                text-align: left;
+                align-self: start !important;
+            }
+            #exampleModal .upload-field-label {
+                display: block;
+                margin: 0 0 8px !important;
+                line-height: 20px;
+                color: #344054;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+            }
+            #exampleModal #model {
+                display: block;
+                width: 100% !important;
+                height: 44px;
+                margin: 0 !important;
+                padding: 0 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #fff;
+                color: #1f2937;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            #exampleModal .upload-file-control {
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                height: 44px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #fff;
+                overflow: hidden;
+            }
+            #exampleModal #dashboardFileInput { position: absolute; width: 1px; height: 1px; opacity: 0; }
+            #exampleModal .upload-file-name {
+                min-width: 0;
+                flex: 1;
+                overflow: hidden;
+                padding: 0 12px;
+                color: #667085;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            #exampleModal .upload-file-trigger {
+                display: inline-flex;
+                align-items: center;
+                align-self: stretch;
+                justify-content: center;
+                width: 132px;
+                min-width: 132px;
+                height: 44px;
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0 18px;
+                border-left: 1px solid #2f5ecc;
+                background: #2f5ecc;
+                color: #fff;
+                cursor: pointer;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                transition: background .15s;
+            }
+            #exampleModal .upload-file-trigger:hover { background: #244aa5; }
+            #exampleModal .upload-file-hint {
+                margin: 8px 0 0;
+                color: #98a2b3;
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+            }
+            #exampleModal #dashboardUploadSubmit {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 44px;
+                width: 132px;
+                min-width: 132px;
+                box-sizing: border-box;
+                border-radius: 8px !important;
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                line-height: 1;
+            }
+            #exampleModal #dashboardUploadSubmit:disabled {
+                border-color: #cbd5e1 !important;
+                background: #cbd5e1 !important;
+                cursor: not-allowed;
+                transform: none;
+            }
+            #exampleModal form > .row.mt-3 {
+                display: flex;
+                justify-content: flex-end;
+                margin: 24px 0 0 !important;
+                padding-top: 20px;
+                border-top: 1px solid #e4e9f2;
+            }
+            #exampleModal form > .row.mt-3 > .col-12 {
+                display: flex;
+                justify-content: flex-end;
+                width: 100%;
+                padding: 0;
+            }
+            @media (max-width: 640px) {
+                #exampleModal .upload-form-row { display: block; }
+                #exampleModal .upload-field + .upload-field { margin-top: 16px; }
+            }
+
             @keyframes rpadFadeUp {
                 from { opacity: 0; transform: translateY(6px); }
                 to { opacity: 1; transform: translateY(0); }
@@ -725,6 +996,20 @@ block content
                 opacity: 1;
                 transform: translateY(2px) scale(1.03);
             }
+            #chart-1-div .dashboard-big--div--second1 {
+                overflow: visible;
+            }
+            #chart-1-div .non-overflow {
+                overflow: visible;
+            }
+            #chart-1-div .pie-3d-stack {
+                min-height: 360px;
+                padding-bottom: 18px;
+            }
+            .chart-div .g2-legend-item-text {
+                font-size: 12px !important;
+                font-weight: 500 !important;
+            }
             .second-area {
                 background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%) !important;
                 border-bottom: 1px solid #eef2f7 !important;
@@ -1151,12 +1436,12 @@ block content
             }
         script.
             const {Pie} = G2Plot;
-            const checkRoles = JSON.parse('!{JSON.stringify(checkRoles)}')
-            const filters = JSON.parse('!{JSON.stringify(filters)}')
+            const checkRoles = !{JSON.stringify(checkRoles || [])};
+            const filters = !{JSON.stringify(filters || { rpadHistoryList: [] })};
             const uploadMode = !{JSON.stringify(uploadMode || false)}
-            const lastDataDateInformation = JSON.parse('!{JSON.stringify(lastDataDateInformation)}')
-            const lastQueueDateInformation = JSON.parse('!{JSON.stringify(lastQueueDateInformation)}')
-            const aiChartSeedData = JSON.parse('!{JSON.stringify(aiChartSeedData)}')
+            const lastDataDateInformation = !{JSON.stringify(lastDataDateInformation || [])};
+            const lastQueueDateInformation = !{JSON.stringify(lastQueueDateInformation || [])};
+            const aiChartSeedData = !{JSON.stringify(aiChartSeedData || {})};
             const lastDataDate = lastDataDateInformation[0]?.lastDate
             const lastJobsDate = lastDataDateInformation[0]?.lastJobsDate
             var lastQueueDate = lastQueueDateInformation[0]?.lastQueueDate || undefined
@@ -1204,10 +1489,39 @@ block content
                 return formatDashboardDate(shifted);
             }
 
-            const dashboardDefaultDate = shiftDashboardDate(lastJobsDate || lastDataDate || formatedCurrentDate, -1);
-            const queueDefaultDate = shiftDashboardDate(lastQueueDate || lastJobsDate || formatedCurrentDate, -1);
-            const dashboardDataWeekRange = { start: dashboardDefaultDate, end: dashboardDefaultDate };
-            const queueDataWeekRange = { start: queueDefaultDate, end: queueDefaultDate };
+            function latestDataDate() {
+                const candidates = [];
+                const addDate = value => {
+                    if (!value) return;
+                    const text = `${value}`;
+                    const match = text.match(/(\d{1,4})[./-](\d{1,2})[./-](\d{1,4})/);
+                    if (!match) return;
+                    const first = Number(match[1]);
+                    const second = Number(match[2]);
+                    const third = Number(match[3]);
+                    const year = first > 31 ? first : third;
+                    const month = first > 31 ? second : (second > 12 ? third : second);
+                    const day = first > 31 ? third : (second > 12 ? second : first);
+                    const date = new Date(year, month - 1, day);
+                    if (date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day) {
+                        candidates.push(date);
+                    }
+                };
+                const scan = (rows, keys) => (Array.isArray(rows) ? rows : []).forEach(row => keys.forEach(key => addDate(row && row[key])));
+
+                scan(aiChartSeedData.jobsData, ['startTime', 'workDate', 'dataDate']);
+                scan(aiChartSeedData.workingHoursOccupancyChart, ['workDate']);
+                scan(aiChartSeedData.dailyDensityChart, ['workDate']);
+                scan(aiChartSeedData.overallChart, ['workDate']);
+                scan(lastDataDateInformation, ['lastJobsDate', 'lastDate']);
+                if (!candidates.length) return lastJobsDate || lastDataDate || formatedCurrentDate;
+                return formatDashboardDate(new Date(Math.max.apply(null, candidates.map(date => date.getTime()))));
+            }
+
+            const dashboardDefaultDate = latestDataDate();
+            const queueDefaultDate = dashboardDefaultDate;
+            const dashboardDataWeekRange = getLastWeekRange(dashboardDefaultDate);
+            const queueDataWeekRange = getLastWeekRange(queueDefaultDate);
             const dashboardWeeklyRange = getLastWeekRange(dashboardDefaultDate);
             const saved3DMode = localStorage.getItem('rpadViewMode3d');
             const is3DView = saved3DMode === null ? true : saved3DMode === '1';
@@ -1292,8 +1606,6 @@ block content
                         else
                             p.lastDataDateTransitionClass.text-end #{__('There is no data')}
                         if (jobsData && jobsData.length)
-                            .dashboard-fallback-banner.mt-2
-                                | Some dashboard charts are using local fallback data because the backend chart endpoints are failing in this environment.
                 - var _stateRobots = stateRobots && Array.isArray(stateRobots) ? stateRobots : []
                 - var _queues = queueTransactionTimeChart && Array.isArray(queueTransactionTimeChart) ? queueTransactionTimeChart : []
                 - var _releases = releaseTotalTimeChart && Array.isArray(releaseTotalTimeChart) ? releaseTotalTimeChart : []
@@ -1310,7 +1622,7 @@ block content
                             .rpad-stat-card
                                 .rpad-stat-card__info
                                     .rpad-stat-card__label Robot
-                                    .rpad-stat-card__value= _totalRobots
+                                    .rpad-stat-card__value#dashboardRobotCount= _totalRobots
                                 .rpad-stat-card__icon.rpad-stat-card__icon--blue
                                     i.svg-icon(data-feather='cpu')
                             .rpad-stat-card
@@ -1457,24 +1769,24 @@ block content
                                                 //if user.userType===0 && user.rolePermissionAll && user.rolePermissionAll.includes('financial-management_POST')
                                                 form(id='import-'.concat(toCamelCase(title)), method='POST', action='/rpa-dashboard', enctype="multipart/form-data")
                                                     input(type='hidden', name='_csrf', value=_csrf)
-                                                    .row
-                                                        .col-md-4.p-3(style="text-align:start; padding-left:31px!important;")
-                                                            select.mr-2.upload-module(name="model" id="model" style="width:100%!important;")
+                                                    .upload-form-row
+                                                        .upload-field
+                                                            label.upload-field-label(for='model') Data type
+                                                            select(name="model" id="model")
                                                                 if models
                                                                     each t in models
                                                                         option(value=toCamelCase(t))= __(t)
-                                                        .col-md-8
-                                                            if (user && Array.isArray(user.rolePermissionAll) && user.rolePermissionAll.includes('/v1/documents/files/{screenCode}_GET'))
-                                                            //- a.statistic-btn(href="#",onclick=`openPopupDocuments()`)
-                                                            //-     .far.fa-file
-                                                            .container-fluid.p-3
-                                                                .col-md-12
-                                                                    .file-loading
-                                                                            input#file-input(type='file', name='file', accept='.xlsx,.csv')
-                                                                    #errorBlock.help-block
+                                                        .upload-field
+                                                            label.upload-field-label(for='dashboardFileInput') Excel or CSV file
+                                                            .upload-file-control
+                                                                input#dashboardFileInput(type='file', name='file', accept='.xlsx,.csv')
+                                                                span#dashboardFileName.upload-file-name No file selected
+                                                                label.upload-file-trigger(for='dashboardFileInput') Browse
+                                                            p.upload-file-hint XLSX and CSV files are supported.
+                                                            #errorBlock.help-block
                                                     .row.mt-3
                                                         .col-12.d-flex.justify-content-end
-                                                            button#dashboardUploadSubmit.btn.btn-primary(type='submit', name='action', value='import') #{__('Upload')}
+                                                            button#dashboardUploadSubmit.btn.btn-primary(type='submit', name='action', value='import', disabled=true) #{__('Upload')}
 
                         //- .col-xl-6.col-md-12
                         //-     div.dashboard-big--div.dashboard-big--div--second1
@@ -1882,6 +2194,17 @@ block content
                     const userId = JSON.parse('!{JSON.stringify(userId)}')
 
                     $(document).ready(function() {
+                        const dashboardFileInput = document.getElementById('dashboardFileInput');
+                        const dashboardFileName = document.getElementById('dashboardFileName');
+                        const dashboardUploadSubmit = document.getElementById('dashboardUploadSubmit');
+                        if (dashboardFileInput && dashboardFileName && dashboardUploadSubmit) {
+                            dashboardFileInput.addEventListener('change', function() {
+                                const file = dashboardFileInput.files && dashboardFileInput.files[0];
+                                dashboardFileName.textContent = file ? file.name : 'No file selected';
+                                dashboardFileName.style.color = file ? '#1f2937' : '#667085';
+                                dashboardUploadSubmit.disabled = !file;
+                            });
+                        }
 
                         function scrollAiMessagesToBottom() {
                             const el = document.getElementById('dashboardAiMessages');

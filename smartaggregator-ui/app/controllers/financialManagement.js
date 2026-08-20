@@ -23,6 +23,29 @@ function toCamelCase(str) {
     return str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
 }
 
+function formatBackendDate(value) {
+    if (value === null || value === undefined || `${value}`.trim() === '') return value;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return `${String(parsed.getDate()).padStart(2, '0')}/${String(parsed.getMonth() + 1).padStart(2, '0')}/${parsed.getFullYear()}`;
+}
+
+function formatBackendDateTime(value) {
+    if (value === null || value === undefined || `${value}`.trim() === '') return value;
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    return `${String(parsed.getDate()).padStart(2, '0')}/${String(parsed.getMonth() + 1).padStart(2, '0')}/${parsed.getFullYear()} ${String(parsed.getHours()).padStart(2, '0')}:${String(parsed.getMinutes()).padStart(2, '0')}:${String(parsed.getSeconds()).padStart(2, '0')}`;
+}
+
+function normalizeJobsRows(rows) {
+    return rows.map(row => ({
+        ...row,
+        dataDate: undefined,
+        startTime: formatBackendDateTime(row.startTime),
+        endTime: formatBackendDateTime(row.endTime)
+    }));
+}
+
 const endpoints = [
     {
         model: 'Jobs',
@@ -432,17 +455,23 @@ exports.postFinancialManagement = async (req, res) => {
             return res.redirect(req.path);
         }
 
+        const uploadRows = action.table === 'RPAD_JOBS' ? normalizeJobsRows(parsed.rows) : parsed.rows;
         const request = {
             uri: `${process.env.API_SYSTEM}/upload`,
             method: 'POST',
             data: {
                 batchId: path.parse(file.filename).name,
                 table: action.table,
-                list: filterToDto(parsed.rows, action.table)
+                list: filterToDto(uploadRows, action.table)
             }
         };
 
         const data = await API.requestAsync(request.uri, request.method, request.data, req, res);
+
+        if (data && data.error) {
+            req.flash('errors', {msg: data.error});
+            return res.redirect(req.path);
+        }
 
         if (data && data.statusCode === 406 && data.error) {
             const arr = data.error.split(' - ');

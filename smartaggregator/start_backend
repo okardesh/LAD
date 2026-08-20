@@ -20,8 +20,21 @@ fi
 JAVA_OPTS_DEFAULT="-Xmx2048m -Xms512m"
 JAVA_OPTS="${JAVA_OPTS:-$JAVA_OPTS_DEFAULT}"
 
+# Ensure the database seed file resolves from the project root no matter where the script is launched.
+DB_PATH="$BASE_DIR/smartaggregator-db"
+SQL_PATH="$BASE_DIR/config/data.sql"
+
+# Java 17 + Spring LDAP needs this export in this project.
+JAVA_ADD_OPTS="--add-exports java.naming/com.sun.jndi.ldap=ALL-UNNAMED"
+
 echo "Starting backend"
 echo "JAR: $JAR_PATH"
 echo "Config: $CONF_PATH"
+echo "DB: $DB_PATH"
+echo "Seed: $SQL_PATH"
 
-exec java $JAVA_OPTS -jar "$JAR_PATH" --spring.config.location="file:$CONF_PATH"
+exec java $JAVA_OPTS $JAVA_ADD_OPTS -jar "$JAR_PATH" \
+  --spring.config.location="file:$CONF_PATH" \
+  --spring.datasource.url="jdbc:h2:file:$DB_PATH;DB_CLOSE_DELAY=-1" \
+  --spring.datasource.data="file:$SQL_PATH" \
+  --server.port=8081

@@ -14,10 +14,10 @@ script.
                     if(element[key] != null)
                         totalRobots2 = totalRobots2 + 1;
                 } else if(key === 'fullTime'){
-                    totalFullTime = totalFullTime + element[key];
+                    totalFullTime = totalFullTime + (parseInt(element[key], 10) || 0);
                 }
                 else if(key ==='freeTime'){
-                    totalFreeTime = totalFreeTime + element[key];
+                    totalFreeTime = totalFreeTime + (parseInt(element[key], 10) || 0);
                 }            
             });
         });
@@ -145,12 +145,17 @@ script.
     function renderOccupancyFromRows(rows){
         let newStateChart3 = [];
         if (rows && rows.length > 0) {
+            const uniqueRobotNames = new Set(rows
+                .map(function(row){ return row && row.hostMachineName; })
+                .filter(Boolean));
+            const selectedRobotCount = $('select[name="occupanyRobots"] option:checked').length
+                || $('select[name="occupanyRobots"] option').length;
             $('#rpad-chart2-1').removeClass('visibility-none')
             let totalRobots2 = 0, totalFullTime = 0, totalFreeTime = 0
             rows.forEach(function(element) {
                 Object.keys(element).forEach(function(key) {
                     if(key === 'hostMachineName'){
-                        totalRobots2 = totalRobots2 + 1;
+                        totalRobots2 = uniqueRobotNames.size || selectedRobotCount;
                     } else if(key === 'fullTime'){
                         totalFullTime = totalFullTime + (parseInt(element[key], 10) || 0);
                     }
@@ -182,7 +187,7 @@ script.
                 piePlot5.render();
             }
         } else {
-            $('#rpad-chart2-1').addClass('visibility-none')
+            $('#rpad-chart2-1').removeClass('visibility-none')
         }
     }
 
