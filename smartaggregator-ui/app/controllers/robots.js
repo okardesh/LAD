@@ -46,7 +46,6 @@ exports.getRobotsList = async (req, res) => {
             response = report.rpad
         }
 
-
         let filters = await API.requestAsync(`${process.env.API_FILTER_DROPDOWN}`, 'GET', {}, req, res);
         if (filters && filters.statusCode === 200) {
             dropdown = filters.filterDropdown

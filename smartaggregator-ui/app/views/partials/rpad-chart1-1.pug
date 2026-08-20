@@ -239,17 +239,18 @@ script.
     // EN SON CASILISAN GUN FILTRESI - STATE ROBOTS
     $('button[name="last-working-date3"]').on('click', function(){
         responseControl = 1;
-        let newStateChartFilter3 = $('select[name="statesRobots"]').val();
-        var lastDataDate = $('input[name="workDate"]').val();
+        let newStateChartFilter3 = $('select[name="statesRobots"]').val() || [];
+        var lastDataDate = $('input[name="workDate"]').val() || '';
         var monthDate = new Date()
         firstDay = new Date(monthDate.getFullYear() , monthDate.getMonth() , 1)
-
-        const [day, month, year] = lastDataDate.split('/');
 
         let stateChartAlert = '';
 
         if(newStateChartFilter3.length < 1){
             stateChartAlert = stateChartAlert + ' * ' + "#{__('Robots are empty')}"
+        }
+        if(!/^\d{2}\/\d{2}\/\d{4}$/.test(lastDataDate)){
+            stateChartAlert = stateChartAlert + ' * ' + "#{__('Last data date is empty')}"
         }
         $('#alertTextStateChart').empty();
         $("<p class='alertText' style='color:red!important;'>" + stateChartAlert + "</p>").appendTo('#alertTextStateChart');

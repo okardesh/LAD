@@ -1,3 +1,41 @@
+style.
+    .rpad-sidebar__link[data-tooltip] {
+        position: relative;
+    }
+    .rpad-sidebar--collapsed .rpad-sidebar__link[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 10px);
+        top: 50%;
+        z-index: 1100;
+        transform: translateY(-50%) translateX(-4px);
+        padding: 7px 10px;
+        border: 1px solid #dbe3ef;
+        border-radius: 7px;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, .14);
+        color: #344054;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .15s ease, transform .15s ease;
+    }
+    .rpad-sidebar--collapsed,
+    .rpad-sidebar--collapsed .rpad-sidebar__nav,
+    .rpad-sidebar--collapsed .rpad-sidebar__menu,
+    .rpad-sidebar--collapsed .rpad-sidebar__item {
+        overflow: visible !important;
+    }
+    .rpad-sidebar--collapsed .rpad-sidebar__link[data-tooltip]:hover::after,
+    .rpad-sidebar--collapsed .rpad-sidebar__link[data-tooltip]:focus-visible::after {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+
 if user
     nav.rpad-sidebar#rpadSidebar
         .rpad-sidebar__header
@@ -11,7 +49,7 @@ if user
                 ul.rpad-sidebar__menu
                     if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
                         li.rpad-sidebar__item
-                            a.rpad-sidebar__link(href='/rpa-dashboard' class=(page === 'rpaDashboard' ? 'active' : ''))
+                            a.rpad-sidebar__link(href='/rpa-dashboard' title=__('Dashboard') aria-label=__('Dashboard') class=(page === 'rpaDashboard' ? 'active' : '') data-tooltip=__('Dashboard'))
                                 i.svg-icon(data-feather='home')
                                 span #{__('Dashboard')}
 
@@ -20,15 +58,15 @@ if user
                 ul.rpad-sidebar__menu
                     if user.roles.includes('SUB_USER') || user.roles.includes('SUB_ADMIN') || user.roles.includes('ADMIN')
                         li.rpad-sidebar__item
-                            a.rpad-sidebar__link(href='/robots' class=(page === 'robots' ? 'active' : ''))
+                            a.rpad-sidebar__link(href='/robots' title=__('Robots') aria-label=__('Robots') class=(page === 'robots' ? 'active' : '') data-tooltip=__('Robots'))
                                 i.svg-icon(data-feather='server')
                                 span #{__('Robots')}
                         li.rpad-sidebar__item
-                            a.rpad-sidebar__link(href='/queue' class=(page === 'queue' ? 'active' : ''))
+                            a.rpad-sidebar__link(href='/queue' title=__('Queues') aria-label=__('Queues') class=(page === 'queue' ? 'active' : '') data-tooltip=__('Queues'))
                                 i.svg-icon(data-feather='git-branch')
                                 span #{__('Queues')}
                         li.rpad-sidebar__item
-                            a.rpad-sidebar__link(href='/jobs' class=(page === 'jobs' ? 'active' : ''))
+                            a.rpad-sidebar__link(href='/jobs' title=__('Processes') aria-label=__('Processes') class=(page === 'jobs' ? 'active' : '') data-tooltip=__('Processes'))
                                 i.svg-icon(data-feather='zap')
                                 span #{__('Processes')}
 
@@ -37,7 +75,7 @@ if user
                 ul.rpad-sidebar__menu
                     if user.roles.includes('ADMIN') || user.roles.includes('SUB_ADMIN')
                         li.rpad-sidebar__item
-                            a.rpad-sidebar__link(href='/users' class=(page === 'users' ? 'active' : ''))
+                            a.rpad-sidebar__link(href='/users' title=__('Users') aria-label=__('Users') class=(page === 'users' ? 'active' : '') data-tooltip=__('Users'))
                                 i.svg-icon(data-feather='users')
                                 span #{__('Users')}
 

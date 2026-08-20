@@ -1350,6 +1350,8 @@ block content
             .dashboard-export-group .dash-btn {
                 margin-left: 0;
                 margin-right: 0;
+                border-radius: 0;
+                box-shadow: none;
             }
             .dashboard-export-group #dashboardExportBtn {
                 width: 206px;
@@ -1360,13 +1362,21 @@ block content
                 white-space: nowrap;
                 font-size: 12px !important;
                 line-height: 1;
+                border-radius: 12px 0 0 12px;
             }
             .dashboard-export-group .dropdown-toggle {
                 height: 42px;
-                min-width: 38px;
+                min-width: 44px;
                 padding-left: 8px;
                 padding-right: 8px;
                 font-size: 12px !important;
+                border-left: 1px solid rgba(255, 255, 255, .32);
+                border-radius: 0 12px 12px 0;
+            }
+            .dashboard-export-group .dropdown-toggle:focus,
+            .dashboard-export-group .dropdown-toggle:active {
+                box-shadow: none !important;
+                outline: none;
             }
             .dashboard-export-group .dropdown-menu {
                 min-width: 210px;

@@ -5,6 +5,10 @@ div.active.pie-3d-stack
 script.
     const queueStatusChart1 = JSON.parse('!{JSON.stringify(queueStatusChart)}');
 
+    function queueStatusPercent(total, value) {
+        return total > 0 && value > 0 ? ((value / total) * 100).toFixed(2) : '0.00';
+    }
+
     const queueData = [];
     let totalStatus = 0;
     let totalQueues = 0, totalSuccessfulQueue = 0, totalNew = 0, totalInProgress = 0, totalFailed = 0, totalAbandoned = 0, totalRetried = 0;
@@ -47,37 +51,37 @@ script.
         
     });
     queueData.push({
-        type : "#{__('Successful')} : " + (100 / (totalStatus / totalSuccessfulQueue)).toFixed(2) + '%',
+        type : "#{__('Successful')} : " + queueStatusPercent(totalStatus, totalSuccessfulQueue) + '%',
         value : totalSuccessfulQueue,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });
     queueData.push({
-        type : "#{__('New')} : " + (100 / (totalStatus / totalNew)).toFixed(2) + '%',
+        type : "#{__('New')} : " + queueStatusPercent(totalStatus, totalNew) + '%',
         value : totalNew,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });
     queueData.push({
-        type : "#{__('In Progess')} : " + (100 / (totalStatus / totalInProgress)).toFixed(2) + '%',
+        type : "#{__('In Progess')} : " + queueStatusPercent(totalStatus, totalInProgress) + '%',
         value : totalInProgress,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });
     queueData.push({
-        type : "#{__('Failed')} : " + (100 / (totalStatus / totalFailed)).toFixed(2) + '%',
+        type : "#{__('Failed')} : " + queueStatusPercent(totalStatus, totalFailed) + '%',
         value : totalFailed,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });
     queueData.push({
-        type : "#{__('Abandoned')} : " + (100 / (totalStatus / totalAbandoned)).toFixed(2) + '%',
+        type : "#{__('Abandoned')} : " + queueStatusPercent(totalStatus, totalAbandoned) + '%',
         value : totalAbandoned,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
     });
     queueData.push({
-        type : "#{__('Retried')} : " + (100 / (totalStatus / totalRetried)).toFixed(2) + '%',
+        type : "#{__('Retried')} : " + queueStatusPercent(totalStatus, totalRetried) + '%',
         value : totalRetried,
         totalQueuesValue : totalQueues,
         totalStatusValue : totalStatus
@@ -118,13 +122,33 @@ script.
         },
         label: {
             type: 'inner',
-            offset: '-50%',
+            offset: '-62%',
             style: {
             textAlign: 'center',
             fill: queuePieIs3D ? '#ffffff' : '#111827',
             },
             autoRotate: false,
             content: queuePieIs3D ? '{percentage}' : '{value}',
+        },
+        statistic: {
+            title: {
+                content: 'Total',
+                style: {
+                    fontSize: 16,
+                    fontWeight: 600,
+                    fill: '#475467',
+                    lineHeight: 22,
+                },
+            },
+            content: {
+                content: String(totalStatus),
+                style: {
+                    fontSize: 30,
+                    fontWeight: 800,
+                    fill: '#101828',
+                    lineHeight: 34,
+                },
+            },
         },
         color: queuePieColors,
         pieStyle: queuePieIs3D ? {
@@ -143,7 +167,7 @@ script.
                 }
             }
         } : undefined,
-        interactions: [{ type: 'element-selected' }, { type: 'element-active' }, { type: 'pie-statistic-active' }],
+        interactions: [{ type: 'element-selected' }, { type: 'element-active' }],
     });
 
         piePlotQueue.render(); 
@@ -289,37 +313,37 @@ script.
                             
                         });
                         queueDataFilter.push({
-                            type : "#{__('Successful')} : " + (100 / (totalStatus / totalSuccessfulQueue)).toFixed(2) + '%',
+                            type : "#{__('Successful')} : " + queueStatusPercent(totalStatus, totalSuccessfulQueue) + '%',
                             value : totalSuccessfulQueue,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
                         });
                         queueDataFilter.push({
-                            type : "#{__('New')} : " + (100 / (totalStatus / totalNew)).toFixed(2) + '%',
+                            type : "#{__('New')} : " + queueStatusPercent(totalStatus, totalNew) + '%',
                             value : totalNew,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
                         });
                         queueDataFilter.push({
-                            type : "#{__('In Progress')} : " + (100 / (totalStatus / totalInProgress)).toFixed(2) + '%',
+                            type : "#{__('In Progress')} : " + queueStatusPercent(totalStatus, totalInProgress) + '%',
                             value : totalInProgress,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
                         });
                         queueDataFilter.push({
-                            type : "#{__('Failed')} : " + (100 / (totalStatus / totalFailed)).toFixed(2) + '%',
+                            type : "#{__('Failed')} : " + queueStatusPercent(totalStatus, totalFailed) + '%',
                             value : totalFailed,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
                         });
                         queueDataFilter.push({
-                            type : "#{__('Abandoned')} : " + (100 / (totalStatus / totalAbandoned)).toFixed(2) + '%',
+                            type : "#{__('Abandoned')} : " + queueStatusPercent(totalStatus, totalAbandoned) + '%',
                             value : totalAbandoned,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
                         });
                         queueDataFilter.push({
-                            type : "#{__('Retried')} : " + (100 / (totalStatus / totalRetried)).toFixed(2) + '%',
+                            type : "#{__('Retried')} : " + queueStatusPercent(totalStatus, totalRetried) + '%',
                             value : totalRetried,
                             totalQueuesValue : totalQueues,
                             totalStatusValue : totalStatus
