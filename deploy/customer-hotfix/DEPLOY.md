@@ -12,25 +12,24 @@ Target: `C:\LAD` with `smartaggregator\` (backend) and `smartaggregator-ui\` (fr
 
 ---
 
-## 1. Frontend files  → `C:\LAD\smartaggregator-ui\app\`
+## 1. Frontend — 6 files → `C:\LAD\smartaggregator-ui\app\`
 
-Copy these 6 files over the existing ones (same relative paths):
+Copy over the existing files (same relative paths):
 
 | From (this bundle) | To |
 |---|---|
-| `smartaggregator-ui/app/rest/api.js`                     | `C:\LAD\smartaggregator-ui\app\rest\api.js` |
-| `smartaggregator-ui/app/controllers/rpa-dashboard.js`    | `C:\LAD\smartaggregator-ui\app\controllers\rpa-dashboard.js` |
-| `smartaggregator-ui/app/views/pages/rpa-dashboard.pug`   | `C:\LAD\smartaggregator-ui\app\views\pages\rpa-dashboard.pug` |
-| `smartaggregator-ui/app/views/partials/rpad-chart5.pug`  | `C:\LAD\smartaggregator-ui\app\views\partials\rpad-chart5.pug` |
-| `smartaggregator-ui/app/locales/en.json`                 | `C:\LAD\smartaggregator-ui\app\locales\en.json` |
-| `smartaggregator-ui/app/locales/tr.json`                 | `C:\LAD\smartaggregator-ui\app\locales\tr.json` |
+| `smartaggregator-ui/app/rest/api.js`                    | `…\app\rest\api.js` |
+| `smartaggregator-ui/app/controllers/rpa-dashboard.js`   | `…\app\controllers\rpa-dashboard.js` |
+| `smartaggregator-ui/app/views/pages/rpa-dashboard.pug`  | `…\app\views\pages\rpa-dashboard.pug` |
+| `smartaggregator-ui/app/views/partials/rpad-chart5.pug` | `…\app\views\partials\rpad-chart5.pug` |
+| `smartaggregator-ui/app/locales/en.json`               | `…\app\locales\en.json` |
+| `smartaggregator-ui/app/locales/tr.json`               | `…\app\locales\tr.json` |
 
-No `npm install` needed (no dependency changes).
+No `npm install` needed. Restart the frontend afterwards (`pm2 restart app` / restart the node process).
 
-## 2. Backend — patch one class in the jar
+## 2. Backend jar — patch one class → `C:\LAD\smartaggregator\`
 
-**Stop the backend first.** Then, from `C:\LAD\smartaggregator`, inject the patched class
-into the existing jar (needs a JDK on PATH for the `jar` tool):
+**Stop the backend first.**
 
 ```cmd
 cd C:\LAD\smartaggregator
@@ -38,29 +37,54 @@ copy smartaggregator.jar smartaggregator.jar.bak
 jar uf smartaggregator.jar -C "<bundle>\smartaggregator" BOOT-INF\classes\com\linktera\rpadashboard\component\impl\AsyncImpl.class
 ```
 
-No JDK on the box? Use the fully pre-patched `smartaggregator.jar` supplied alongside
-this bundle instead — back up the old one and drop the new one in place.
+No JDK on the box → replace the whole jar with the pre-patched `smartaggregator.jar`
+from this bundle (back up the old one first).
 
-## 3. Database — widen columns (once)
+## 3. Database
 
-With the backend still stopped:
+You need the wider columns (`SOURCE_TYPE`, `HOST_MACHINE_NAME`, `ROBOTS`, …).
+Pick **A** (keep data) or **B** (wipe — fine while testing).
+
+### Option A — keep existing data (run the ALTERs)
+
+Backend stopped:
 
 ```cmd
 cd C:\LAD\smartaggregator
 java -cp lib\h2-1.4.200.jar org.h2.tools.RunScript -url "jdbc:h2:file:./smartaggregator-db" -user sa -script "<bundle>\schema-upgrade.sql"
 ```
 
-(Adjust the `-url` if the DB file/path differs from `smartaggregator-db`.)
+Adjust `-url` if the DB file isn't `smartaggregator-db.mv.db` in this folder
+(search: `dir /s /b C:\LAD\*.mv.db`).
 
-## 4. Restart
+### Option B — wipe the DB and let it regenerate
 
-- Backend: start it with the customer's normal script.
-- Frontend: `pm2 restart app` (or restart the node process / Windows task).
+The fresh schema is created by the app; the wider columns and the seed data
+come from `config\data.sql`, so **you must also deploy the updated files below**
+and start the backend with the fixed launcher.
 
-## 5. Verify
-- Open the RPA dashboard, upload the Jobs Excel — progress bar runs, completes.
-- The working-hour / hourly robot runtime charts show bars.
+1. Deploy into `C:\LAD\smartaggregator\`:
+   - `config\data.sql`      (contains the column `ALTER`s + seed)
+   - `start_backend.cmd`    (fixed: correct working dir, absolute DB/seed paths,
+                             loads the H2 driver from `lib\`, `initialization-mode=always`)
+2. Stop the backend.
+3. Delete the DB files (find them first): `del C:\LAD\smartaggregator\smartaggregator-db.mv.db C:\LAD\smartaggregator\smartaggregator-db.trace.db`
+   — check `dir /s /b C:\LAD\*.mv.db` in case they live elsewhere.
+4. Start with the new launcher: `C:\LAD\smartaggregator\start_backend.cmd`
+5. On a fresh DB the login is the seed account: **`admin` / `123456`** (also `okardes` / `123456`).
+   Recreate any real users/roles in the UI.
+
+> If you are NOT using `start_backend.cmd`, make sure your launcher:
+> keeps `spring.datasource.initialization-mode=always`, runs with the working
+> directory where `smartaggregator-db` and `config\data.sql` resolve, and puts
+> `lib\h2-1.4.200.jar` on the classpath (`-Dloader.path=lib` with
+> `org.springframework.boot.loader.PropertiesLauncher`, not plain `-jar`).
+
+## 4. Restart & verify
+- Backend: start it. Frontend: restart it.
+- Upload the Jobs Excel — progress bar runs, completes.
+- Working-hour / hourly robot runtime charts show bars.
 - Hourly x-axis labels are readable (every 2nd hour on desktop).
 
-> Uploads **append** — they do not replace. If re-importing the same period,
-> clear `RPAD_JOBS` / `RPAD_DAILY_INTENSITY` first or rows will double up.
+> Uploads **append** — they do not replace. Re-importing the same period without
+> clearing `RPAD_JOBS` / `RPAD_DAILY_INTENSITY` first will double the rows.
