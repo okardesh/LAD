@@ -47,6 +47,17 @@ UPDATE app_users SET password = '$2a$10$TLblujSfrN3DIuNqitYPnOBLjlVbLQ0tHMxtnBvV
 UPDATE app_users SET password = '$2a$10$TLblujSfrN3DIuNqitYPnOBLjlVbLQ0tHMxtnBvVYPdcmiU2ME/RC' WHERE username = 'okardes';
 
 ALTER TABLE app_api_logs ALTER COLUMN response_exception CLOB;
+
+-- Widen RPAD_JOBS text columns: the entity defaults are too small for real
+-- UiPath Orchestrator exports (e.g. SOURCE_TYPE 'StudioDesktop', long hostnames).
+ALTER TABLE RPAD_JOBS ALTER COLUMN SOURCE_TYPE VARCHAR(100);
+ALTER TABLE RPAD_JOBS ALTER COLUMN HOST_MACHINE_NAME VARCHAR(255);
+ALTER TABLE RPAD_JOBS ALTER COLUMN JOB_PRIORITY VARCHAR(50);
+ALTER TABLE RPAD_JOBS ALTER COLUMN STATE VARCHAR(50);
+ALTER TABLE RPAD_JOBS ALTER COLUMN RELEASE_NAME VARCHAR(500);
+
+-- Saved chart-filter history stores a comma-joined robot list; 255 is too small.
+ALTER TABLE RPAD_HISTORY ALTER COLUMN ROBOTS VARCHAR(4000);
 INSERT INTO app_tables (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, name) VALUES (150, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 0, 1, random_uuid(), 'APP_SUBSIDIARY');
 INSERT INTO app_operations (id, created_by, created_time, last_updated_by, last_updated_time, luc, organization_id, status, uuid, method, path, table_id) VALUES (150, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP, 0, 0, 1, random_uuid(), 'POST', '/v1/subsidiary', 150);
 

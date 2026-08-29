@@ -45,15 +45,10 @@ function backendDateOnly(value) {
 }
 
 function normalizeUploadRequest(data) {
-    if (!data || data.table !== 'RPAD_JOBS' || !Array.isArray(data.list)) return data;
-    return {
-        ...data,
-        list: data.list.map(row => {
-            const normalized = {...row};
-            delete normalized.dataDate;
-            return normalized;
-        })
-    };
+    // The rpa-dashboard controller already normalizes RPAD_JOBS rows (including a
+    // dd/MM/yyyy dataDate, which the backend's autoDailyIntensity requires).
+    // Nothing to strip here.
+    return data;
 }
 
 if (!process._ladApiTransportErrorGuard) {

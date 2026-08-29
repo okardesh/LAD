@@ -305,6 +305,39 @@ block content
                 #exampleModal .upload-field + .upload-field { margin-top: 16px; }
             }
 
+            #exampleModal .upload-progress {
+                margin: 20px 0 0;
+            }
+            #exampleModal .upload-progress__label {
+                font-size: 13px;
+                color: #475467;
+                margin-bottom: 8px;
+                font-weight: 500;
+            }
+            #exampleModal .upload-progress__track {
+                height: 8px;
+                border-radius: 999px;
+                background: #e4e9f2;
+                overflow: hidden;
+            }
+            #exampleModal .upload-progress__bar {
+                height: 100%;
+                width: 0%;
+                border-radius: 999px;
+                background: #2f55d4;
+                transition: width .2s ease;
+            }
+            #exampleModal .upload-progress__bar.is-indeterminate {
+                width: 40% !important;
+                animation: rpadUploadIndet 1.1s ease-in-out infinite;
+            }
+            #exampleModal .upload-progress__bar.is-error { background: #d92d20; }
+            #exampleModal .upload-progress__bar.is-done { background: #12b76a; }
+            @keyframes rpadUploadIndet {
+                0%   { margin-left: -40%; }
+                100% { margin-left: 100%; }
+            }
+
             @keyframes rpadFadeUp {
                 from { opacity: 0; transform: translateY(6px); }
                 to { opacity: 1; transform: translateY(0); }
@@ -1875,6 +1908,10 @@ block content
                                                                 label.upload-file-trigger(for='dashboardFileInput') Browse
                                                             p.upload-file-hint XLSX and CSV files are supported.
                                                             #errorBlock.help-block
+                                                    .upload-progress#dashboardUploadProgress(hidden)
+                                                        .upload-progress__label#dashboardUploadProgressLabel
+                                                        .upload-progress__track
+                                                            .upload-progress__bar#dashboardUploadProgressBar
                                                     .row.mt-3
                                                         .col-12.d-flex.justify-content-end
                                                             button#dashboardUploadSubmit.btn.btn-primary(type='submit', name='action', value='import', disabled=true) #{__('Upload')}
@@ -2305,6 +2342,80 @@ block content
                                 dashboardUploadSubmit.disabled = !file;
                             });
                         }
+
+                        const dashboardUploadForm = dashboardUploadSubmit ? dashboardUploadSubmit.closest('form') : null;
+                        const upProgress = document.getElementById('dashboardUploadProgress');
+                        const upBar = document.getElementById('dashboardUploadProgressBar');
+                        const upLabel = document.getElementById('dashboardUploadProgressLabel');
+                        const upErr = document.getElementById('errorBlock');
+
+                        function setUpProgress(pct, text, state) {
+                            if (!upProgress) return;
+                            upProgress.hidden = false;
+                            upBar.className = 'upload-progress__bar' + (state ? ' is-' + state : '');
+                            if (state === 'indeterminate') {
+                                upBar.classList.add('is-indeterminate');
+                            } else {
+                                upBar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+                            }
+                            upLabel.textContent = text || '';
+                        }
+                        function resetUpProgress() {
+                            if (!upProgress) return;
+                            upProgress.hidden = true;
+                            upBar.className = 'upload-progress__bar';
+                            upBar.style.width = '0%';
+                            upLabel.textContent = '';
+                        }
+
+                        if (dashboardUploadForm && window.FormData && window.XMLHttpRequest) {
+                            dashboardUploadForm.addEventListener('submit', function (e) {
+                                const file = dashboardFileInput && dashboardFileInput.files && dashboardFileInput.files[0];
+                                if (!file) return; // let native validation handle it
+                                e.preventDefault();
+
+                                if (upErr) upErr.textContent = '';
+                                dashboardUploadSubmit.disabled = true;
+
+                                const fd = new FormData(dashboardUploadForm);
+                                fd.append('action', 'import');
+                                fd.append('ajax', '1');
+
+                                const xhr = new XMLHttpRequest();
+                                xhr.open('POST', dashboardUploadForm.getAttribute('action') || '/rpa-dashboard');
+                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                                xhr.upload.onprogress = function (evt) {
+                                    if (evt.lengthComputable) {
+                                        const pct = Math.round((evt.loaded / evt.total) * 100);
+                                        setUpProgress(pct, '#{__("Uploading file")}… ' + pct + '%');
+                                    }
+                                };
+                                xhr.upload.onload = function () {
+                                    setUpProgress(100, '#{__("Processing on server")}…', 'indeterminate');
+                                };
+                                xhr.onload = function () {
+                                    let body = {};
+                                    try { body = JSON.parse(xhr.responseText); } catch (_) {}
+                                    if (xhr.status >= 200 && xhr.status < 300 && body.ok) {
+                                        setUpProgress(100, body.message || '#{__("Done")}', 'done');
+                                        setTimeout(function () { window.location.href = '/rpa-dashboard'; }, 700);
+                                    } else {
+                                        const msg = body.message || '#{__("Upload failed. Please try again.")}';
+                                        setUpProgress(100, msg, 'error');
+                                        if (upErr) upErr.textContent = msg;
+                                        dashboardUploadSubmit.disabled = false;
+                                    }
+                                };
+                                xhr.onerror = function () {
+                                    setUpProgress(100, '#{__("Upload failed. Please try again.")}', 'error');
+                                    dashboardUploadSubmit.disabled = false;
+                                };
+                                xhr.send(fd);
+                            });
+                        }
+
+                        $('#exampleModal').on('hidden.bs.modal', resetUpProgress);
 
                         function scrollAiMessagesToBottom() {
                             const el = document.getElementById('dashboardAiMessages');

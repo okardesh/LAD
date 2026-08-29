@@ -74,14 +74,52 @@ function formatUploadDateOnly(value) {
     return `${day}/${month}/${year}`;
 }
 
+// Fields the backend RpadJobsDto accepts. Anything else (e.g. "localSystemAccount",
+// "robotName") makes the backend upload fail with an "Unrecognized field" 500,
+// so we drop unknown columns before sending.
+const RPAD_JOBS_ALLOWED_KEYS = new Set([
+    'jobPriority', 'stoppedCount', 'totalJobTime', 'endTime', 'lastDataTime',
+    'faultedCount', 'startTime', 'state', 'lastEndTime', 'lastUpdater',
+    'createdTime', 'freeTime', 'lastJobsDate', 'lastDate', 'subsidiaryId',
+    'hostMachineName', 'creator', 'lastDataDate', 'lastUpdatedTime', 'sourceType',
+    'dataDate', 'luc', 'uuid', 'fullTime', 'count', 'successfulCount',
+    'lastStartTime', 'status', 'histories', 'releaseName'
+]);
+
+const DATETIME_RE = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+const DATE_RE = /^\d{2}\/\d{2}\/\d{4}$/;
+
 function normalizeJobsUploadRows(rows) {
-    return rows.map(row => {
-        const normalized = {...row};
-        normalized.startTime = formatUploadDate(normalized.startTime, true);
-        normalized.endTime = formatUploadDate(normalized.endTime, true);
-        delete normalized.dataDate;
-        return normalized;
+    const normalized = rows.map(row => {
+        const out = {};
+        Object.keys(row).forEach(key => {
+            if (RPAD_JOBS_ALLOWED_KEYS.has(key)) out[key] = row[key];
+        });
+        out.startTime = formatUploadDate(out.startTime, true);
+        out.endTime = formatUploadDate(out.endTime, true);
+        // Backend expects dd/MM/yyyy here. Fall back to the job's start date
+        // when the column is missing/blank.
+        const rawDataDate = `${out.dataDate || ''}`.trim();
+        out.dataDate = formatUploadDateOnly(rawDataDate || out.startTime);
+        return out;
     });
+
+    // The backend's autoDailyIntensity step walks each day from startTime to
+    // endTime and formats dataDate, calling Date methods with no null guard.
+    // Rows missing any of the three (e.g. Pending/Running jobs in a UiPath
+    // export) throw "date must not be null" and abort the whole upload, so we
+    // drop them here.
+    const usable = normalized.filter(r =>
+        DATETIME_RE.test(`${r.startTime || ''}`) &&
+        DATETIME_RE.test(`${r.endTime || ''}`) &&
+        DATE_RE.test(`${r.dataDate || ''}`)
+    );
+
+    const dropped = normalized.length - usable.length;
+    if (dropped > 0) {
+        console.log(`[upload] dropped ${dropped} RPAD_JOBS row(s) with missing/invalid start, end or data date`);
+    }
+    return usable;
 }
 
 const endpoints = [
@@ -599,7 +637,11 @@ exports.getRpaDashboard = async (req, res) => {
         }
 
         render.info = markdown.toHTML(req.__('info.'.concat(render.page)));
-        render.models = endpoints.map(x => x.model);
+        // Daily Intensity is derived automatically from the Jobs upload
+        // (backend autoDailyIntensity), so it is not offered as a manual upload.
+        render.models = endpoints
+            .filter(x => x.table !== 'RPAD_DAILY_INTENSITY')
+            .map(x => x.model);
         const pageRender = {
             filters : filters,
             arrangement : arrangement,
@@ -647,22 +689,35 @@ exports.getRpaDashboard = async (req, res) => {
 
 
 exports.postRpaDashboard = async (req, res) => {
+    // When the upload form posts via XHR (progress bar), answer with JSON instead
+    // of a flash + redirect so the client can keep the modal open and react.
+    const wantsJson = req.xhr || String(req.body.ajax) === '1';
+    const settle = (kind, msg, params = []) => {
+        if (wantsJson) {
+            const text = (req.app.locals.message || ((m) => m))(req.__(msg), params);
+            return res.json({ok: kind === 'info', kind, message: text});
+        }
+        req.flash(kind, {msg, params});
+        return res.redirect(req.path);
+    };
+
     try {
         const action = endpoints.find(e => toCamelCase(e.model) === req.body.model),
             file = req.file,
             invalid = validator(file);
 
         if (invalid) {
-            req.flash('errors', {msg: invalid});
-            return res.redirect(req.path);
+            return settle('errors', invalid);
         }
 
         if (!action) {
-            req.flash('errors', {msg: 'Group selection not detected or invalid. Please try again.'});
-            return res.redirect(req.path);
+            return settle('errors', 'Group selection not detected or invalid. Please try again.');
         }
 
-        const wb = XLSX.read(file.buffer, {type: 'buffer', dateNF: 'dd/mm/yyyy'});
+        // cellDates + a datetime dateNF so real Excel date/time cells keep their
+        // time component (a plain 'dd/mm/yyyy' truncates every timestamp to midnight,
+        // which breaks hourly/daily-intensity charts).
+        const wb = XLSX.read(file.buffer, {type: 'buffer', cellDates: true, dateNF: 'yyyy-mm-dd hh:mm:ss'});
         const firstSheet = wb.Sheets[wb.SheetNames[0]];
 
         let json = XLSX.utils.sheet_to_json(firstSheet, {
@@ -705,11 +760,9 @@ exports.postRpaDashboard = async (req, res) => {
         }
 
         console.log('[upload] model:', req.body.model, '| action.table:', action.table, '| rows:', normalizedJson.length);
-        if (normalizedJson.length > 0) console.log('[upload] first row keys:', Object.keys(normalizedJson[0]));
 
         if (normalizedJson.length === 0) {
-            req.flash('errors', {msg: 'The Excel file appears to be empty or could not be parsed. Please check the file and try again.'});
-            return res.redirect(req.path);
+            return settle('errors', 'The Excel file appears to be empty or could not be parsed. Please check the file and try again.');
         }
 
         if (action.table === 'RPAD_DAILY_INTENSITY') {
@@ -720,10 +773,7 @@ exports.postRpaDashboard = async (req, res) => {
             const missing = requiredHeaders.filter(k => !rowKeys.includes(k));
 
             if (missing.length > 0) {
-                req.flash('errors', {
-                    msg: `Daily Intensity format is invalid. Missing column(s): ${missing.join(', ')}`
-                });
-                return res.redirect(req.path);
+                return settle('errors', `Daily Intensity format is invalid. Missing column(s): ${missing.join(', ')}`);
             }
         }
 
@@ -736,8 +786,7 @@ exports.postRpaDashboard = async (req, res) => {
         const statusCode = data && data.statusCode;
 
         if (data && data.error) {
-            req.flash('errors', {msg: data.error});
-            return res.redirect(req.path);
+            return settle('errors', data.error);
         }
 
         if (statusCode === 200) {
@@ -745,35 +794,24 @@ exports.postRpaDashboard = async (req, res) => {
                 if (req.session) req.session.uploadPreviewJobs = normalizedJson;
                 if (req.user && req.user.uuid) await saveUploadPreviewJobs(req.user.uuid, normalizedJson);
             }
-            req.flash('info', {
-                msg: req.__('# row(s) have been processed.'),
-                params: [json.length]
-            });
-            return res.redirect(req.path);
+            return settle('info', '# row(s) have been processed.', [json.length]);
         } else if (statusCode === 406) {
             const arr = ((data && data.error) || '').split(' - ');
-            req.flash('errors', {
-                msg: arr[0] + ': #',
-                params: [arr[1]]
-            });
-            return res.redirect(req.path);
+            return settle('errors', arr[0] + ': #', [arr[1]]);
         } else if (statusCode === 400) {
             let errMsg = (data && data.error) ? data.error : 'Bad request – please check the file format and try again.';
             if (errMsg === 'Request is incorrect.' || errMsg === 'İstek hatalı.') {
                 errMsg = 'İstek hatalı. Lütfen doğru modeli (Jobs/Queues/Daily Intensity) seçtiğinizden, Excel dosyasının ilk sayfasında başlık satırı + en az 1 veri satırı olduğundan ve dosyanın .xlsx formatında olduğundan emin olun.';
             }
-            req.flash('errors', {msg: errMsg});
-            return res.redirect(req.path);
+            return settle('errors', errMsg);
         } else {
             const errMsg = (data && data.error) ? data.error : 'An unknown error has occurred. Please contact us.';
-            req.flash('errors', {msg: errMsg});
-            return res.redirect(req.path);
+            return settle('errors', errMsg);
         }
     } catch (err) {
         console.error('[rpa-dashboard] postRpaDashboard error:', err);
         if (!res.headersSent) {
-            req.flash('errors', {msg: 'Upload failed. Please try again.'});
-            return res.redirect('/rpa-dashboard');
+            return settle('errors', 'Upload failed. Please try again.');
         }
     }
 };
